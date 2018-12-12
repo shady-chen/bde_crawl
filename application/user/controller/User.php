@@ -16,7 +16,13 @@ class User extends Index
         return $this->fetch();
     }
 
-
+    /**
+     * 用户登录
+     * @return \think\response\Json
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
     public function login(){
         $params = $this->request->param();
 
@@ -51,7 +57,13 @@ class User extends Index
 
     }
 
-
+    /**
+     * 用户注册
+     * @return \think\response\Json
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
     public function register(){
 
         $params = $this->request->param();
