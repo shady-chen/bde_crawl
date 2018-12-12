@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>测试</title>
+    <script src="/static/js/jquery.js"></script>
+</head>
+<body>
+
+</body>
+
+<script>
+    $(function(){
+
+        $.ajax({
+            url:'/user/user/register',
+            type:'post',
+            data:{
+                phone:15880630261,
+                code:8888,
+                invitation_code:15880630262,
+                password:'123'
+            },
+            success:function(res){
+                console.log(res);
+            },
+            error:function(){
+                console.log('failed')
+            }
+        })
+
+    })
+</script>
+</html>
