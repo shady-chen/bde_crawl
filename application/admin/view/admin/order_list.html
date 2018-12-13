@@ -1,0 +1,118 @@
+﻿{include file="public/head" /}
+
+
+<section class="Hui-article-box">
+	<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页
+		<span class="c-gray en">&gt;</span>
+		订单管理
+		<span class="c-gray en">&gt;</span>
+		订单列表
+		<a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a>
+	</nav>
+	<div class="Hui-article">
+		<article class="cl pd-20">
+			<div class="text-c">
+
+				<input type="text" name=""  placeholder=" 订单名称" style="width:250px" class="input-text">
+				<button name=""  class="btn btn-success" type="submit"><i class="Hui-iconfont">&#xe665;</i> 搜订单</button>
+			</div>
+			<!--<div class="cl pd-5 bg-1 bk-gray mt-20">-->
+				<!--<span class="l">-->
+				<!--<a class="btn btn-primary radius" data-title="添加订单" _href="article-add.html" onclick="window.location.href = 'article_add.html'" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 添加订单</a>-->
+				<!--</span>-->
+				<!--<span class="r">共有数据：<strong>54</strong> 条</span>-->
+			<!--</div>-->
+			<div class="mt-20">
+				<table class="table table-border table-bordered table-bg table-hover table-sort">
+					<thead>
+						<tr class="text-c">
+							<th width="40">订单号</th>
+							<th width="90">用户名</th>
+							<th width="50">红包期数</th>
+							<th width="80">金额</th>
+							<th width="120">状态</th>
+							<th width="75">凭证图片</th>
+							<th width="60">备注</th>
+							<th width="60">订单时间</th>
+							<th width="120">操作</th>
+						</tr>
+					</thead>
+					<tbody>
+					{volist name="data" id="vo"}
+						<tr class="text-c">
+							<td>{$vo.id}</td>
+							<td>{$vo.user_phone}</td>
+							<td>{$vo.packet_expect}</td>
+							<td>{$vo.money}</td>
+							<td class="td-status">
+								{switch name="vo.status" }
+									{case value="0"}
+										<span class="label label-default radius">已过期</span>
+									{/case}
+									{case value="1" }
+										<span class="label label-danger radius">待付款</span>
+									{/case}
+									{case value="2" }
+										<span class="label label-primary radius">已付款，审核中</span>
+									{/case}
+									{case value="3" }
+										<span class="label label-success radius">审核通过</span>
+									{/case}
+									{case value="4" }
+										<span class="label label-warning radius">审核不通过</span>
+									{/case}
+									{default /}未知
+								{/switch}
+							</td>
+							<td>
+								{if condition="$vo.img_url"}
+										<img src="{$vo.img_url}" alt="">
+									{else /} 尚未上传凭证
+								{/if}
+							</td>
+							<td>
+
+								{if condition="$vo.remarks"}
+								    <p>{$vo.remarks}</p>
+									{else /} 用户无备注
+								{/if}
+							</td>
+							<td>{$vo.create_time}</td>
+							<td class="f-14 td-manage">
+								{switch name="vo.status" }
+									{case value="0"}
+										<span class="label label-default radius">已过期，无法操作</span>
+									{/case}
+									{case value="1" }
+										<span class="label label-danger radius">待付款，无法操作</span>
+									{/case}
+									{case value="2" }
+										<button class="btn btn-danger radius">通过审核</button>
+									{/case}
+									{case value="3" }
+										<span class="label label-success radius">审核已通过，无法操作</span>
+									{/case}
+									{case value="4" }
+										<span class="label label-warning radius">审核不通过，无法操作</span>
+									{/case}
+									{default /}未知
+								{/switch}
+
+							</td>
+						</tr>
+					</tbody>
+					{/volist}
+				</table>
+			</div>
+
+			<div class="pagination">{$page}</div>
+
+		</article>
+	</div>
+</section>
+
+{include file="public/footer" /}
+
+<script>
+
+</script>

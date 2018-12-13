@@ -32,6 +32,27 @@ class Date extends Index
     }
 
 
+
+    /**
+     * 用户获取订单详情页面
+     */
+
+    public function oneOrder(){
+       $order_id = $this->request->param('order_id');
+       $user = session('user');
+       $appOrder = new AppOrder();
+       $data = $appOrder->where(['uid'=>$user['id'],'id'=>$order_id])->find();
+       return json($data);
+    }
+
+
+    /**
+     * 上传凭证的接口
+     * @return \think\response\Json
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
     public function changeOrderState(){
         $user = session('user');
         $uid= $user['id'];

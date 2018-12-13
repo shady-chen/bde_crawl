@@ -64,7 +64,7 @@ class Test extends Command
             Timer::add($time_interval, function()use($http_worker)
             {
                 $data = $this->init();
-                $data = $data[0];
+                //$data = $data[0];
 
                 //获得当日0点的时间戳
                 $todaytimestemp = strtotime(date("Y-m-d"), time());
@@ -76,9 +76,12 @@ class Test extends Command
                 $appPacket = new AppPacket(); //要写数据库的话 这行代码要放在while循环中
                 for ($i = 0; $i < (($endtime - $startime) / ($data['how_long'])); $i++) {
                     if ($now == ($todaytimestemp + $startime) + ($i * $data['how_long'])) {
-
+                        $e = $i+1;
+                        if($e<10){$e = '000'.$e;}
+                        if($e>=10&&$e<100){$e = '00'.$e;}
+                        if($e>=100&&$e<1000){$e = '0'.$e;}
                         $appPacket->save([
-                            'expect' => date("Y") . date("m") . date("d") . ($i + 1),
+                            'expect' => date("Y") . date("m") . date("d") . $e,
                             'money' => $data['per_total'],
                             'amount' => $data['how_many'],
                             'create_time' => time()
@@ -86,8 +89,9 @@ class Test extends Command
                         echo(date("Y") . date("m") . date("d") . ($i + 1) . " have created!\n");
                         foreach($http_worker->connections as $connection)
                         {
+
                             $connection->send(json_encode([
-                                'expect' => date("Y") . date("m") . date("d") . ($i + 1),
+                                'expect' => date("Y") . date("m") . date("d") . $e,
                                 'money' => $data['per_total'],
                                 'amount' => $data['how_many'],
                                 'create_time' => time()

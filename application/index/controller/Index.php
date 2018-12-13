@@ -97,6 +97,8 @@ class Index extends Controller
         $appOrder->save([
             'uid'=>$user['id'],
             'packet_id'=>$data['id'],
+            'user_phone'=>$user['phone'],
+            'packet_expect'=>$data['expect'],
             'money'=>round($setting['per_total']/$setting['how_many']),
             'status'=>1,
             'img_url'=>'',
