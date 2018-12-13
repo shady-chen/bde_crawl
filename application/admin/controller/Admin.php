@@ -70,6 +70,36 @@ class Admin extends Base
         return $this->fetch();
     }
 
+    /**
+     * 系统添加银行卡
+     * @return mixed
+     */
+    public function banks_add(){
+        return $this->fetch();
+    }
+
+    /**
+     * 系统添加银行卡
+     * @return json
+     */
+    public function doAddBanks(){
+        $params = $this->request->param();
+
+        $SystemBanks = new SystemBanks();
+        $data = [
+            'bank_num'=>$params['bank_num'],
+            'bank_which'=>$params['bank_which'],
+            'bank_where'=>$params['bank_where'],
+            'name'=>$params['name'],
+            'is_use'=>1,
+            'create_time'=>time(),
+        ];
+        $SystemBanks->save($data);
+
+        return json(['msg'=>'添加成功','status'=>200]);
+
+    }
+
 
 
 }

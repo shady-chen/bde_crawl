@@ -13,10 +13,15 @@
 		<article class="cl pd-20">
 			<div class="text-c">
 
-				<input type="text" name=""  placeholder=" 订单名称" style="width:250px" class="input-text">
+				<input type="text" name=""  placeholder="银行卡" style="width:250px" class="input-text">
 				<button name=""  class="btn btn-success" type="submit"><i class="Hui-iconfont">&#xe665;</i> 搜订单</button>
 			</div>
-
+			<div class="cl pd-5 bg-1 bk-gray mt-20">
+				<span class="l">
+				<a class="btn btn-primary radius" data-title="添加银行卡" _href="article-add.html"
+				   onclick="window.location.href = 'banks_add.html'" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 添加银行卡</a>
+				</span>
+			</div>
 			<div class="mt-20">
 				<table class="table table-border table-bordered table-bg table-hover table-sort">
 					<thead>
@@ -25,17 +30,25 @@
 							<th width="90">名称</th>
 							<th width="50">账号</th>
 							<th width="80">开户行</th>
+							<th width="60">姓名</th>
 							<th width="60">添加时间</th>
 							<th width="120">操作</th>
 						</tr>
 					</thead>
 					<tbody>
+					{volist name="data" id="vo"}
 						<tr class="text-c">
-							<td></td>
-							<td></td>
-							<td></td>
-							<td></td>
+							<td>{$vo.id}</td>
+							<td>{$vo.bank_which}</td>
+							<td>{$vo.bank_num}</td>
+							<td>{$vo.bank_where}</td>
+							<td>{$vo.name}</td>
+							<td>{$vo.create_time}</td>
+							<td>
+								<button class="btn btn-danger">删除</button>
+							</td>
 						</tr>
+					{/volist}
 					</tbody>
 
 				</table>

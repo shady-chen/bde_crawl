@@ -59,7 +59,7 @@ class Date extends Index
 
         $orderId = $this->request->param('order_id');
         $appOrder = new AppOrder();
-        $order = $appOrder->where(['id'=>$orderId])->select();
+        $order = $appOrder->where(['id'=>$orderId])->find();
         if(!$order){
             return json(['msg'=>'订单异常！','status'=>0]);
         }
