@@ -1,0 +1,106 @@
+{include file="public/head" /}
+
+<section class="Hui-article-box">
+    <nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页
+        <span class="c-gray en">&gt;</span>
+        系统管理
+        <span class="c-gray en">&gt;</span>
+        系统设置
+        <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a>
+    </nav>
+    <div>
+        <form class="form form-horizontal" id="form-article-add">
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-2">奖金的阶级：</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="number" id="bonus_rule" value="{$data.bonus_rule}">
+                </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-2">一次奖励多少：</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="number" id="per_money" value="{$data.per_money}">
+                </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-2">开始发单时间：(时)</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="text" id="star_time" value="{$data.star_time}" onkeyup="value=value.replace(/[^\d]/g,'')">
+                </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-2">停止发单时间：(时)</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="text" id="end_time" value="{$data.end_time}" onkeyup="value=value.replace(/[^\d]/g,'')">
+                </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-2">每隔多久发一次：(秒)</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="text" id="how_long" value="{$data.how_long}" onkeyup="value=value.replace(/[^\d]/g,'')">
+                </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-2">每次发的总金额：</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="number" id="per_total" value="{$data.per_total}">
+                </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-2">每次发多少个：</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="text" id="how_many" value="{$data.how_many}" onkeyup="value=value.replace(/[^\d]/g,'')">
+                </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-2">单次佣金：</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="number" id="bunus_money" value="{$data.bunus_money}">
+                </div>
+            </div>
+            <div class="row cl">
+                <div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-2">
+                    <div  class="btn btn-primary radius" onclick="updateSetting()" >
+                        <i class="Hui-iconfont">&#xe632;</i> 提交修改
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+{include file="public/footer" /}
+
+<script>
+    function updateSetting(){
+        $.ajax({
+            url:'/admin/admin/system_base_update',
+            type:'post',
+            data:{
+                bonus_rule:$('#bonus_rule').val(),
+                per_money:$('#per_money').val(),
+                star_time:$('#star_time').val(),
+                per_total:$('#per_total').val(),
+                how_many:$('#how_many').val(),
+                end_time:$('#end_time').val(),
+                how_long:$('#how_long').val(),
+                bunus_money:$('#bunus_money').val(),
+
+
+            },
+            success:function(res){
+                if(res.status == 200)
+                {
+                    alert(res.msg);
+                }
+                else{
+                    alert('修改失败!  ');
+                }
+            },
+            error:function(error){
+                alert('发生未知错误！');
+            }
+        });
+        return false;
+    }
+</script>
