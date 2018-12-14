@@ -13,6 +13,7 @@ namespace app\admin\controller;
 
 use app\index\model\AppOrder;
 use app\admin\model\SystemBanks;
+use app\index\model\SystemSetting;
 
 
 class Admin extends Base
@@ -99,7 +100,51 @@ class Admin extends Base
         return json(['msg'=>'添加成功','status'=>200]);
 
     }
+    /**
+     * 跳转系统设置页面
+     */
+    public function system_base(){
+        $sys_setting = new SystemSetting();
+        $data = $sys_setting->find();
+        $this->assign('data',$data);
+        return $this->fetch();
 
+    }
+    /**
+     * 系统设置的修改
+     */
+    public function system_base_update(){
+        $params = $this->request->param();
+        $sys_setting = new SystemSetting();
+        if($params['bonus_rule']<=0){
+            return json(['msg'=>'阶级金额不能小于0','status'=>0]);
+        }
+        if($params['star_time']<0 || $params['star_time']>=$params['end_time'] || $params['end_time']>23){
+            return json(['msg'=>'开始时间不能大于结束时间','status'=>0]);
+        }
+        if($params['per_total']<=0){
+            return json(['msg'=>'发包总金额不能小于0','status'=>0]);
+        }
+        if($params['how_many']<=0){
+            return json(['msg'=>'发包不能为小于1','status'=>0]);
+        }
+        if($params['how_long']<=0){
+            return json(['msg'=>'发包间隔时间不能小于0','status'=>0]);
+        }
+        $data = [
+            'bonus_rule'=>$params['bonus_rule'],
+            'per_money'=>$params['per_money'],
+            'star_time'=>$params['star_time'],
+            'per_total'=>$params['per_total'],
+            'how_many'=>$params['how_many'],
+            'end_time'=>$params['end_time'],
+            'how_long'=>$params['how_long'],
+            'bunus_money'=>$params['bunus_money'],
+        ];
+
+        $sys_setting->where(['id'=>1])->update($data);
+        return json(['msg'=>'修改成功','status'=>200]);
+    }
 
 
 }
