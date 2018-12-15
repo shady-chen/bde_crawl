@@ -2,6 +2,7 @@
 
 namespace app\index\controller;
 
+use app\admin\model\SystemBanks;
 use app\index\model\AppOrder;
 use app\index\model\AppPacket;
 use think\Controller;
@@ -93,6 +94,12 @@ class Index extends Controller
         $SystemSetting = new SystemSetting();
         $setting = $SystemSetting->where('id', 1)->find();
 
+        $SystemBanks = new SystemBanks();
+        $banks = $SystemBanks->where(['is_use'=>1])->select();
+
+        $coun = count($banks);
+        $ran = rand(0,$coun-1);
+
         //存入order表中
         $appOrder->save([
             'uid'=>$user['id'],
@@ -104,16 +111,25 @@ class Index extends Controller
             'img_url'=>'',
             'remarks'=>'',
             'create_time'=>time(),
+            'sys_bank_num'=>$banks[$ran]['bank_num'],
+            'sys_bank_which'=>$banks[$ran]['bank_which'],
+            'sys_bank_where'=>$banks[$ran]['bank_where'],
+            'sys_name'=>$banks[$ran]['name'],
         ]);
 
         return json(['msg'=>'您已成功抢到'. $data['expect'] .'期的红包,订单号为'.$data['id'],'status'=>200,'amount'=>((int)$data['amount'])-1]);
 
-
-
-
     }
 
-
+    /**
+     * 根据ID找红包
+     */
+    public function findPackById(){
+        $id = $this->request->param("id");
+        $appOrder = new AppOrder();
+        $data = $appOrder->where(['id'=>$id])->find();
+        return json(['data'=>$data,'status'=>200]);
+    }
 
 
 

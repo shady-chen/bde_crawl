@@ -42,4 +42,5 @@ class User extends Base
         session('admin',$user);
         return json(['msg'=>'登录成功！','status'=>200]);
     }
+
 }

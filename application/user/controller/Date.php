@@ -79,7 +79,7 @@ class Date extends Index
                 return json(['msg'=>'请选择上传您的凭证文件','status'=>0]);
             }
             // 移动到框架应用根目录/public/uploads/ 目录下
-            $info = $file->move(ROOT_PATH.'public'.DS.'upload');
+            $info = $file->move(ROOT_PATH.'public'.DS.'upload'.DS);
             //如果不清楚文件上传的具体键名，可以直接打印$info来查看
             //获取文件（文件名），$info->getFilename()  ***********不同之处，笔记笔记哦
             //获取文件（日期/文件名），$info->getSaveName()  **********不同之处，笔记笔记哦

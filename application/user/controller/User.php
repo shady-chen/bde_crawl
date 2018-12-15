@@ -75,12 +75,21 @@ class User extends Index
             return json(['msg'=>'手机号码格式不正确','status'=>0]);
         }
 
+
         //判断手机号是否已注册
         $AppUser = new AppUser();
         $isExist = $AppUser->where(['phone'=>$phone])->find();
         if($isExist){
             return json(['msg'=>'该手机号已注册！','status'=>0]);
         }
+
+        //判斷邀請碼是否有效
+        $invitation_code = $params['invitation_code'];
+        $isExist2 = $AppUser->where(['invitation_code'=>$invitation_code])->find();
+        if(!$isExist2){
+            return json(['msg'=>'邀请码不存在！','status'=>0]);
+        }
+
         //判断验证码
         $code = $params['code'];
         if($code != 8888){
@@ -104,8 +113,20 @@ class User extends Index
             'update_time'=>time(),
             'update_what'=>'用户自己注册'
         ];
+
+        $data2 = [
+            'sons'=>$isExist2['id']+1,
+        ];
         $AppUser->save($data);
+        $AppUser->where(['id'=>$isExist2['id']])->update($data2);
 
         return json(['msg'=>'注册成功','status'=>200]);
+    }
+    
+    /**
+     * 获取用户session
+     */
+    public function  getSessionUser(){
+        return json(session('user'));
     }
 }

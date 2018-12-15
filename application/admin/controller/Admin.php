@@ -14,6 +14,7 @@ namespace app\admin\controller;
 use app\index\model\AppOrder;
 use app\admin\model\SystemBanks;
 use app\index\model\SystemSetting;
+use app\user\model\AppUser;
 
 
 class Admin extends Base
@@ -145,6 +146,54 @@ class Admin extends Base
         $sys_setting->where(['id'=>1])->update($data);
         return json(['msg'=>'修改成功','status'=>200]);
     }
+    /**
+     * 會員列表
+     */
+    public function user_list(){
+        $appUser = new AppUser();
+        $data = $appUser->where(['type'=>1])->where('state','neq','0')->order('create_time desc')->paginate(10);
+        $this->assign('data',$data);
+        $this->assign('page',$data->render());
+        return $this->fetch();
+    }
+    /**
+     * 用戶修改
+     */
+    public function updateUser(){
+        $id = $this->request->param('id');
+        $appUser = new AppUser();
+        $data = $appUser->where(['id'=>$id])->find();
 
+        return json(['data'=>$data,'status'=>200]);
+    }
+    /**
+     * 保存用户
+     */
+    public function saveUpdateUser(){
+        $param = $this->request->param();
+        $appUser = new AppUser();
+        $id=$param['id'];
+        $data = [
 
+            unclear_money=>$param['unclear_money'],
+            bonus=>$param['bonus'],
+            today_total=>$param['today_total'],
+            state=>$param['state'],
+        ];
+        $appUser->where(['id'=>$id])->update($data);
+    }
+    /**
+     * 用戶刪除
+     */
+    public function  deleteUser(){
+        $id = $this->request->param('id');
+        $appUser = new AppUser();
+
+        $data = [
+            'state'=>0,
+        ];
+
+        $appUser->where(['id'=>$id])->update($data);
+        return json(['msg'=>'刪除成功','status'=>200]);
+    }
 }

@@ -1,0 +1,208 @@
+{include file="public/head" /}
+
+
+<section class="Hui-article-box">
+
+    <nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页
+        <span class="c-gray en">&gt;</span>
+        会员管理
+        <span class="c-gray en">&gt;</span>
+        会员列表
+        <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a>
+    </nav>
+    <div class="Hui-article">
+        <article class="cl pd-20">
+            <div class="text-c">
+
+                <input type="text" name=""  placeholder="手机号码" style="width:250px" class="input-text">
+                <button name=""  class="btn btn-success" type="submit"><i class="Hui-iconfont">&#xe665;</i> 搜用戶</button>
+            </div>
+            <!--<div class="cl pd-5 bg-1 bk-gray mt-20">-->
+            <!--<span class="l">-->
+            <!--<a class="btn btn-primary radius" data-title="添加订单" _href="article-add.html" onclick="window.location.href = 'article_add.html'" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 添加订单</a>-->
+            <!--</span>-->
+            <!--<span class="r">共有数据：<strong>54</strong> 条</span>-->
+            <!--</div>-->
+            <div class="mt-20">
+                <table class="table table-border table-bordered table-bg table-hover table-sort">
+                    <thead>
+                    <tr class="text-c">
+                        <th width="40">用戶id</th>
+                        <th width="90">用户名</th>
+                        <th width="50">用户余额</th>
+                        <th width="80">冻结金额</th>
+                        <th width="80">总奖金金额</th>
+                        <th width="120">今天打码数</th>
+                        <th width="120">用戶邀请码</th>
+                        <th width="75">下线数量</th>
+                        <th width="60">注册时间</th>
+                        <th width="60">状态</th>
+                        <th width="120">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {volist name="data" id="vo"}
+                    <tr class="text-c">
+                        <td>{$vo.id}</td>
+                        <td>{$vo.phone}</td>
+                        <td>{$vo.money}</td>
+                        <td>{$vo.unclear_money}</td>
+                        <td>{$vo.bonus}</td>
+                        <td>{$vo.today_total}</td>
+                        <td>{$vo.invitation_code}</td>
+                        <td>{$vo.sons}</td>
+                        <td>{$vo.create_time}</td>
+                        <td>
+                            {switch name="vo.state" }
+                                {case value="0"}
+                                    <span class="label label-default radius">冻结</span>
+                                {/case}
+                                {case value="1"}
+                                    <span class="label label-default radius">正常</span>
+                                {/case}
+                                {case value="2"}
+                                    <span class="label label-default radius">不能抢包</span>
+                                {/case}
+                                {default /}未知
+                            {/switch}
+                        </td>
+                        <td class="f-14 td-manage">
+                            <button class="btn btn-success radius" onclick="updateUser({$vo.id})">修改</button>
+                            <button class="btn btn-success radius" onclick="deleteUser({$vo.id})">刪除</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                    {/volist}
+                </table>
+            </div>
+
+            <div class="pagination">{$page}</div>
+
+        </article>
+    </div>
+</section>
+
+{include file="public/footer" /}
+
+<script>
+    function updateUser(id){
+        $.ajax({
+            url:'/admin/admin/updateUser',
+            type:'post',
+            data:{
+                id:id
+
+            },
+            success:function(res){
+                if(res.status == 200)
+                {
+                    layer.open({
+                        skin: 'alert-skin',//弹出层皮肤，可自定义也可用官方
+                        title: ['用户修改', 'color:rgb(139, 181, 219);'],//弹出层title,数组右半部份设置title样式
+                        area: 'auto',
+                        maxWidth: 800,
+                        // maxHeight:1000,
+                        btn: ['确定修改', '取消'],//设置底部按钮
+                        btn1: function () {
+                            $.ajax({
+                                url:'/admin/admin/saveUpdateUser',
+                                type:'post',
+                                data:{
+                                    id:$('#user_id').val(),
+                                    unclear_money:$('#user_unclear_money').val(),
+                                    bonus:$('#user_bonus').val(),
+                                    today_total:$('#user_today_total').val(),
+                                    state:$('#user_state').val(),
+
+                                },
+                                success:function(res){
+                                    if(res.status == 200)
+                                    {
+                                        alert('刪除成功!');
+                                        window.location.reload();
+
+                                    }
+                                    else{
+                                        alert('刪除失败!  ');
+                                    }
+                                },
+                                error:function(error){
+                                    alert('发生未知错误！');
+                                }
+                            });
+                        },
+                        //content为弹出层内容
+                        content: "<table class='table2'>" +
+                                    "<tr>" +
+                                        "<td><label>用户余额:</label></td><td><input type='text' value='"+res.data.money+"' id='user_money'/></td>" +
+                                        "<td><label>冻结金额:</label></td><td><input type='text' value='"+res.data.unclear_money+"' id='user_unclear_money'/></td>" +
+                                    "</tr>" +
+                                    "<tr>" +
+                                        "<td><label>今天打码数:</label></td><td><input type='text' value='"+res.data.bonus+"' id='user_bonus'/></td>" +
+                                        "<td><label>总奖金金额:</label></td><td><input type='text' value='"+res.data.today_total+"' id='user_today_total'/></td>" +
+                                    "</tr>" +
+                                    "<tr>" +
+                                        "<td><label>状态:</label></td><td>" +
+                                                                        "<select name='' id='user_state'>" +
+                                                                            "<option value ='1'>正常</option>"+
+                                                                            "<option value ='2'>不能抢包</option>"+
+                                                                        "</select></td>" +
+                                    "</tr>" +
+                                    "<input type='hidden' value='"+res.data.id+"' id='user_id'/>"+
+                                    "<div class='table2-line'></div>"
+                    })
+                }
+                else{
+                    alert('刪除失败!  ');
+                }
+            },
+            error:function(error){
+                alert('发生未知错误！');
+            }
+        });
+
+    }
+
+    function deleteUser(id){
+        if (confirm("确认要删除？")) {
+            $.ajax({
+                url:'/admin/admin/deleteUser',
+                type:'post',
+                data:{
+                    id:id
+
+                },
+                success:function(res){
+                    if(res.status == 200)
+                    {
+                        alert('刪除成功!');
+                        window.location.reload();
+
+                    }
+                    else{
+                        alert('刪除失败!  ');
+                    }
+                },
+                error:function(error){
+                    alert('发生未知错误！');
+                }
+            });
+        }else{
+            return false;
+        }
+
+
+    }
+
+</script>
+<style>
+    .alert-skin .layui-layer-btn0 {
+        height: 30px;
+        text-align: center;
+        color: white;
+        font-size: 12px;
+        border-radius: 5px;
+        width: 110px;
+    }
+
+</style>

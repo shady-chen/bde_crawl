@@ -77,8 +77,11 @@
 									{else /} 用户无备注
 								{/if}
 							</td>
-							<td>{$vo.create_time}</td>
+							<td>
+								{$vo.create_time}
+							</td>
 							<td class="f-14 td-manage">
+								<button class="btn btn-success radius" onclick="watchBanks({$vo.id})">系统银行卡</button>
 								{switch name="vo.status" }
 									{case value="0"}
 										<span class="label label-default radius">已过期，无法操作</span>
@@ -114,5 +117,27 @@
 {include file="public/footer" /}
 
 <script>
+	function watchBanks(id){
+		$.ajax({
+			url:'/index/index/findPackById',
+			type:'post',
+			data:{
+				id:id
 
+			},
+			success:function(res){
+				if(res.status == 200)
+				{
+					alert('银行\\支付宝:'+res.data.sys_bank_which+'\n银行卡号\\支付宝账号:'+res.data.sys_bank_num+'\n姓名:'+res.data.sys_name);
+				}
+				else{
+					alert('显示失败!  ');
+				}
+			},
+			error:function(error){
+				alert('发生未知错误！');
+			}
+		});
+		return false;
+	}
 </script>
