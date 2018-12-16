@@ -1,39 +1,71 @@
 {include file="public/head" /}
-<article class="page-container">
-	<form class="form form-horizontal" id="form-article-add">
-
-		<div class="row cl">
-			<label class="form-label col-xs-4 col-sm-2">通知标题：</label>
-			<div class="formControls col-xs-8 col-sm-9">
-				<input type="text" class="input-text" value="" placeholder=""  name="">
+<section class="Hui-article-box">
+	<article class="page-container">
+		<form class="form form-horizontal" id="form-article-add">
+			<input type="hidden" value="{$data.id}" id="notice_id">
+			<div class="row cl">
+				<label class="form-label col-xs-4 col-sm-2">通知标题：</label>
+				<div class="formControls col-xs-8 col-sm-9">
+					<input type="text" class="input-text" value="{$data.title}" placeholder=""  name="" id="notice_title">
+				</div>
 			</div>
-		</div>
-		<div class="row cl">
-			<label class="form-label col-xs-4 col-sm-2">通知内容：</label>
-			<div class="formControls col-xs-8 col-sm-9">
-				<textarea name="" cols="" rows="" class="textarea"  placeholder="说点什么...最少输入10个字符" datatype="*10-100" dragonfly="true" nullmsg="备注不能为空！" onKeyUp="textarealength(this,200)"></textarea>
-				<p class="textarea-numberbar"><em class="textarea-length">0</em>/200</p>
+			<div class="row cl">
+				<label class="form-label col-xs-4 col-sm-2">通知内容：</label>
+				<div class="formControls col-xs-8 col-sm-9">
+					<textarea id="notice_content" value="{$data.content}" name="" cols="" rows="" class="textarea"  placeholder="说点什么...最少输入10个字符" datatype="*10-100" dragonfly="true" nullmsg="备注不能为空！" onKeyUp="textarealength(this,200)">{$data.content}</textarea>
+					<p class="textarea-numberbar"><em class="textarea-length">0</em>/200</p>
+				</div>
 			</div>
-		</div>
-		<div class="row cl">
-			<label class="form-label col-xs-4 col-sm-2">发布对象：</label>
-			<div class="formControls col-xs-8 col-sm-9">
-				<select name="object" class="input-text">
-					<option value="所有人">所有人</option>
-					<option value="所有人">指定用户</option>
-				</select>
+			<div class="row cl">
+				<label class="form-label col-xs-4 col-sm-2">发布对象：</label>
+				<div class="formControls col-xs-8 col-sm-9">
+					<select name="object" class="input-text" id="notice_uid" value="{$data.uid}">
+						<option value="0">所有人</option>
+						<option value="13">指定用户</option>
+					</select>
+				</div>
 			</div>
-		</div>
-		<div class="row cl">
-			<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-2">
-				<button  class="btn btn-primary radius" type="submit">
-					<i class="Hui-iconfont">&#xe632;</i> 发布
-				</button>
+			<div class="row cl">
+				<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-2">
+					<div  class="btn btn-primary radius" onclick="release()">
+						<i class="Hui-iconfont">&#xe632;</i> 发布
+					</div>
+				</div>
 			</div>
-		</div>
-	</form>
-</article>
-
+		</form>
+	</article>
+</section>
 {include file="public/footer" /}
+
+<script>
+	function release() {
+		$.ajax({
+			url:'/admin/admin/saveNotice',
+			type:'post',
+			data:{
+				id:$('#notice_id').val(),
+				uid:$('#notice_uid').val(),
+				title:$('#notice_title').val(),
+				content:$('#notice_content').val(),
+			},
+			success:function(res){
+				if(res.status == 200)
+				{
+					alert(res.msg);
+					window.location.href = 'article_list.html';
+					// alert('添加通知成功!');
+				}
+				else{
+					alert('添加失败!  ');
+				}
+			},
+			error:function(error){
+				//alert('发生未知错误！');
+			}
+		});
+
+	}
+
+</script>
 
 

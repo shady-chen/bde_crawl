@@ -122,7 +122,7 @@ class User extends Index
 
         return json(['msg'=>'注册成功','status'=>200]);
     }
-    
+
     /**
      * 获取用户session
      */

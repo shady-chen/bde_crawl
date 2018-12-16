@@ -14,8 +14,8 @@
         <article class="cl pd-20">
             <div class="text-c">
 
-                <input type="text" name=""  placeholder="手机号码" style="width:250px" class="input-text">
-                <button name=""  class="btn btn-success" type="submit"><i class="Hui-iconfont">&#xe665;</i> 搜用戶</button>
+                <input type="text" name=""  placeholder="手机号码" style="width:250px" class="input-text" id="userName">
+                <button name=""  class="btn btn-success" type="submit" onclick="findUser()"><i class="Hui-iconfont">&#xe665;</i> 搜用戶</button>
             </div>
             <!--<div class="cl pd-5 bg-1 bk-gray mt-20">-->
             <!--<span class="l">-->
@@ -24,7 +24,7 @@
             <!--<span class="r">共有数据：<strong>54</strong> 条</span>-->
             <!--</div>-->
             <div class="mt-20">
-                <table class="table table-border table-bordered table-bg table-hover table-sort">
+                <table class="table table-border table-bordered table-bg table-hover table-sort" id="my-list">
                     <thead>
                     <tr class="text-c">
                         <th width="40">用戶id</th>
@@ -68,7 +68,7 @@
                         </td>
                         <td class="f-14 td-manage">
                             <button class="btn btn-success radius" onclick="updateUser({$vo.id})">修改</button>
-                            <button class="btn btn-success radius" onclick="deleteUser({$vo.id})">刪除</button>
+                            <button class="btn btn-danger radius" onclick="deleteUser({$vo.id})">刪除</button>
                         </td>
                     </tr>
                     </tbody>
@@ -85,6 +85,7 @@
 {include file="public/footer" /}
 
 <script>
+    //修改用户
     function updateUser(id){
         $.ajax({
             url:'/admin/admin/updateUser',
@@ -100,7 +101,7 @@
                         skin: 'alert-skin',//弹出层皮肤，可自定义也可用官方
                         title: ['用户修改', 'color:rgb(139, 181, 219);'],//弹出层title,数组右半部份设置title样式
                         area: 'auto',
-                        maxWidth: 800,
+                        maxWidth: 1500,
                         // maxHeight:1000,
                         btn: ['确定修改', '取消'],//设置底部按钮
                         btn1: function () {
@@ -109,6 +110,7 @@
                                 type:'post',
                                 data:{
                                     id:$('#user_id').val(),
+                                    money:$('#user_money').val(),
                                     unclear_money:$('#user_unclear_money').val(),
                                     bonus:$('#user_bonus').val(),
                                     today_total:$('#user_today_total').val(),
@@ -118,7 +120,7 @@
                                 success:function(res){
                                     if(res.status == 200)
                                     {
-                                        alert('刪除成功!');
+                                        alert('修改成功!');
                                         window.location.reload();
 
                                     }
@@ -133,23 +135,47 @@
                         },
                         //content为弹出层内容
                         content: "<table class='table2'>" +
-                                    "<tr>" +
-                                        "<td><label>用户余额:</label></td><td><input type='text' value='"+res.data.money+"' id='user_money'/></td>" +
-                                        "<td><label>冻结金额:</label></td><td><input type='text' value='"+res.data.unclear_money+"' id='user_unclear_money'/></td>" +
-                                    "</tr>" +
-                                    "<tr>" +
-                                        "<td><label>今天打码数:</label></td><td><input type='text' value='"+res.data.bonus+"' id='user_bonus'/></td>" +
-                                        "<td><label>总奖金金额:</label></td><td><input type='text' value='"+res.data.today_total+"' id='user_today_total'/></td>" +
-                                    "</tr>" +
-                                    "<tr>" +
-                                        "<td><label>状态:</label></td><td>" +
-                                                                        "<select name='' id='user_state'>" +
-                                                                            "<option value ='1'>正常</option>"+
-                                                                            "<option value ='2'>不能抢包</option>"+
-                                                                        "</select></td>" +
-                                    "</tr>" +
+                                "<div class=\"row cl\">"+
+                                    "<label class=\"form-label col-xs-4 col-sm-5\">用户名：</label>" +
+                                    "<div class=\"formControls col-xs-8 col-sm-6\">" +
+                                        "<input id=\"user_money\" type=\"text\" class=\"input-text\" value='"+res.data.phone+"' readonly=\"readonly\">" +
+                                    "</div>"+
+                                "</div>"+
+                                "<div class=\"row cl\">"+
+                                    "<label class=\"form-label col-xs-4 col-sm-5\">用户余额：</label>" +
+                                        "<div class=\"formControls col-xs-8 col-sm-6\">" +
+                                            "<input id=\"user_money\" type=\"text\" class=\"input-text\" value='"+res.data.money+"'>" +
+                                        "</div>"+
+                                "</div>"+
+                                "<div class=\"row cl\">"+
+                                    "<label class=\"form-label col-xs-4 col-sm-5\">冻结金额：</label>" +
+                                     "<div class=\"formControls col-xs-8 col-sm-6\">" +
+                                         "<input id=\"user_unclear_money\" type=\"text\" class=\"input-text\" value='"+res.data.unclear_money+"'>" +
+                                    "</div>"+
+                                "</div>"+
+                                 "<div class=\"row cl\">"+
+                                    "<label class=\"form-label col-xs-4 col-sm-5\">今天打码数：</label>" +
+                                    "<div class=\"formControls col-xs-8 col-sm-6\">" +
+                                        "<input id=\"user_bonus\" type=\"text\" class=\"input-text\" value='"+res.data.bonus+"'>" +
+                                    "</div>"+
+                                "</div>"+
+                                 "<div class=\"row cl\">"+
+                                     "<label class=\"form-label col-xs-4 col-sm-5\">总奖金金额：</label>" +
+                                    "<div class=\"formControls col-xs-8 col-sm-6\">" +
+                                        "<input id=\"user_today_total\" type=\"text\" class=\"input-text\" value='"+res.data.today_total+"'>" +
+                                     "</div>"+
+                                 "</div>"+
+                                "<div class=\"row cl\">"+
+                                    "<label class=\"form-label col-xs-4 col-sm-5\">状态：</label>" +
+                                     "<div class=\"formControls col-xs-8 col-sm-6\">" +
+                                        "<select name='' id='user_state'>" +
+                                             "<option value ='1'>正常</option>"+
+                                            "<option value ='2'>不能抢包</option>"+
+                                        "</select>"+
+                                     "</div>"+
+                                "</div>"+
                                     "<input type='hidden' value='"+res.data.id+"' id='user_id'/>"+
-                                    "<div class='table2-line'></div>"
+                                  "<div class='table2-line'></div>"
                     })
                 }
                 else{
@@ -162,7 +188,7 @@
         });
 
     }
-
+    //删除用户
     function deleteUser(id){
         if (confirm("确认要删除？")) {
             $.ajax({
@@ -190,8 +216,89 @@
         }else{
             return false;
         }
+    }
+    //查找用户
+    function  findUser() {
+        $.ajax({
+            url:'/admin/admin/findUser',
+            type:'post',
+            data:{
+                phone:$('#userName').val(),
+
+            },
+            success:function(res){
+                if(res.status == 200)
+                {
+                    //alert(res.data);
+                    console.log(res.data);
+                    // window.location.reload();
+                    var str = '<thead>\n' +
+                        '                    <tr class="text-c">\n' +
+                        '                        <th width="40">用戶id</th>\n' +
+                        '                        <th width="90">用户名</th>\n' +
+                        '                        <th width="50">用户余额</th>\n' +
+                        '                        <th width="80">冻结金额</th>\n' +
+                        '                        <th width="80">总奖金金额</th>\n' +
+                        '                        <th width="120">今天打码数</th>\n' +
+                        '                        <th width="120">用戶邀请码</th>\n' +
+                        '                        <th width="75">下线数量</th>\n' +
+                        '                        <th width="60">注册时间</th>\n' +
+                        '                        <th width="60">状态</th>\n' +
+                        '                        <th width="120">操作</th>\n' +
+                        '                    </tr>\n' +
+                        '  </thead>\n' +
+                        '                    <tbody>\n';
+
+                      for(var i = 0 ;i<res.data.data.length;i++)
+                      {
+                          var which  = '';
+                          console.log(res.data.data[i].state);
+                          switch (res.data.data[i].state) {
+                              case 0:
+                                  which = '<td><span class="label label-default radius">冻结</span></td>';
+                                  break;
+                              case 1:
+                                  which = '<td><span class="label label-default radius">正常</span></td>';
+                                  break;
+                              case 2:
+                                  which = '<td><span class="label label-default radius">不能抢包</span></td>';
+                                  break;
+                              default :
+                                  which = '<td><span class="label label-default radius">未知</span></td>';
+
+                          };
+                            str +=
+                        '                    <tr class="text-c">\n' +
+                        '                        <td> '+ res.data.data[i].id +' </td>\n' +
+                        '                        <td>'+ res.data.data[i].phone +'</td>\n' +
+                        '                        <td>'+ res.data.data[i].money +'</td>\n' +
+                        '                        <td>'+ res.data.data[i].unclear_money +'</td>\n' +
+                        '                        <td>'+ res.data.data[i].bonus +'</td>\n' +
+                        '                        <td>'+ res.data.data[i].today_total +'</td>\n' +
+                        '                        <td>'+ res.data.data[i].invitation_code +'</td>\n' +
+                        '                        <td>'+ res.data.data[i].sons +'</td>\n' +
+                        '                        <td>'+ res.data.data[i].create_time +'</td>\n' +
+                                    which +
+                        '                        <td class="f-14 td-manage">\n' +
+                        '                            <button class="btn btn-success radius" onclick="updateUser({$vo.id})">修改</button>\n' +
+                        '                            <button class="btn btn-danger radius" onclick="deleteUser({$vo.id})">刪除</button>\n' +
+                        '                        </td>\n' +
+                        '                    </tr>\n' +
+                        '                    </tbody>\n';
+                      }
 
 
+                      $('#my-list').html('').html(str);
+
+                }
+                else{
+                    alert('刪除失败!  ');
+                }
+            },
+            error:function(error){
+                alert('发生未知错误！');
+            }
+        });
     }
 
 </script>

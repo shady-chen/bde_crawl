@@ -11,6 +11,8 @@ namespace app\admin\controller;
 
 
 
+use app\admin\model\AppNotice;
+use app\admin\model\Notice;
 use app\index\model\AppOrder;
 use app\admin\model\SystemBanks;
 use app\index\model\SystemSetting;
@@ -36,7 +38,41 @@ class Admin extends Base
      * @return mixed
      */
     public function article_list(){
+        $notice = new AppNotice();
+        $title = $this->request->param('title');
+        if($title != null && $title != ''){
+            $data = $notice->where('title','like','%'.$title.'%')->order('create_time desc')->paginate(10);
+        }else{
+            $data = $notice->order('create_time desc')->paginate(10);
+        }
+
+
+
+        $this->assign('data',$data);
+        $this->assign('page',$data->render());
         return $this->fetch();
+    }
+    /*
+     * 发布和下架通知
+     */
+    public function updateStateNotice(){
+        $notice = new AppNotice();
+        $params = $this->request->param();
+        $data = [
+            'states'=>$params['states'],
+        ];
+        $notice->where(['id'=>$params['id']])->update($data);
+        return json(['status'=>200]);
+    }
+
+    /**
+     * 删除通知
+     */
+    public function deleteNotice(){
+        $id = $this->request->param('id');
+        $notice = new AppNotice();
+        $notice->where(['id'=>$id])->delete();
+        return json(['status'=>200]);
     }
 
 
@@ -44,9 +80,42 @@ class Admin extends Base
      * 系统发送通知
      * @return mixed
      */
-    public function article_add(){
+    public function article_add($id){
+        $notice = new AppNotice();
+        if($id == 0){
+            $data = null;
+        }else{
+            $data = $notice->where(['id'=>$id])->find();
+        }
+        $this->assign('data',$data);
+
         return $this->fetch();
     }
+
+    /**
+     * 添加通知
+     */
+    public function saveNotice(){
+        $notice = new AppNotice();
+        $params = $this->request->param();
+        $data = [
+            'uid'=>$params['uid'],
+            'title'=>$params['title'],
+            'content'=>$params['content'],
+            'states'=>0,
+            'create_time'=>time(),
+        ];
+        if($params['id'] == null || $params['id'] == ''){
+            $notice->save($data);
+            $msg = '添加成功';
+        }else{
+            $notice->where(['id'=>$params['id']])->update($data);
+            $msg =  '更新成功';
+        }
+
+        return json(['status'=>200,'msg'=>$msg]);
+    }
+
 
     /**
      * 订单列表
@@ -54,7 +123,13 @@ class Admin extends Base
      */
     public function order_list(){
         $appOrder = new AppOrder();
-        $data = $appOrder->order('create_time desc')->paginate(10);
+        $phone = $this->request->param('phone');
+        if($phone != null && $phone != ''){
+            $data = $appOrder->where('user_phone','like','%'.$phone.'%')->order('create_time desc')->paginate(10);
+
+        }else{
+            $data = $appOrder->order('create_time desc')->paginate(10);
+        }
         $this->assign('data',$data);
         $this->assign('page',$data->render());
         return $this->fetch();
@@ -167,20 +242,42 @@ class Admin extends Base
         return json(['data'=>$data,'status'=>200]);
     }
     /**
-     * 保存用户
+     * 保存修改用户
      */
     public function saveUpdateUser(){
         $param = $this->request->param();
         $appUser = new AppUser();
         $id=$param['id'];
-        $data = [
+        $user = $appUser->where(['id'=>$id])->find();
 
-            unclear_money=>$param['unclear_money'],
-            bonus=>$param['bonus'],
-            today_total=>$param['today_total'],
-            state=>$param['state'],
+        $str = '';
+
+        if($user['money'] != $param['money']){
+            $str .='修改用户金额.  ';
+        }
+        if($user['unclear_money'] != $param['unclear_money']){
+            $str .='修改冻结金额.  ';
+        }
+        if($user['bonus'] != $param['bonus']){
+            $str .='修改总奖金金额.  ';
+        }
+        if($user['today_total'] != $param['today_total']){
+            $str .='修改今天打码数.  ';
+        }
+        if($user['state'] != $param['state']){
+            $str .='修改用户状态.  ';
+        }
+        $data = [
+            'money'=>$param['money'],
+            'unclear_money'=>$param['unclear_money'],
+            'bonus'=>$param['bonus'],
+            'today_total'=>$param['today_total'],
+            'state'=>$param['state'],
+            'update_time'=>time(),
+            'update_what'=>$str,
         ];
         $appUser->where(['id'=>$id])->update($data);
+        return json(['msg'=>'修改成功','status'=>200]);
     }
     /**
      * 用戶刪除
@@ -195,5 +292,23 @@ class Admin extends Base
 
         $appUser->where(['id'=>$id])->update($data);
         return json(['msg'=>'刪除成功','status'=>200]);
+    }
+
+    /**
+     * 根据用户名查找用户
+     */
+    public function  findUser(){
+        $phone = $this->request->param('phone');
+        $appUser = new AppUser();
+        $data = $appUser->where(['type'=>1])->where('phone','like','%'.$phone.'%')->where('state','neq','0')->order('create_time desc')->paginate(10);
+
+        return json(['data'=>$data,'status'=>200]);
+    }
+
+    /**
+     * 提现列表
+     */
+    public function withdraw_list(){
+        return $this->fetch();
     }
 }

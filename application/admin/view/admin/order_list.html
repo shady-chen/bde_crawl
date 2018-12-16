@@ -13,8 +13,8 @@
 		<article class="cl pd-20">
 			<div class="text-c">
 
-				<input type="text" name=""  placeholder=" 订单名称" style="width:250px" class="input-text">
-				<button name=""  class="btn btn-success" type="submit"><i class="Hui-iconfont">&#xe665;</i> 搜订单</button>
+				<input type="text" name=""  placeholder=" 订单名称" style="width:250px" class="input-text" id="find_user_phone">
+				<div name=""  class="btn btn-success" type="submit" onclick="find_user()"><i class="Hui-iconfont">&#xe665;</i> 搜订单</div>
 			</div>
 			<!--<div class="cl pd-5 bg-1 bk-gray mt-20">-->
 				<!--<span class="l">-->
@@ -34,7 +34,7 @@
 							<th width="75">凭证图片</th>
 							<th width="60">备注</th>
 							<th width="60">订单时间</th>
-							<th width="120">操作</th>
+							<th width="160">操作</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -128,7 +128,27 @@
 			success:function(res){
 				if(res.status == 200)
 				{
-					alert('银行\\支付宝:'+res.data.sys_bank_which+'\n银行卡号\\支付宝账号:'+res.data.sys_bank_num+'\n姓名:'+res.data.sys_name);
+					// alert('银行\\支付宝:'+res.data.sys_bank_which+'\n银行卡号\\支付宝账号:'+res.data.sys_bank_num+'\n姓名:'+res.data.sys_name);
+					layer.open({
+						skin: 'alert-skin',//弹出层皮肤，可自定义也可用官方
+						title: ['银行卡信息', 'color:rgb(139, 181, 219);'],//弹出层title,数组右半部份设置title样式
+						area: 'auto',
+						maxWidth: 1500,
+						// maxHeight:1000,
+						btn: ['确定'],//设置底部按钮
+						btn1: function () {
+							layer.close(layer.open());
+						},
+						content: "<div>" +
+									"<span>银行\支付宝:</span><span>"+res.data.sys_bank_which+"</span>"+
+								"</div>"+
+								"<div>" +
+								"<span>银行卡号\支付宝账号:</span><span>"+res.data.sys_bank_num+"</span>"+
+								"</div>"+
+								"<div>" +
+								"<span>姓名:</span><span>"+res.data.sys_name+"</span>"+
+								"</div>"
+					})
 				}
 				else{
 					alert('显示失败!  ');
@@ -139,5 +159,9 @@
 			}
 		});
 		return false;
+	}
+	function find_user() {
+		var phone = $('#find_user_phone').val();
+		window.location.href = 'order_list.html?phone='+phone;
 	}
 </script>

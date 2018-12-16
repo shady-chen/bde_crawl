@@ -2,9 +2,13 @@
 
 namespace app\index\controller;
 
+use app\admin\model\AppNotice;
 use app\admin\model\SystemBanks;
 use app\index\model\AppOrder;
 use app\index\model\AppPacket;
+use app\user\model\AppBanks;
+use app\user\model\AppUser;
+use app\user\model\AppWithdraw;
 use think\Controller;
 use think\Session;
 use app\index\model\SystemSetting;
@@ -132,11 +136,145 @@ class Index extends Controller
     }
 
 
+    /**
+     * 提现
+     */
+    public function withdraw(){
+        $user = Session::get('user');
+        $params = $this->request->param();
+        if(!$user){
+            return json(['msg'=>'尚未登录！','status'=>0]);
+        }
 
+        //获取银行卡信息
+        $appBanks = new AppBanks();
+        $data2 = $appBanks->where(['id'=>$params['id']])->find();
 
+        //用户的金额改变
+        $appuser = new AppUser();
+        $appData = $appuser->where(['id'=>$user['id']])->find();
+        if($params['money']>$appData['money']){
+            return json(['msg'=>'余额不足！','status'=>1]);
+        }
 
+        $sysSetting = new SystemSetting();
+        $sysSettingData = $sysSetting->find();
 
+        $money = $appData['money'] - $params['money'];
+        if($money+$appData['unclear_money']>$sysSettingData['full_money']){
+            $money = $sysSettingData['full_money'];
+            $unclear_money = $money+$appData['unclear_money']-$sysSettingData['full_money'];
 
+        }else{
+            $money = $money+$appData['money'];
+            $unclear_money = 0;
+        }
+
+        $appData2 = [
+            'money'=>$money,
+            'unclear_money'=>$unclear_money,
+        ];
+        $appuser->where(['id'=>$user['id']])->update($appData2);
+
+        $appWithdraw = new AppWithdraw();
+
+        $data = [
+            'uid'=>$user['id'],
+            'bank_id'=>$params['bank_id'],
+            'money'=>$params['money'],
+            'states'=>1,
+            'remarks'=>$params['remarks'],
+            'create_time'=>time(),
+            'bank_num'=>$data2['bank_num'],
+            'real_name'=>$data2['real_name'],
+            'bank_which'=>$data2['bank_which'],
+            'bank_where'=>$data2['bank_where'],
+
+        ];
+
+        $appWithdraw->save($data);
+
+        return json(['data'=>$data,'status'=>200]);
+    }
+    /**
+     * 提现记录
+     */
+    public function withdrawList(){
+        $user = Session::get('user');
+        if(!$user){
+            return json(['msg'=>'尚未登录！','status'=>0]);
+        }
+        $appWithdraw = new AppWithdraw();
+        $data = $appWithdraw->where(['uid'=>$user['id']])->selectOrFail();
+
+        return json(['data'=>$data,'status'=>200]);
+    }
+    /**
+     * 添加银行卡
+     */
+    public function addAppBanks(){
+        $user = Session::get('user');
+        $params = $this->request->param();
+        if(!$user){
+            return json(['msg'=>'尚未登录！','status'=>0]);
+        }
+
+        $data = [
+            'uid'=>$user['id'],
+            'bank_num'=>$params['bank_num'],
+            'real_name'=>$params['real_name'],
+            'bank_which'=>$params['bank_which'],
+            'bank_where'=>$params['bank_where'],
+            'create_time'=>time(),
+        ];
+
+        $appBanks = new AppBanks();
+
+        $appBanks->save($data);
+        return json(['data'=>$data,'status'=>200]);
+    }
+    /**
+     * 银行卡列表
+     */
+    public function appBanksList(){
+        $user = Session::get('user');
+        if(!$user){
+            return json(['msg'=>'尚未登录！','status'=>0]);
+        }
+        $appBanks = new AppBanks();
+        $data = $appBanks->where(['uid'=>$user['id']])->selectOrFail();
+
+        return json(['data'=>$data,'status'=>200]);
+    }
+    /**
+     * 根据ID获取银行卡
+     */
+    public function getBankById(){
+        $user = Session::get('user');
+        $params = $this->request->param();
+        if(!$user){
+            return json(['msg'=>'尚未登录！','status'=>0]);
+        }
+        $appBanks = new AppBanks();
+        $data = $appBanks->where(['id'=>$params['id']])->find();
+
+        return json(['data'=>$data,'status'=>200]);
+    }
+    /**
+     * 获取通知列表
+     */
+    public function getNoticeByUid(){
+        $user = Session::get('user');
+        $params = $this->request->param();
+        if(!$user){
+            return json(['msg'=>'尚未登录！','status'=>0]);
+        }
+        $appNotice = new AppNotice();
+
+        $data = $appNotice->where(['uid'=>$user['id']])->selectOrFail();
+
+        return json(['data'=>$data,'status'=>200]);
+    }
 
 
 
