@@ -51,8 +51,24 @@
 			success:function(res){
 				if(res.status == 200)
 				{
-					alert(res.msg);
-					window.location.href = 'article_list.html';
+					layer.open({
+						skin: 'alert-skin',//弹出层皮肤，可自定义也可用官方
+						title: ['提示', 'color:rgb(139, 181, 219);'],//弹出层title,数组右半部份设置title样式
+						area: 'auto',
+						maxWidth: 1500,
+						// maxHeight:1000,
+						btn: ['确定'],//设置底部按钮
+						btn1: function () {
+							layer.close(layer.open());
+							window.location.href = 'article_list.html';
+
+						},
+						content: "<div>" +
+								"<span>"+res.msg+"</span>"+
+								"</div>"+
+								"<div>"
+
+					})
 					// alert('添加通知成功!');
 				}
 				else{

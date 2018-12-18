@@ -1,40 +1,41 @@
 {include file="public/head" /}
-<article class="page-container">
-	<form class="form form-horizontal" id="form-article-add">
-		<div class="row cl">
-			<label class="form-label col-xs-4 col-sm-2">银行卡号：</label>
-			<div class="formControls col-xs-8 col-sm-9">
-				<input id="bank_num" type="text" class="input-text" value="" placeholder=""  name="">
-			</div>
-		</div>
-		<div class="row cl">
-			<label class="form-label col-xs-4 col-sm-2">所属银行：</label>
-			<div class="formControls col-xs-8 col-sm-9">
-				<input id="bank_which" type="text" class="input-text" value="" placeholder=""  name="">
-			</div>
-		</div>
-		<div class="row cl">
-			<label class="form-label col-xs-4 col-sm-2">开户行：</label>
-			<div class="formControls col-xs-8 col-sm-9">
-				<input id="bank_where" type="text" class="input-text" value="" placeholder=""  name="">
-			</div>
-		</div>
-		<div class="row cl">
-			<label class="form-label col-xs-4 col-sm-2">真实姓名：</label>
-			<div class="formControls col-xs-8 col-sm-9">
-				<input id="name" type="text" class="input-text" value="" placeholder=""  name="">
-			</div>
-		</div>
-		<div class="row cl">
-			<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-2">
-				<div  class="btn btn-primary radius" onclick="addbanks()" >
-					<i class="Hui-iconfont">&#xe632;</i> 添加
+<section class="Hui-article-box">
+	<article class="page-container">
+		<form class="form form-horizontal" id="form-article-add">
+			<div class="row cl">
+				<label class="form-label col-xs-4 col-sm-2">银行卡号：</label>
+				<div class="formControls col-xs-8 col-sm-9">
+					<input id="bank_num" type="text" class="input-text" value="" placeholder=""  name="">
 				</div>
 			</div>
-		</div>
-	</form>
-</article>
-
+			<div class="row cl">
+				<label class="form-label col-xs-4 col-sm-2">所属银行：</label>
+				<div class="formControls col-xs-8 col-sm-9">
+					<input id="bank_which" type="text" class="input-text" value="" placeholder=""  name="">
+				</div>
+			</div>
+			<div class="row cl">
+				<label class="form-label col-xs-4 col-sm-2">开户行：</label>
+				<div class="formControls col-xs-8 col-sm-9">
+					<input id="bank_where" type="text" class="input-text" value="" placeholder=""  name="">
+				</div>
+			</div>
+			<div class="row cl">
+				<label class="form-label col-xs-4 col-sm-2">真实姓名：</label>
+				<div class="formControls col-xs-8 col-sm-9">
+					<input id="name" type="text" class="input-text" value="" placeholder=""  name="">
+				</div>
+			</div>
+			<div class="row cl">
+				<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-2">
+					<div  class="btn btn-primary radius" onclick="addbanks()" >
+						<i class="Hui-iconfont">&#xe632;</i> 添加
+					</div>
+				</div>
+			</div>
+		</form>
+	</article>
+</section>
 {include file="public/footer" /}
 
 <script>
@@ -51,8 +52,27 @@
 			success:function(res){
 				if(res.status == 200)
 				{
-					alert('添加成功!');
-					window.localtion.href = 'admin/admin/banks_list';
+
+					layer.open({
+							skin: 'alert-skin',//弹出层皮肤，可自定义也可用官方
+							title: ['提示', 'color:rgb(139, 181, 219);'],//弹出层title,数组右半部份设置title样式
+							area: 'auto',
+							maxWidth: 1500,
+							// maxHeight:1000,
+							btn: ['确定'],//设置底部按钮
+							btn1: function () {
+								layer.close(layer.open());
+								window.location.href = 'banks_list.html';
+
+							},
+							content: "<div>" +
+									"<span>添加成功</span>"+
+									"</div>"+
+									"<div>"
+
+						})
+
+
 				}
 			},
 			error:function(error){

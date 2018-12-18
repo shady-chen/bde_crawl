@@ -15,7 +15,7 @@
             <div class="text-c">
 
                 <input type="text" name=""  placeholder="手机号码" style="width:250px" class="input-text" id="userName">
-                <button name=""  class="btn btn-success" type="submit" onclick="findUser()"><i class="Hui-iconfont">&#xe665;</i> 搜用戶</button>
+                <div name=""  class="btn btn-success" type="submit" onclick="find_user()"><i class="Hui-iconfont">&#xe665;</i> 搜用戶</div>
             </div>
             <!--<div class="cl pd-5 bg-1 bk-gray mt-20">-->
             <!--<span class="l">-->
@@ -37,7 +37,7 @@
                         <th width="75">下线数量</th>
                         <th width="60">注册时间</th>
                         <th width="60">状态</th>
-                        <th width="120">操作</th>
+                        <th width="150">操作</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -68,7 +68,8 @@
                         </td>
                         <td class="f-14 td-manage">
                             <button class="btn btn-success radius" onclick="updateUser({$vo.id})">修改</button>
-                            <button class="btn btn-danger radius" onclick="deleteUser({$vo.id})">刪除</button>
+                            <button class="btn btn-success radius" onclick="selectUserBanks({$vo.id})">银行卡</button>
+                            <!--<button class="btn btn-danger radius" onclick="deleteUser({$vo.id})">冻结</button>-->
                         </td>
                     </tr>
                     </tbody>
@@ -85,6 +86,90 @@
 {include file="public/footer" /}
 
 <script>
+    //查看银行卡
+    function selectUserBanks(id) {
+        $.ajax({
+            url:'/admin/admin/selectUserBanks',
+            type:'post',
+            data:{
+                id:id
+
+            },
+            success:function(res){
+                if(res.status == 200)
+                {
+                    var str = '<table class="table table-border table-bordered table-bg table-hover table-sort">\n' +
+                        '           <thead>' +
+                        '                    <tr class="text-c">' +
+                        '                        <th width="100">用户账号</th>' +
+                        '                        <th width="90">用户姓名</th>' +
+                        '                        <th width="50">账号类型</th>' +
+                        '                        <th width="80">开户行</th>\n' +
+                        '                        <th width="80">添加时间</th>\n' +
+                        '                    </tr>\n' +
+                        '           </thead>\n' +
+                        '                    <tbody>\n';
+
+                    for(var i = 0 ;i<res.data.length;i++) {
+
+                        str +=
+                            '                    <tr class="text-c">\n' +
+                            '                        <td> ' + res.data[i].bank_num + ' </td>\n' +
+                            '                        <td>' + res.data[i].real_name + '</td>\n' +
+                            '                        <td>' + res.data[i].bank_which + '</td>\n' +
+                            '                        <td>' + res.data[i].bank_where + '</td>\n' +
+                            '                        <td>' + res.data[i].create_time + '</td>\n' +
+                            '                    </tr>\n'
+                    }
+                        layer.open({
+                            skin: 'alert-skin',//弹出层皮肤，可自定义也可用官方
+                            title: ['用户银行卡信息', 'color:rgb(139, 181, 219);'],//弹出层title,数组右半部份设置title样式
+                            area: 'auto',
+                            maxWidth: 1500,
+                            // maxHeight:1000,
+                            btn: ['确定'],//设置底部按钮
+                            btn1: function () {
+                                layer.close(layer.open());
+                            },
+                            //content为弹出层内容
+                            content:str+'</tbody></table>'
+                        })
+
+                }else if(res.status == 0){
+                    layer.open({
+                        skin: 'alert-skin',//弹出层皮肤，可自定义也可用官方
+                        title: ['用户银行卡信息', 'color:rgb(139, 181, 219);'],//弹出层title,数组右半部份设置title样式
+                        area: 'auto',
+                        maxWidth: 1500,
+                        // maxHeight:1000,
+                        btn: ['确定'],//设置底部按钮
+                        btn1: function () {
+                        },
+                        //content为弹出层内容
+                        content:res.msg
+                    })
+                }
+                else{
+                    alert('查看失败!  ');
+                }
+            },
+            error:function(error){
+                layer.open({
+                    skin: 'alert-skin',//弹出层皮肤，可自定义也可用官方
+                    title: ['用户银行卡信息', 'color:rgb(139, 181, 219);'],//弹出层title,数组右半部份设置title样式
+                    area: 'auto',
+                    maxWidth: 1500,
+                    // maxHeight:1000,
+                    btn: ['确定'],//设置底部按钮
+                    btn1: function () {
+                        layer.close(layer.open());
+                    },
+                    //content为弹出层内容
+                    content:'用户还没添加银行卡'
+                })
+            }
+        });
+    }
     //修改用户
     function updateUser(id){
         $.ajax({
@@ -120,12 +205,12 @@
                                 success:function(res){
                                     if(res.status == 200)
                                     {
-                                        alert('修改成功!');
+                                        // alert('修改成功!');
                                         window.location.reload();
 
                                     }
                                     else{
-                                        alert('刪除失败!  ');
+                                        alert('修改失败!  ');
                                     }
                                 },
                                 error:function(error){
@@ -138,7 +223,7 @@
                                 "<div class=\"row cl\">"+
                                     "<label class=\"form-label col-xs-4 col-sm-5\">用户名：</label>" +
                                     "<div class=\"formControls col-xs-8 col-sm-6\">" +
-                                        "<input id=\"user_money\" type=\"text\" class=\"input-text\" value='"+res.data.phone+"' readonly=\"readonly\">" +
+                                        "<input id=\"user_phone\" type=\"text\" class=\"input-text\" value='"+res.data.phone+"' readonly=\"readonly\">" +
                                     "</div>"+
                                 "</div>"+
                                 "<div class=\"row cl\">"+
@@ -169,6 +254,7 @@
                                     "<label class=\"form-label col-xs-4 col-sm-5\">状态：</label>" +
                                      "<div class=\"formControls col-xs-8 col-sm-6\">" +
                                         "<select name='' id='user_state'>" +
+                                            "<option value ='0'>冻结</option>"+
                                              "<option value ='1'>正常</option>"+
                                             "<option value ='2'>不能抢包</option>"+
                                         "</select>"+
@@ -179,7 +265,7 @@
                     })
                 }
                 else{
-                    alert('刪除失败!  ');
+                    alert('修改失败!  ');
                 }
             },
             error:function(error){
@@ -190,126 +276,66 @@
     }
     //删除用户
     function deleteUser(id){
-        if (confirm("确认要删除？")) {
-            $.ajax({
-                url:'/admin/admin/deleteUser',
-                type:'post',
-                data:{
-                    id:id
 
-                },
-                success:function(res){
-                    if(res.status == 200)
-                    {
-                        alert('刪除成功!');
-                        window.location.reload();
+        layer.open({
+            skin: 'alert-skin',//弹出层皮肤，可自定义也可用官方
+            title: ['提示', 'color:rgb(139, 181, 219);'],//弹出层title,数组右半部份设置title样式
+            area: 'auto',
+            maxWidth: 1500,
+            // maxHeight:1000,
+            btn: ['确定','取消'],//设置底部按钮
+            btn1: function () {
+                $.ajax({
+                    url:'/admin/admin/deleteUser',
+                    type:'post',
+                    data:{
+                        id:id
 
+                    },
+                    success:function(res){
+                        if(res.status == 200)
+                        {
+                            // alert('刪除成功!');
+                            window.location.reload();
+
+                        }
+                        else{
+                            alert('刪除失败!  ');
+                        }
+                    },
+                    error:function(error){
+                        alert('发生未知错误！');
                     }
-                    else{
-                        alert('刪除失败!  ');
-                    }
-                },
-                error:function(error){
-                    alert('发生未知错误！');
-                }
-            });
-        }else{
-            return false;
-        }
-    }
-    //查找用户
-    function  findUser() {
-        $.ajax({
-            url:'/admin/admin/findUser',
-            type:'post',
-            data:{
-                phone:$('#userName').val(),
-
+                });
+                layer.close(layer.open());
             },
-            success:function(res){
-                if(res.status == 200)
-                {
-                    //alert(res.data);
-                    console.log(res.data);
-                    // window.location.reload();
-                    var str = '<thead>\n' +
-                        '                    <tr class="text-c">\n' +
-                        '                        <th width="40">用戶id</th>\n' +
-                        '                        <th width="90">用户名</th>\n' +
-                        '                        <th width="50">用户余额</th>\n' +
-                        '                        <th width="80">冻结金额</th>\n' +
-                        '                        <th width="80">总奖金金额</th>\n' +
-                        '                        <th width="120">今天打码数</th>\n' +
-                        '                        <th width="120">用戶邀请码</th>\n' +
-                        '                        <th width="75">下线数量</th>\n' +
-                        '                        <th width="60">注册时间</th>\n' +
-                        '                        <th width="60">状态</th>\n' +
-                        '                        <th width="120">操作</th>\n' +
-                        '                    </tr>\n' +
-                        '  </thead>\n' +
-                        '                    <tbody>\n';
+            content: "<div>" +
+                "<span>确定要冻结该用户?</span>"+
+                "</div>"+
+                "<div>"
 
-                      for(var i = 0 ;i<res.data.data.length;i++)
-                      {
-                          var which  = '';
-                          console.log(res.data.data[i].state);
-                          switch (res.data.data[i].state) {
-                              case 0:
-                                  which = '<td><span class="label label-default radius">冻结</span></td>';
-                                  break;
-                              case 1:
-                                  which = '<td><span class="label label-default radius">正常</span></td>';
-                                  break;
-                              case 2:
-                                  which = '<td><span class="label label-default radius">不能抢包</span></td>';
-                                  break;
-                              default :
-                                  which = '<td><span class="label label-default radius">未知</span></td>';
-
-                          };
-                            str +=
-                        '                    <tr class="text-c">\n' +
-                        '                        <td> '+ res.data.data[i].id +' </td>\n' +
-                        '                        <td>'+ res.data.data[i].phone +'</td>\n' +
-                        '                        <td>'+ res.data.data[i].money +'</td>\n' +
-                        '                        <td>'+ res.data.data[i].unclear_money +'</td>\n' +
-                        '                        <td>'+ res.data.data[i].bonus +'</td>\n' +
-                        '                        <td>'+ res.data.data[i].today_total +'</td>\n' +
-                        '                        <td>'+ res.data.data[i].invitation_code +'</td>\n' +
-                        '                        <td>'+ res.data.data[i].sons +'</td>\n' +
-                        '                        <td>'+ res.data.data[i].create_time +'</td>\n' +
-                                    which +
-                        '                        <td class="f-14 td-manage">\n' +
-                        '                            <button class="btn btn-success radius" onclick="updateUser({$vo.id})">修改</button>\n' +
-                        '                            <button class="btn btn-danger radius" onclick="deleteUser({$vo.id})">刪除</button>\n' +
-                        '                        </td>\n' +
-                        '                    </tr>\n' +
-                        '                    </tbody>\n';
-                      }
+        })
 
 
-                      $('#my-list').html('').html(str);
-
-                }
-                else{
-                    alert('刪除失败!  ');
-                }
-            },
-            error:function(error){
-                alert('发生未知错误！');
-            }
-        });
     }
+
+
+    function find_user() {
+        var phone = $('#userName').val();
+        window.location.href = 'user_list.html?phone='+phone;
+    }
+
+
 
 </script>
-<style>
-    .alert-skin .layui-layer-btn0 {
-        height: 30px;
-        text-align: center;
-        color: white;
-        font-size: 12px;
-        border-radius: 5px;
-        width: 110px;
-    }
+<!--<style>-->
+    <!--.alert-skin .layui-layer-btn0 {-->
+        <!--height: 30px;-->
+        <!--text-align: center;-->
+        <!--color: white;-->
+        <!--font-size: 12px;-->
+        <!--border-radius: 5px;-->
+        <!--width: 110px;-->
+    <!--}-->
 
-</style>
+<!--</style>-->

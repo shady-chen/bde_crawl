@@ -16,7 +16,9 @@ use app\admin\model\Notice;
 use app\index\model\AppOrder;
 use app\admin\model\SystemBanks;
 use app\index\model\SystemSetting;
+use app\user\model\AppBanks;
 use app\user\model\AppUser;
+use app\index\model\AppWithdraw;
 
 
 class Admin extends Base
@@ -52,7 +54,7 @@ class Admin extends Base
         $this->assign('page',$data->render());
         return $this->fetch();
     }
-    /*
+    /**
      * 发布和下架通知
      */
     public function updateStateNotice(){
@@ -140,13 +142,35 @@ class Admin extends Base
      * @return mixed
      */
     public function banks_list(){
+
+
         $SystemBanks = new SystemBanks();
-        $data = $SystemBanks->order('create_time desc')->paginate(10);
+        $bankName = $this->request->param('banksName');
+        if($bankName != null && $bankName != ''){
+            $data = $SystemBanks->where(['is_use'=>1])->where('bank_which','like','%'.$bankName.'%')->order('create_time desc')->paginate(10);
+
+        }else{
+            $data = $SystemBanks->where(['is_use'=>1])->order('create_time desc')->paginate(10);
+        }
         $this->assign('data',$data);
         $this->assign('page',$data->render());
         return $this->fetch();
     }
 
+    /**
+     * 删除银行卡
+     */
+    public function deleteBank(){
+        $id = $this->request->param('id');
+        $systemBanks = new SystemBanks();
+
+        $data = [
+            'is_use'=>0,
+        ];
+
+        $systemBanks->where(['id'=>$id])->update($data);
+        return json(['msg'=>'刪除成功','status'=>200]);
+    }
     /**
      * 系统添加银行卡
      * @return mixed
@@ -207,6 +231,12 @@ class Admin extends Base
         if($params['how_long']<=0){
             return json(['msg'=>'发包间隔时间不能小于0','status'=>0]);
         }
+        if($params['full_money']<0){
+            return json(['msg'=>'满多少金额的值不能小于0','status'=>0]);
+        }
+        if($params['sons']<0){
+            return json(['msg'=>'下线不能小于0','status'=>0]);
+        }
         $data = [
             'bonus_rule'=>$params['bonus_rule'],
             'per_money'=>$params['per_money'],
@@ -216,6 +246,8 @@ class Admin extends Base
             'end_time'=>$params['end_time'],
             'how_long'=>$params['how_long'],
             'bunus_money'=>$params['bunus_money'],
+            'full_money'=>$params['full_money'],
+            'sons'=>$params['sons'],
         ];
 
         $sys_setting->where(['id'=>1])->update($data);
@@ -225,12 +257,39 @@ class Admin extends Base
      * 會員列表
      */
     public function user_list(){
+
+
         $appUser = new AppUser();
-        $data = $appUser->where(['type'=>1])->where('state','neq','0')->order('create_time desc')->paginate(10);
+        $phone = $this->request->param('phone');
+        if($phone != null && $phone != ''){
+            $data = $appUser->where('phone','like','%'.$phone.'%')->order('create_time desc')->paginate(10);
+
+        }else{
+            $data = $appUser->where(['type'=>1])->order('create_time desc')->paginate(10);
+        }
         $this->assign('data',$data);
         $this->assign('page',$data->render());
         return $this->fetch();
     }
+
+    /**
+     * 查看用户银行
+     */
+    public function selectUserBanks(){
+        $id = $this->request->param('id');
+        $appBanks = new AppBanks();
+        $data = $appBanks->where('uid','=',$id)->where('status','=',1)->selectOrFail();
+
+        if($data == null){
+            return json(['msg'=>用户还没添加银行卡,'status'=>0]);
+        }
+
+        return json(['data'=>$data,'status'=>200]);
+    }
+
+
+
+
     /**
      * 用戶修改
      */
@@ -241,6 +300,9 @@ class Admin extends Base
 
         return json(['data'=>$data,'status'=>200]);
     }
+
+
+
     /**
      * 保存修改用户
      */
@@ -300,7 +362,7 @@ class Admin extends Base
     public function  findUser(){
         $phone = $this->request->param('phone');
         $appUser = new AppUser();
-        $data = $appUser->where(['type'=>1])->where('phone','like','%'.$phone.'%')->where('state','neq','0')->order('create_time desc')->paginate(10);
+        $data = $appUser->where(['type'=>1])->where('phone','like','%'.$phone.'%')->order('create_time desc')->paginate(10);
 
         return json(['data'=>$data,'status'=>200]);
     }
@@ -309,6 +371,74 @@ class Admin extends Base
      * 提现列表
      */
     public function withdraw_list(){
+        $appWithdraw = new AppWithdraw();
+        $phone = $this->request->param('phone');
+        if($phone != null && $phone != ''){
+            $data = $appWithdraw->where('user_phone','like','%'.$phone.'%')->order('create_time desc')->paginate(10);
+
+        }else{
+            $data = $appWithdraw->order('create_time desc')->paginate(10);
+        }
+        $this->assign('data',$data);
+        $this->assign('page',$data->render());
         return $this->fetch();
+    }
+
+    /**
+     * 提现审核弹框
+     */
+    public function checkWithdraw(){
+        $id = $this->request->param('id');
+        $appWithdraw = new AppWithdraw();
+        $data = $appWithdraw->where(['id'=>$id])->find();
+
+        return json(['data'=>$data,'status'=>200]);
+    }
+
+    /**
+     * 提现审核
+     */
+    public function passWithdraw(){
+        $params = $this->request->param();
+        $status = $params['states'];
+
+        $appWithdraw = new AppWithdraw();
+        if($status == 2){
+            $data = [
+                'states'=>$params['states'],
+            ];
+            $appWithdraw->where(['id'=>$params['id']])->update($data);
+            return json(['msg'=>'审核通过','status'=>200]);
+        }
+        if($status == 3){
+            $data = [
+                'states'=>$params['states'],
+            ];
+
+            $appUser = new AppUser();
+            $appUserData = $appUser->where(['phone'=>$params['user_phone']])->find();
+
+            $appWithdrawData = $appWithdraw->where(['id'=>$params['id']])->find();
+
+            $sysSetting = new SystemSetting();
+            $sysSettingData = $sysSetting->find();
+
+            if($appUserData['money']+$appWithdrawData['money']>$sysSettingData['full_money']){
+                $lostMoney = $appUserData['money']+$appWithdrawData['money']-$sysSettingData['full_money'];
+                $appUserData['unclear_money'] += $lostMoney;
+                $appUserData['money'] = $sysSettingData['full_money'];
+            }else{
+                $appUserData['money'] += $appWithdrawData['money'];
+            }
+            $appUserSubmitData = [
+                'unclear_money' => $appUserData['unclear_money'],
+                'money' => $appUserData['money'],
+            ];
+            $appUser->where(['id'=>$appUserData['id']])->update($appUserSubmitData);
+
+            $appWithdraw->where(['id'=>$params['id']])->update($data);
+            return json(['msg'=>'审核不通过','status'=>200]);
+
+        }
     }
 }

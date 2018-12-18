@@ -111,7 +111,8 @@ class User extends Index
             'bonus'=>0,
             'create_time'=>time(),
             'update_time'=>time(),
-            'update_what'=>'用户自己注册'
+            'update_what'=>'用户自己注册',
+            'head_img_url'=>'F:\zz\public\head.png',
         ];
 
         $data2 = [
@@ -121,6 +122,61 @@ class User extends Index
         $AppUser->where(['id'=>$isExist2['id']])->update($data2);
 
         return json(['msg'=>'注册成功','status'=>200]);
+    }
+
+    /**
+     * 修改头像
+     */
+    public function updateHeadImage(){
+        $user = Session::get('user');
+        if(!$user){
+            return json(['msg'=>'尚未登录！','status'=>0]);
+        }
+
+        $file = request()->file('img_file');
+        if(empty($file))
+        {
+            return json(['msg'=>'请上传您的头像','status'=>0]);
+        }
+        // 移动到框架应用根目录/public/uploads/ 目录下
+        $info = $file->move(ROOT_PATH.'public'.DS.'upload'.DS);
+        //如果不清楚文件上传的具体键名，可以直接打印$info来查看
+        //获取文件（文件名），$info->getFilename()  ***********不同之处，笔记笔记哦
+        //获取文件（日期/文件名），$info->getSaveName()  **********不同之处，笔记笔记哦
+        $filename = $info->getSaveName();  //在测试的时候也可以直接打印文件名称来查看
+        if(!$filename)
+        {
+            return json(['msg'=>$file->getError(),'status'=>0]);
+        }
+        //更新头像
+        $appUser = new AppUser();
+        $appUser->where(['id'=>$user['id']])->update([
+            'img_url'=>ROOT_PATH.'public'.DS.'head' . $filename
+        ]);
+        return json(['msg'=>'更改成功','status'=>200]);
+    }
+
+    /**
+     * 修改登录密码
+     */
+    public function updatePassword(){
+        $user = Session::get('user');
+        $params = $this->request->param();
+        if(!$user){
+            return json(['msg'=>'尚未登录！','status'=>0]);
+        }
+
+        //判断验证码
+        $code = $params['code'];
+        if($code != 8888){
+            return json(['msg'=>'验证码错误！','status'=>0]);
+        }
+
+        $appUser = new AppUser();
+        $appUser->where(['id'=>$user['id']])->update([
+            'password'=>md5($params['password']),
+        ]);
+        return json(['msg'=>'密码修改成功','status'=>200]);
     }
 
     /**

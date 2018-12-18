@@ -23,6 +23,12 @@
                 </div>
             </div>
             <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-2">下线数量：</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="number" id="sons" value="{$data.sons}">
+                </div>
+            </div>
+            <div class="row cl">
                 <label class="form-label col-xs-4 col-sm-2">开始发单时间：(时)</label>
                 <div class="formControls col-xs-8 col-sm-9">
                     <input type="text" id="star_time" value="{$data.star_time}" onkeyup="value=value.replace(/[^\d]/g,'')">
@@ -53,9 +59,15 @@
                 </div>
             </div>
             <div class="row cl">
-                <label class="form-label col-xs-4 col-sm-2">单次佣金：</label>
+                <label class="form-label col-xs-4 col-sm-2">抢包单次佣金：</label>
                 <div class="formControls col-xs-8 col-sm-9">
                     <input type="number" id="bunus_money" value="{$data.bunus_money}">
+                </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-2">满多少金额开始冻结：</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="number" id="full_money" value="{$data.full_money}">
                 </div>
             </div>
             <div class="row cl">
@@ -85,16 +97,49 @@
                 end_time:$('#end_time').val(),
                 how_long:$('#how_long').val(),
                 bunus_money:$('#bunus_money').val(),
+                full_money:$('#full_money').val(),
+                sons:$('#sons').val(),
 
 
             },
             success:function(res){
                 if(res.status == 200)
                 {
-                    alert(res.msg);
+                    layer.open({
+                        skin: 'alert-skin',//弹出层皮肤，可自定义也可用官方
+                        title: ['提示', 'color:rgb(139, 181, 219);'],//弹出层title,数组右半部份设置title样式
+                        area: 'auto',
+                        maxWidth: 1500,
+                        // maxHeight:1000,
+                        btn: ['确定'],//设置底部按钮
+                        btn1: function () {
+                            layer.close(layer.open());
+                        },
+                        content: "<div>" +
+                            "<span>"+res.msg+"</span>"+
+                            "</div>"+
+                            "<div>"
+
+                    })
                 }
                 else{
-                    alert('修改失败!  ');
+                    layer.open({
+                        skin: 'alert-skin',//弹出层皮肤，可自定义也可用官方
+                        title: ['提示', 'color:rgb(139, 181, 219);'],//弹出层title,数组右半部份设置title样式
+                        area: 'auto',
+                        maxWidth: 1500,
+                        // maxHeight:1000,
+                        btn: ['确定'],//设置底部按钮
+                        btn1: function () {
+                            layer.close(layer.open());
+                            window.location.reload();
+                        },
+                        content: "<div>" +
+                            "<span>"+res.msg+"</span>"+
+                            "</div>"+
+                            "<div>"
+
+                    })
                 }
             },
             error:function(error){

@@ -13,8 +13,8 @@
 		<article class="cl pd-20">
 			<div class="text-c">
 
-				<input type="text" name=""  placeholder="银行卡" style="width:250px" class="input-text">
-				<button name=""  class="btn btn-success" type="submit"><i class="Hui-iconfont">&#xe665;</i> 搜订单</button>
+				<input type="text" name=""  placeholder="银行卡名称" style="width:250px" class="input-text" id="banksName">
+				<div name=""  class="btn btn-success" type="submit" onclick="findBanksByName()"><i class="Hui-iconfont">&#xe665;</i> 搜订单</div>
 			</div>
 			<div class="cl pd-5 bg-1 bk-gray mt-20">
 				<span class="l">
@@ -45,7 +45,7 @@
 							<td>{$vo.name}</td>
 							<td>{$vo.create_time}</td>
 							<td>
-								<button class="btn btn-danger">删除</button>
+								<button class="btn btn-danger" onclick="deleteBank({$vo.id})">删除</button>
 							</td>
 						</tr>
 					{/volist}
@@ -63,5 +63,48 @@
 {include file="public/footer" /}
 
 <script>
+	function deleteBank(id) {
+		layer.open({
+			skin: 'alert-skin',//弹出层皮肤，可自定义也可用官方
+			title: ['提示', 'color:rgb(139, 181, 219);'],//弹出层title,数组右半部份设置title样式
+			area: 'auto',
+			maxWidth: 1500,
+			// maxHeight:1000,
+			btn: ['确定','取消'],//设置底部按钮
+			btn1: function () {
+				$.ajax({
+					url:'/admin/admin/deleteBank',
+					type:'post',
+					data:{
+						id:id
 
+					},
+					success:function(res){
+						if(res.status == 200)
+						{
+							// alert('刪除成功!');
+							window.location.reload();
+
+						}
+						else{
+							alert('刪除失败!  ');
+						}
+					},
+					error:function(error){
+						alert('发生未知错误！');
+					}
+				});
+				layer.close(layer.open());
+			},
+			content: "<div>" +
+					"<span>确定要删除?</span>"+
+					"</div>"+
+					"<div>"
+
+		})
+	}
+	function findBanksByName(){
+		var banksName = $('#banksName').val();
+		window.location.href = 'banks_list.html?banksName='+banksName;
+	}
 </script>
