@@ -138,6 +138,71 @@ class Admin extends Base
     }
 
     /**
+     * 订单审核弹框
+     *
+     */
+    public function checkOrder(){
+        $id = $this->request->param('id');
+        $appOrder = new AppOrder();
+        $data = $appOrder->where(['id'=>$id])->find();
+
+        return json(['data'=>$data,'status'=>200]);
+    }
+
+    /**
+     * 订单审核
+     */
+    public function passOrder(){
+        $params = $this->request->param();
+        $status = $params['status'];
+
+        $order = new AppOrder();
+        $user = new AppUser();
+        $setting = new SystemSetting();
+
+        if($status == 4){
+            $order->where(['id'=>$params['id']])->update([
+                'status'=>4,
+            ]);
+            return json(['msg'=>'审核不通过','status'=>200]);
+        }
+
+        if($status == 3){
+            $orderData = $order->where(['id'=>$params['id']])->find();
+            $userData = $user->where(['phone'=>$params['user_phone']])->find();
+            $settingData = $setting->find();
+
+            if($userData['money']+$orderData['money']>$settingData['full_money']){
+
+                $userData['unclear_money'] = $userData['money']+$orderData['money']-$settingData['full_money'];
+                $userData['money'] = $settingData['full_money'];
+                $userData['today_total'] += $orderData['money'];
+                $user->where(['id'=>$userData['id']])->update([
+                    'money'=>$userData['money'],
+                    'unclear_money'=>$userData['unclear_money'],
+                    'state'=>2,
+                    'today_total'=>$userData['today_total'],
+                ]);
+                $order->where(['id'=>$params['id']])->update([
+                    'status'=>3,
+                ]);
+                return json(['msg'=>'审核通过','status'=>200]);
+            }else{
+                $userData['money'] += $orderData['money'];
+                $userData['today_total'] += $orderData['money'];
+                $user->where(['id'=>$userData['id']])->update([
+                    'money'=>$userData['money'],
+                ]);
+                $order->where(['id'=>$params['id']])->update([
+                    'status'=>3,
+                    'today_total'=>$userData['today_total'],
+                ]);
+                return json(['msg'=>'审核通过','status'=>200]);
+            }
+        }
+    }
+
+    /**
      * 银行卡列表
      * @return mixed
      */

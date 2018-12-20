@@ -182,6 +182,21 @@
             success:function(res){
                 if(res.status == 200)
                 {
+                    var str = '';
+                    if(res.data.state == 0){
+                        str =  "<option value ='0' selected >冻结</option>"+
+                            "<option value ='1' >正常</option>"+
+                            "<option value ='2'>不能抢包</option>";
+                    }else if(res.data.state == 1){
+                        str =  "<option value ='0'  >冻结</option>"+
+                            "<option value ='1' selected>正常</option>"+
+                            "<option value ='2'>不能抢包</option>";
+                    }else{
+                        str =  "<option value ='0'  >冻结</option>"+
+                            "<option value ='1' >正常</option>"+
+                            "<option value ='2' selected>不能抢包</option>";
+                    }
+
                     layer.open({
                         skin: 'alert-skin',//弹出层皮肤，可自定义也可用官方
                         title: ['用户修改', 'color:rgb(139, 181, 219);'],//弹出层title,数组右半部份设置title样式
@@ -254,9 +269,7 @@
                                     "<label class=\"form-label col-xs-4 col-sm-5\">状态：</label>" +
                                      "<div class=\"formControls col-xs-8 col-sm-6\">" +
                                         "<select name='' id='user_state'>" +
-                                            "<option value ='0'>冻结</option>"+
-                                             "<option value ='1'>正常</option>"+
-                                            "<option value ='2'>不能抢包</option>"+
+                                         str+
                                         "</select>"+
                                      "</div>"+
                                 "</div>"+

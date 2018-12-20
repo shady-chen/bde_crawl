@@ -79,7 +79,7 @@
                         <td class="f-14 td-manage">
                             {switch name="vo.states" }
                             {case value="1" }
-                            <button class="btn btn-danger radius" onclick="pass({$vo.id})">通过审核</button>
+                            <button class="btn btn-danger radius" onclick="pass({$vo.id})">审核</button>
                             {/case}
                             {case value="2" }
                             <span class="label label-success radius">审核已通过，无法操作</span>
@@ -124,7 +124,7 @@
                 {
                     layer.open({
                         skin: 'alert-skin',//弹出层皮肤，可自定义也可用官方
-                        title: ['用户修改', 'color:rgb(139, 181, 219);'],//弹出层title,数组右半部份设置title样式
+                        title: ['提现审核', 'color:rgb(139, 181, 219);'],//弹出层title,数组右半部份设置title样式
                         area: 'auto',
                         maxWidth: 1500,
                         // maxHeight:1000,

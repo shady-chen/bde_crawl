@@ -5,6 +5,7 @@ namespace app\index\controller;
 use app\admin\model\SystemBanks;
 use app\index\model\AppOrder;
 use app\index\model\AppPacket;
+use app\user\model\AppUser;
 use think\Controller;
 use think\Session;
 use app\index\model\SystemSetting;
@@ -50,7 +51,48 @@ class Index extends Controller
 
     }
 
+    /**
+     * 发放奖励
+     * @return \think\response\Json
+     *
+     */
+    public function award(){
+        $setting = new SystemSetting();
+        $settingData = $setting->find();
 
+        $user = new AppUser();
+        $userData = $user->where(['type'=>1])->select();
+
+        for ($x = 0; $x<count($userData);$x++){
+//            return json(['data'=>$userData[$x]['id']]);
+            if($userData[$x]['sons']+1>=$settingData['sons'] && $userData[$x]['per_total']>=$settingData['bonus_rule']){
+                if($userData[$x]['money']+$settingData['per_money']>$settingData['full_money']){
+                    $money = $settingData['full_money'];
+                    $unclear_money = $userData[$x]['money']+$userData[$x]['unclear_money']+$settingData['per_money']-$settingData['full_money'];
+                    $user->where(['id'=>$userData[$x]['id']])->update([
+                        'money'=>$money,
+                        'unclear_money'=>$unclear_money,
+                    ]);
+                }else{
+                    $money = $userData[$x]['money']+$settingData['per_money'];
+                    $user->where(['id'=>$userData[$x]['id']])->update([
+                        'money'=>$money,
+                    ]);
+                }
+                return json(['msg'=>'发放奖励成功','status'=>200]);
+            }
+        }
+
+
+    }
+
+    /**
+     * 抢包
+     * @return \think\response\Json
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
     public function robPacket()
     {
 

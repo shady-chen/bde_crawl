@@ -90,7 +90,7 @@
 										<span class="label label-danger radius">待付款，无法操作</span>
 									{/case}
 									{case value="2" }
-										<button class="btn btn-danger radius">通过审核</button>
+										<button class="btn btn-danger radius" onclick="orderPass({$vo.id})">通过审核</button>
 									{/case}
 									{case value="3" }
 										<span class="label label-success radius">审核已通过，无法操作</span>
@@ -117,6 +117,108 @@
 {include file="public/footer" /}
 
 <script>
+	function orderPass(id){
+		$.ajax({
+			url:'/admin/admin/checkOrder',
+			type:'post',
+			data:{
+				id:id
+
+			},
+			success:function(res){
+				if(res.status == 200)
+				{
+					layer.open({
+						skin: 'alert-skin',//弹出层皮肤，可自定义也可用官方
+						title: ['订单审核', 'color:rgb(139, 181, 219);'],//弹出层title,数组右半部份设置title样式
+						// area: 'auto',
+						area: ['450px', '300px'],
+						maxWidth: 1500,
+						maxHeight:1000,
+						btn: ['确定', '取消'],//设置底部按钮
+						btn1: function () {
+							$.ajax({
+								url:'/admin/admin/passOrder',
+								type:'post',
+								data:{
+									id:$('#order_id').val(),
+									status:$('#order_state').val(),
+									user_phone:res.data.user_phone
+								},
+								success:function(res){
+									if(res.status == 200)
+									{
+										// alert('修改成功!');
+										window.location.reload();
+
+									}
+									else{
+										alert('修改失败!  ');
+									}
+								},
+								error:function(error){
+									alert('发生未知错误！');
+								}
+							});
+						},
+						//content为弹出层内容
+						content: "<table class='table345'>" +
+								"<div class=\"row cl\">"+
+								"<label class=\"form-label col-xs-4 col-sm-5\">用户名：</label>" +
+								"<div class=\"formControls col-xs-8 col-sm-6\">" +
+								"<label id='withdraw_user_phone'>"+res.data.user_phone+"</label>" +
+								"</div>"+
+								"</div>"+
+								"<div class=\"row cl\">"+
+								"<label class=\"form-label col-xs-4 col-sm-5\">金额：</label>" +
+								"<div class=\"formControls col-xs-8 col-sm-6\">" +
+								"<label>"+res.data.money+"</label>" +
+								"</div>"+
+								"</div>"+
+								"<div class=\"row cl\">"+
+								"<label class=\"form-label col-xs-4 col-sm-5\">红包期数：</label>" +
+								"<div class=\"formControls col-xs-8 col-sm-6\">" +
+								"<label>"+res.data.packet_expect+"</label>" +
+								"</div>"+
+								"</div>"+
+								"<div class=\"row cl\">"+
+								"<label class=\"form-label col-xs-4 col-sm-5\">凭证图片：</label>" +
+								"<div class=\"formControls col-xs-8 col-sm-6\">" +
+								"<img src='"+res.data.img_url+"'>"+
+								"</div>"+
+								"</div>"+
+								"<div class=\"row cl\">"+
+								"<label class=\"form-label col-xs-4 col-sm-5\">订单时间：</label>" +
+								"<div class=\"formControls col-xs-8 col-sm-7\">" +
+								"<label>"+res.data.create_time+"</label>" +
+								"</div>"+
+								"</div>"+
+								"</div>"+
+								"<div class=\"row cl\">"+
+								"<label class=\"form-label col-xs-4 col-sm-5\">审核：</label>" +
+								"<div class=\"formControls col-xs-8 col-sm-6\">" +
+								"<select name='' id='order_state'>" +
+									"<option value ='3'>通过</option>"+
+									"<option value ='4'>不通过</option>"+
+								"</select>"+
+								"</div>"+
+								"</div>"+
+								"<input type='hidden' value='"+res.data.id+"' id='order_id'/>"+
+								// "<div class='table2-line'></div>"+
+						"</table>"
+					})
+				}
+				else{
+					alert('修改失败!  ');
+				}
+			},
+			error:function(error){
+				alert('发生未知错误！');
+			}
+		});
+	}
+
+
 	function watchBanks(id){
 		$.ajax({
 			url:'/index/index/findPackById',
@@ -140,10 +242,10 @@
 							layer.close(layer.open());
 						},
 						content: "<div>" +
-									"<span>银行\支付宝:</span><span>"+res.data.sys_bank_which+"</span>"+
+									"<span>银行卡\\支付宝:</span><span>"+res.data.sys_bank_which+"</span>"+
 								"</div>"+
 								"<div>" +
-								"<span>银行卡号\支付宝账号:</span><span>"+res.data.sys_bank_num+"</span>"+
+								"<span>账号:</span><span>"+res.data.sys_bank_num+"</span>"+
 								"</div>"+
 								"<div>" +
 								"<span>姓名:</span><span>"+res.data.sys_name+"</span>"+
