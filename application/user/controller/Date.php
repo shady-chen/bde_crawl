@@ -92,7 +92,7 @@ class Date extends Index
             //更新订单
             $appOrder->where(['id'=>$orderId])->update([
                 'status'=>2,
-                'img_url'=>ROOT_PATH.'public'.DS.'upload' . $filename
+                'img_url'=>DS.'upload' . $filename
             ]);
 
             return json(['msg'=>'提交成功，请等待审核','status'=>200]);

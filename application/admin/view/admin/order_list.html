@@ -66,7 +66,7 @@
 							</td>
 							<td>
 								{if condition="$vo.img_url"}
-										<img src="{$vo.img_url}" alt="">
+										<img src="{$vo.img_url}" alt="" width="40px" height="40px">
 									{else /} 尚未上传凭证
 								{/if}
 							</td>
@@ -132,7 +132,7 @@
 						skin: 'alert-skin',//弹出层皮肤，可自定义也可用官方
 						title: ['订单审核', 'color:rgb(139, 181, 219);'],//弹出层title,数组右半部份设置title样式
 						// area: 'auto',
-						area: ['450px', '300px'],
+						area: ['450px', '420px'],
 						maxWidth: 1500,
 						maxHeight:1000,
 						btn: ['确定', '取消'],//设置底部按钮
@@ -184,7 +184,7 @@
 								"<div class=\"row cl\">"+
 								"<label class=\"form-label col-xs-4 col-sm-5\">凭证图片：</label>" +
 								"<div class=\"formControls col-xs-8 col-sm-6\">" +
-								"<img src='"+res.data.img_url+"'>"+
+								"<img src='"+res.data.img_url+"' alt='凭证' height='180px' width='100px'>"+
 								"</div>"+
 								"</div>"+
 								"<div class=\"row cl\">"+

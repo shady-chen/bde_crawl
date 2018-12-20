@@ -112,7 +112,7 @@ class User extends Index
             'create_time'=>time(),
             'update_time'=>time(),
             'update_what'=>'用户自己注册',
-            'head_img_url'=>'F:\zz\public\head.png',
+            'head_img_url'=>'\head.png',
         ];
 
         $data2 = [
@@ -151,7 +151,7 @@ class User extends Index
         //更新头像
         $appUser = new AppUser();
         $appUser->where(['id'=>$user['id']])->update([
-            'img_url'=>ROOT_PATH.'public'.DS.'head' . $filename
+            'img_url'=>DS.'head' . $filename
         ]);
         return json(['msg'=>'更改成功','status'=>200]);
     }
