@@ -128,7 +128,7 @@ class User extends Index
      * 修改头像
      */
     public function updateHeadImage(){
-        $user = Session::get('user');
+        $user = session('user');
         if(!$user){
             return json(['msg'=>'尚未登录！','status'=>0]);
         }
@@ -160,23 +160,59 @@ class User extends Index
      * 修改登录密码
      */
     public function updatePassword(){
-        $user = Session::get('user');
+//        $user = session('user');
+        $user = session('user');
         $params = $this->request->param();
         if(!$user){
             return json(['msg'=>'尚未登录！','status'=>0]);
         }
 
         //判断验证码
-        $code = $params['code'];
-        if($code != 8888){
-            return json(['msg'=>'验证码错误！','status'=>0]);
+//        $code = $params['code'];
+//        if($code != 8888){
+//            return json(['msg'=>'验证码错误！','status'=>0]);
+//        }
+
+        if($user['password'] != md5($params['oldPass'])){
+            return json(['msg'=>'原密码不正确！','status'=>0]);
         }
 
         $appUser = new AppUser();
         $appUser->where(['id'=>$user['id']])->update([
-            'password'=>md5($params['password']),
+            'password'=>md5($params['newPass']),
         ]);
         return json(['msg'=>'密码修改成功','status'=>200]);
+    }
+
+    /**
+     * 获取用户信息
+     */
+    public function  getUser(){
+        $user = session('user');
+        $appUser = new AppUser();
+        $data = $appUser->where(['id'=>$user['id']])->find();
+        return json($data);
+    }
+
+
+    /**
+     *
+     * 我的团队
+     */
+    public function  getUserByInvitationCode(){
+        $user = session('user');
+        $appUser = new AppUser();
+        $data = $appUser->where(['invitation_code'=>$user['phone']])->select();
+        return json($data);
+    }
+
+    /**
+     *
+     * 退出
+     */
+    public function logout(){
+        session('user',null);
+        return json(['msg'=>'退出','status'=>200]);
     }
 
     /**

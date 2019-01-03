@@ -44,10 +44,10 @@ class Index extends Controller
         $data = $appPacket->where('create_time','>',time()-$setting['how_long'])->find();
 
         if($data){
-            return json(['data'=>$data->toArray(),'status'=>200]);
+            return json(['data'=>$data->toArray(),'status'=>200,'setting'=>$setting]);
         }
 
-        return json(['msg'=>'还没有包发出来','status'=>0]);
+        return json(['msg'=>'还没有包发出来','status'=>0,'setting'=>$setting]);
 
     }
 
@@ -96,7 +96,7 @@ class Index extends Controller
     public function robPacket()
     {
 
-        $user = Session::get('user');
+        $user = session('user');
 
         if(!$user){
             return json(['msg'=>'尚未登录！','status'=>0]);

@@ -4,9 +4,9 @@
 <section class="Hui-article-box">
 	<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页
 		<span class="c-gray en">&gt;</span>
-		订单管理
+		银行卡管理
 		<span class="c-gray en">&gt;</span>
-		订单列表
+		银行卡列表
 		<a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a>
 	</nav>
 	<div class="Hui-article">
@@ -23,10 +23,10 @@
 				</span>
 			</div>
 			<div class="mt-20">
-				<table class="table table-border table-bordered table-bg table-hover table-sort">
+				<table class="table table-border table-bordered table-bg table-hover table-sort" id="bbsTab">
 					<thead>
 						<tr class="text-c">
-							<th width="40">id</th>
+							<th width="40">序号</th>
 							<th width="90">名称</th>
 							<th width="50">账号</th>
 							<th width="80">开户行</th>
@@ -38,7 +38,7 @@
 					<tbody>
 					{volist name="data" id="vo"}
 						<tr class="text-c">
-							<td>{$vo.id}</td>
+							<td></td>
 							<td>{$vo.bank_which}</td>
 							<td>{$vo.bank_num}</td>
 							<td>{$vo.bank_where}</td>
@@ -63,6 +63,15 @@
 {include file="public/footer" /}
 
 <script>
+	window.onload = function() {
+		var oTable = document.getElementById("bbsTab");
+		for ( var i = 1; i < oTable.rows.length; i++) {
+			oTable.rows[i].cells[0].innerHTML = (i);
+			// if (i % 2 == 0)
+			// 	oTable.rows[i].className = "ys01";
+		}
+	}
+
 	function deleteBank(id) {
 		layer.open({
 			skin: 'alert-skin',//弹出层皮肤，可自定义也可用官方

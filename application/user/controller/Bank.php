@@ -9,7 +9,7 @@
 namespace app\user\controller;
 
 
-
+use app\index\controller\Index;
 use app\user\model\AppBanks;
 use app\index\model\AppWithdraw;
 use think\Session;
@@ -21,7 +21,7 @@ class Bank extends Index{
      * 添加银行卡
      */
     public function addAppBanks(){
-        $user = Session::get('user');
+        $user = session('user');
         $params = $this->request->param();
         if(!$user){
             return json(['msg'=>'尚未登录！','status'=>0]);
@@ -47,12 +47,12 @@ class Bank extends Index{
      * 银行卡列表
      */
     public function appBanksList(){
-        $user = Session::get('user');
+        $user = session('user');
         if(!$user){
             return json(['msg'=>'尚未登录！','status'=>0]);
         }
         $appBanks = new AppBanks();
-        $data = $appBanks->where(['uid'=>$user['id']])->where(['status'=>1])->selectOrFail();
+        $data = $appBanks->where(['uid'=>$user['id']])->where(['status'=>1])->select();
 
         return json(['data'=>$data,'status'=>200]);
     }
@@ -61,7 +61,7 @@ class Bank extends Index{
      * 修改银行卡
      */
     public function updateAppBank(){
-        $user = Session::get('user');
+        $user = session('user');
         $params = $this->request->param();
         if(!$user){
             return json(['msg'=>'尚未登录！','status'=>0]);
@@ -90,7 +90,7 @@ class Bank extends Index{
      * 删除银行卡
      */
     public function deleteAppBank(){
-        $user = Session::get('user');
+        $user = session('user');
         $params = $this->request->param();
         if(!$user){
             return json(['msg'=>'尚未登录！','status'=>0]);
@@ -109,7 +109,7 @@ class Bank extends Index{
      * 根据ID获取银行卡
      */
     public function getAppBankById(){
-        $user = Session::get('user');
+        $user = session('user');
         $params = $this->request->param();
         if(!$user){
             return json(['msg'=>'尚未登录！','status'=>0]);

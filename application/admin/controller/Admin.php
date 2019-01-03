@@ -11,6 +11,7 @@ namespace app\admin\controller;
 
 
 
+use app\admin\model\AppMoneysteam;
 use app\admin\model\AppNotice;
 use app\admin\model\Notice;
 use app\index\model\AppOrder;
@@ -42,11 +43,13 @@ class Admin extends Base
     public function article_list(){
         $notice = new AppNotice();
         $title = $this->request->param('title');
-        if($title != null && $title != ''){
-            $data = $notice->where('title','like','%'.$title.'%')->order('create_time desc')->paginate(10);
-        }else{
-            $data = $notice->order('create_time desc')->paginate(10);
-        }
+        $uid = $this->request->param('uid');
+        $state = $this->request->param('state');
+//        if($title != null && $title != ''){
+            $data = $notice->where('title','like','%'.$title.'%')->where('uid','like','%'.$uid.'%')->where('states','like','%'.$state.'%')->order('create_time desc')->paginate(10);
+//        }else{
+//            $data = $notice->order('create_time desc')->paginate(10);
+//        }
 
 
 
@@ -62,6 +65,8 @@ class Admin extends Base
         $params = $this->request->param();
         $data = [
             'states'=>$params['states'],
+            'create_time'=>time(),
+            'read_states'=>0,
         ];
         $notice->where(['id'=>$params['id']])->update($data);
         return json(['status'=>200]);
@@ -126,11 +131,22 @@ class Admin extends Base
     public function order_list(){
         $appOrder = new AppOrder();
         $phone = $this->request->param('phone');
-        if($phone != null && $phone != ''){
-            $data = $appOrder->where('user_phone','like','%'.$phone.'%')->order('create_time desc')->paginate(10);
+        $id = $this->request->param('id');
+        $expect = $this->request->param('expect');
+        $state = $this->request->param('state');
+
+        $time1 = $this->request->param('starttime');
+        $time2 = $this->request->param('endtime');
+
+
+
+        if($time1 != null && $time1 != '' && $time2 != null && $time2 != '' ){
+            $starttime = strtotime($time1.' 00:00:00');
+            $endtime = strtotime($time2.' 23:59:59');
+            $data = $appOrder->where('create_time','>',$starttime)->where('create_time','<',$endtime)->where('user_phone','like','%'.$phone.'%')->where('id','like','%'.$id.'%')->where('packet_expect','like','%'.$expect.'%')->where('status','like','%'.$state.'%')->order('create_time desc')->paginate(10);
 
         }else{
-            $data = $appOrder->order('create_time desc')->paginate(10);
+            $data = $appOrder->where('user_phone','like','%'.$phone.'%')->where('id','like','%'.$id.'%')->where('packet_expect','like','%'.$expect.'%')->where('status','like','%'.$state.'%')->order('create_time desc')->paginate(10);
         }
         $this->assign('data',$data);
         $this->assign('page',$data->render());
@@ -158,6 +174,7 @@ class Admin extends Base
 
         $order = new AppOrder();
         $user = new AppUser();
+        $money_steam = new AppMoneysteam();
         $setting = new SystemSetting();
 
         if($status == 4){
@@ -172,9 +189,12 @@ class Admin extends Base
             $userData = $user->where(['phone'=>$params['user_phone']])->find();
             $settingData = $setting->find();
 
+            $old_money = $userData['money'];
+            $old_unclear_money = $userData['unclear_money'];
+
             if($userData['money']+$orderData['money']>$settingData['full_money']){
 
-                $userData['unclear_money'] = $userData['money']+$orderData['money']-$settingData['full_money'];
+                $userData['unclear_money'] += $userData['money']+$orderData['money']-$settingData['full_money'];
                 $userData['money'] = $settingData['full_money'];
                 $userData['today_total'] += $orderData['money'];
                 $user->where(['id'=>$userData['id']])->update([
@@ -186,17 +206,47 @@ class Admin extends Base
                 $order->where(['id'=>$params['id']])->update([
                     'status'=>3,
                 ]);
+
+                //资金明细
+
+                $remark = '金额增加'.$userData['money']-$old_money.',未结算金额增加'.$userData['unclear_money']-$old_unclear_money;
+
+                $money_steam->save([
+                    'money'=>$orderData['money'],
+                    'user_money_now'=>$old_money,
+                    'user_money_later'=>$userData['money'],
+                    'remark'=>$remark,
+                    'uid'=>$orderData['uid'],
+                    'create_time'=>time(),
+                ]);
+
+
                 return json(['msg'=>'审核通过','status'=>200]);
             }else{
                 $userData['money'] += $orderData['money'];
+
                 $userData['today_total'] += $orderData['money'];
                 $user->where(['id'=>$userData['id']])->update([
                     'money'=>$userData['money'],
                 ]);
+
                 $order->where(['id'=>$params['id']])->update([
                     'status'=>3,
-                    'today_total'=>$userData['today_total'],
+                   // 'today_total'=>$userData['today_total'],
                 ]);
+
+                //资金明细
+                $remark = '金额增加'.$userData['money']-$old_money;
+
+                $money_steam->save([
+                    'money'=>$orderData['money'],
+                    'user_money_now'=>$old_money,
+                    'user_money_later'=>$userData['money'],
+                    'remark'=>$remark,
+                    'uid'=>$orderData['uid'],
+                    'create_time'=>time(),
+                ]);
+
                 return json(['msg'=>'审核通过','status'=>200]);
             }
         }
@@ -326,12 +376,16 @@ class Admin extends Base
 
         $appUser = new AppUser();
         $phone = $this->request->param('phone');
-        if($phone != null && $phone != ''){
-            $data = $appUser->where('phone','like','%'.$phone.'%')->order('create_time desc')->paginate(10);
+        $invitation_code = $this->request->param('invitation_code');
+        $state = $this->request->param('state');
+//        if($phone != null && $phone != ''){
+//            $data = $appUser->where('phone','like','%'.$phone.'%')->order('create_time desc')->paginate(10);
+            $data = $appUser->where(['type'=>1])->where('state','like','%'.$state.'%')->where('phone','like','%'.$phone.'%')->where('invitation_code','like','%'.$invitation_code.'%')->order('create_time desc')->paginate(10);
 
-        }else{
-            $data = $appUser->where(['type'=>1])->order('create_time desc')->paginate(10);
-        }
+
+//        }else{
+//            $data = $appUser->where(['type'=>1])->order('create_time desc')->paginate(10);
+//        }
         $this->assign('data',$data);
         $this->assign('page',$data->render());
         return $this->fetch();
@@ -426,6 +480,7 @@ class Admin extends Base
      */
     public function  findUser(){
         $phone = $this->request->param('phone');
+
         $appUser = new AppUser();
         $data = $appUser->where(['type'=>1])->where('phone','like','%'.$phone.'%')->order('create_time desc')->paginate(10);
 
@@ -438,12 +493,14 @@ class Admin extends Base
     public function withdraw_list(){
         $appWithdraw = new AppWithdraw();
         $phone = $this->request->param('phone');
-        if($phone != null && $phone != ''){
-            $data = $appWithdraw->where('user_phone','like','%'.$phone.'%')->order('create_time desc')->paginate(10);
+        $id = $this->request->param('id');
+        $state = $this->request->param('state');
+//        if($phone != null && $phone != ''){
+            $data = $appWithdraw->where('user_phone','like','%'.$phone.'%')->where('id','like','%'.$id.'%')->where('states','like','%'.$state.'%')->order('create_time desc')->paginate(10);
 
-        }else{
-            $data = $appWithdraw->order('create_time desc')->paginate(10);
-        }
+//        }else{
+//            $data = $appWithdraw->order('create_time desc')->paginate(10);
+//        }
         $this->assign('data',$data);
         $this->assign('page',$data->render());
         return $this->fetch();
@@ -467,6 +524,8 @@ class Admin extends Base
         $params = $this->request->param();
         $status = $params['states'];
 
+        $money_steam = new AppMoneysteam();
+
         $appWithdraw = new AppWithdraw();
         if($status == 2){
             $data = [
@@ -488,12 +547,41 @@ class Admin extends Base
             $sysSetting = new SystemSetting();
             $sysSettingData = $sysSetting->find();
 
+            $old_money = $appUserData['money'];
+//            $old_unclear_money = $appUserData['unclear_money'];
+
             if($appUserData['money']+$appWithdrawData['money']>$sysSettingData['full_money']){
                 $lostMoney = $appUserData['money']+$appWithdrawData['money']-$sysSettingData['full_money'];
                 $appUserData['unclear_money'] += $lostMoney;
                 $appUserData['money'] = $sysSettingData['full_money'];
+
+                //资金明细
+
+                $remark = '金额增加'.$appUserData['money']-$old_money.',未结算金额增加'.$lostMoney;
+
+                $money_steam->save([
+                    'money'=>$appWithdrawData['money'],
+                    'user_money_now'=>$old_money,
+                    'user_money_later'=>$appUserData['money'],
+                    'remark'=>$remark,
+                    'uid'=>$appWithdrawData['uid'],
+                    'create_time'=>time(),
+                ]);
+
             }else{
                 $appUserData['money'] += $appWithdrawData['money'];
+                //资金明细
+
+                $remark = '金额增加'.$appWithdrawData['money'].',未结算金额增加0';
+
+                $money_steam->save([
+                    'money'=>$appWithdrawData['money'],
+                    'user_money_now'=>$old_money,
+                    'user_money_later'=>$appUserData['money'],
+                    'remark'=>$remark,
+                    'uid'=>$appWithdrawData['uid'],
+                    'create_time'=>time(),
+                ]);
             }
             $appUserSubmitData = [
                 'unclear_money' => $appUserData['unclear_money'],

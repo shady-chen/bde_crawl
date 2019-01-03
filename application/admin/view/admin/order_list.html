@@ -11,10 +11,36 @@
 	</nav>
 	<div class="Hui-article">
 		<article class="cl pd-20">
-			<div class="text-c">
+			<div >
+				<label>用户名:</label>
+				<input type="text" name=""  placeholder="" style="width:150px" class="input-text" id="find_user_phone">
+				&nbsp;&nbsp;
+				<label>订单号:</label>
+				<input type="text" name=""  placeholder="" style="width:150px" class="input-text" id="find_user_id">
+				&nbsp;&nbsp;
+				<label>红包期数:</label>
+				<input type="text" name=""  placeholder="" style="width:150px" class="input-text" id="find_user_expect">
+				&nbsp;&nbsp;
+				<label>状态:</label>
+				<select  style="width:150px;height: 31px" id="find_user_state">
+					<option value="">请选择状态</option>
+					<option value="0">过期</option>
+					<option value="1">待付款</option>
+					<option value="2">审核中</option>
+					<option value="3">审核通过</option>
+					<option value="4">审核不通过</option>
+				</select>
 
-				<input type="text" name=""  placeholder=" 用户名" style="width:250px" class="input-text" id="find_user_phone">
+			</div>
+			<br>
+			<div>
+				<label>订单时间:</label>
+				<input type="date" name=""  placeholder="" style="width:150px" class="input-text" id="find_user_starttime">
+				<span>~</span>
+				<input type="date" name=""  placeholder="" style="width:150px" class="input-text" id="find_user_endtime">
+				&nbsp;&nbsp;
 				<div name=""  class="btn btn-success" type="submit" onclick="find_user()"><i class="Hui-iconfont">&#xe665;</i> 搜订单</div>
+
 			</div>
 			<!--<div class="cl pd-5 bg-1 bk-gray mt-20">-->
 				<!--<span class="l">-->
@@ -264,6 +290,11 @@
 	}
 	function find_user() {
 		var phone = $('#find_user_phone').val();
-		window.location.href = 'order_list.html?phone='+phone;
+		var id = $('#find_user_id').val();
+		var expect = $('#find_user_expect').val();
+		var state = $('#find_user_state').val();
+		var starttime = $('#find_user_starttime').val();
+		var endtime = $('#find_user_endtime').val();
+		window.location.href = 'order_list.html?phone='+phone+'&id='+id+'&expect='+expect+'&state='+state+'&starttime='+starttime+'&endtime='+endtime;
 	}
 </script>

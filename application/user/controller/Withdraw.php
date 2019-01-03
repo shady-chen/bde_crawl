@@ -9,11 +9,14 @@
 namespace app\user\controller;
 
 
+use app\admin\model\AppMoneysteam;
 use app\user\model\AppBanks;
 use app\user\model\AppUser;
 use app\index\model\AppWithdraw;
 use think\Session;
 use app\index\model\SystemSetting;
+use app\index\controller\Index;
+
 
 
 
@@ -22,15 +25,19 @@ class Withdraw extends Index{
      * 提现
      */
     public function withdraw(){
-        $user = Session::get('user');
+        $user = session('user');
+        $money_steam = new AppMoneysteam();
         $params = $this->request->param();
         if(!$user){
             return json(['msg'=>'尚未登录！','status'=>0]);
         }
+        if($params['phoneMess']>session('code')){
+            return json(['msg'=>'验证码有误！','status'=>1]);
+        }
 
         //获取银行卡信息
         $appBanks = new AppBanks();
-        $banksData = $appBanks->where(['id'=>$params['id']])->find();
+        $banksData = $appBanks->where(['id'=>$params['bank_id']])->find();
 
         //用户的金额改变
         $appuser = new AppUser();
@@ -42,18 +49,44 @@ class Withdraw extends Index{
         $sysSetting = new SystemSetting();
         $sysSettingData = $sysSetting->find();
 
-        $money = $appData['money'] - $params['money'];
-        if($money+$appData['unclear_money']>$sysSettingData['full_money']){
-            $money = $sysSettingData['full_money'];
+        $money = $appData['money'] - $params['money'];//提现以后的余额
+        if($money+$appData['unclear_money']>=$sysSettingData['full_money']){
+            $money2 = $sysSettingData['full_money'];
             $unclear_money = $money+$appData['unclear_money']-$sysSettingData['full_money'];
 
+            //资金明细
+
+            $remark = '金额减少0,未结算金额减少'.$params['money'];
+
+            $money_steam->save([
+                'money'=>$params['money'],
+                'user_money_now'=>$appData['money'],
+                'user_money_later'=>$money2,
+                'remark'=>$remark,
+                'uid'=>$user['id'],
+                'create_time'=>time(),
+            ]);
+
         }else{
-            $money = $money+$appData['money'];
+            $money2 = $money+$appData['unclear_money'];
             $unclear_money = 0;
+
+            //资金明细
+
+            $remark = '金额减少'.$appData['money']-$money2.',未结算金额减少'.$appData['unclear_money'];
+
+            $money_steam->save([
+                'money'=>$params['money'],
+                'user_money_now'=>$appData['money'],
+                'user_money_later'=>$money2,
+                'remark'=>$remark,
+                'uid'=>$user['id'],
+                'create_time'=>time(),
+            ]);
         }
 
         $appData2 = [
-            'money'=>$money,
+            'money'=>$money2,
             'unclear_money'=>$unclear_money,
         ];
         $appuser->where(['id'=>$user['id']])->update($appData2);
@@ -76,7 +109,7 @@ class Withdraw extends Index{
         ];
 
         $appWithdraw->save($data);
-
+        session('code',null);
         return json(['data'=>$data,'status'=>200]);
     }
 
@@ -84,12 +117,12 @@ class Withdraw extends Index{
      * 提现记录
      */
     public function withdrawList(){
-        $user = Session::get('user');
+        $user = session('user');
         if(!$user){
             return json(['msg'=>'尚未登录！','status'=>0]);
         }
         $appWithdraw = new AppWithdraw();
-        $data = $appWithdraw->where(['uid'=>$user['id']])->selectOrFail();
+        $data = $appWithdraw->where(['uid'=>$user['id']])->order('id desc')->select();
 
         return json(['data'=>$data,'status'=>200]);
     }
@@ -98,7 +131,7 @@ class Withdraw extends Index{
      * 根据ID查看提现记录
      */
     public function getWithdrawById(){
-        $user = Session::get('user');
+        $user = session('user');
         $params = $this->request->param();
         if(!$user){
             return json(['msg'=>'尚未登录！','status'=>0]);

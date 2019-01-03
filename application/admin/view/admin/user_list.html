@@ -12,9 +12,18 @@
     </nav>
     <div class="Hui-article">
         <article class="cl pd-20">
-            <div class="text-c">
-
-                <input type="text" name=""  placeholder="手机号码" style="width:250px" class="input-text" id="userName">
+            <div class="">
+                <label>用户名:</label>
+                <input type="text" name=""  placeholder="" style="width:150px" class="input-text" id="userName">&nbsp;&nbsp;
+                <label>用户邀请码:</label>
+                <input type="text" name=""  placeholder="" style="width:150px" class="input-text" id="find_user_invitation_code">&nbsp;&nbsp;
+                <label>状态:</label>
+                <select  style="width:150px;height: 31px" id="find_user_state">
+                    <option value="">请选择状态</option>
+                    <option value="0">冻结</option>
+                    <option value="1">正常</option>
+                    <option value="2">不能抢包</option>
+                </select>&nbsp;&nbsp;
                 <div name=""  class="btn btn-success" type="submit" onclick="find_user()"><i class="Hui-iconfont">&#xe665;</i> 搜用戶</div>
             </div>
             <!--<div class="cl pd-5 bg-1 bk-gray mt-20">-->
@@ -27,7 +36,7 @@
                 <table class="table table-border table-bordered table-bg table-hover table-sort" id="my-list">
                     <thead>
                     <tr class="text-c">
-                        <th width="40">用戶id</th>
+                        <th width="40">序号</th>
                         <th width="90">用户名</th>
                         <th width="50">用户余额</th>
                         <th width="80">冻结金额</th>
@@ -43,7 +52,7 @@
                     <tbody>
                     {volist name="data" id="vo"}
                     <tr class="text-c">
-                        <td>{$vo.id}</td>
+                        <td></td>
                         <td>{$vo.phone}</td>
                         <td>{$vo.money}</td>
                         <td>{$vo.unclear_money}</td>
@@ -86,6 +95,14 @@
 {include file="public/footer" /}
 
 <script>
+    window.onload = function() {
+        var oTable = document.getElementById("my-list");
+        for ( var i = 1; i < oTable.rows.length; i++) {
+            oTable.rows[i].cells[0].innerHTML = (i);
+            // if (i % 2 == 0)
+            // 	oTable.rows[i].className = "ys01";
+        }
+    }
     //查看银行卡
     function selectUserBanks(id) {
         $.ajax({
@@ -335,7 +352,9 @@
 
     function find_user() {
         var phone = $('#userName').val();
-        window.location.href = 'user_list.html?phone='+phone;
+        var invitation_code = $('#find_user_invitation_code').val();
+        var state = $('#find_user_state').val();
+        window.location.href = 'user_list.html?phone='+phone+'&invitation_code='+invitation_code+'&state='+state;
     }
 
 

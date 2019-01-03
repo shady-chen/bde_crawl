@@ -11,9 +11,25 @@
 	</nav>
 	<div class="Hui-article">
 		<article class="cl pd-20">
-			<div class="text-c">
-				<span class="select-box inline">
-				<input type="text" name=""  placeholder=" 标题" style="width:250px" class="input-text" id="find_notice_title">
+			<div class="">
+				<!--<span class="select-box inline">-->
+				<label>标题:</label>
+				<input type="text" name=""  placeholder="" style="width:150px" class="input-text" id="find_notice_title">
+				&nbsp;&nbsp;
+				<label>发布对象:</label>
+				<select  style="width:150px;height: 31px" id="find_user_uid">
+					<option value="">请选择发布对象</option>
+					<option value="0">所有人</option>
+					<option value="1">指定用户</option>
+				</select>
+				&nbsp;&nbsp;
+				<label>状态:</label>
+				<select  style="width:150px;height: 31px" id="find_user_state">
+					<option value="">请选择状态</option>
+					<option value="0">未发布</option>
+					<option value="1">已发布</option>
+				</select>
+				&nbsp;&nbsp;
 				<button name=""  class="btn btn-success" type="submit" onclick="findNotice()"><i class="Hui-iconfont">&#xe665;</i> 搜资讯</button>
 			</div>
 			<div class="cl pd-5 bg-1 bk-gray mt-20">
@@ -23,11 +39,11 @@
 
 			</div>
 			<div class="mt-20">
-				<table class="table table-border table-bordered table-bg table-hover table-sort">
+				<table class="table table-border table-bordered table-bg table-hover table-sort" id="bbsTab">
 					<thead>
 						<tr class="text-c">
-							<th width="25"><input type="checkbox" name="" value=""></th>
-							<th width="80">ID</th>
+							<!--<th width="25"><input type="checkbox" name="" value=""></th>-->
+							<th width="80">序号</th>
 							<th>标题</th>
 							<th width="80">发布对象</th>
 							<!--<th width="80">来源</th>-->
@@ -41,8 +57,8 @@
 					{volist name="data" id="vo"}
 
 					<tr class="text-c">
-							<td><input type="checkbox" value="" name=""></td>
-							<td>{$vo.id}</td>
+							<!--<td><input type="checkbox" value="" name=""></td>-->
+							<td></td>
 							<td class="text-l"><u style="cursor:pointer" class="text-primary" onclick="article_edit('{$vo.title}','{$vo.content}')" title="查看">{$vo.title}</u></td>
 							<td>
 								{switch name="vo.uid" }
@@ -91,6 +107,14 @@
 {include file="public/footer" /}
 
 <script>
+	window.onload = function() {
+		var oTable = document.getElementById("bbsTab");
+		for ( var i = 1; i < oTable.rows.length; i++) {
+			oTable.rows[i].cells[0].innerHTML = (i);
+			// if (i % 2 == 0)
+			// 	oTable.rows[i].className = "ys01";
+		}
+	}
 	//删除通知
 	function article_del(id){
 		if (confirm("确认要删除？")) {
@@ -170,7 +194,9 @@
 	//查询通知
 	function findNotice() {
 		var title = $('#find_notice_title').val();
-		window.location.href = 'article_list.html?title='+title;
+		var uid = $('#find_user_uid').val();
+		var state = $('#find_user_state').val();
+		window.location.href = 'article_list.html?title='+title+'&uid='+uid+'&state='+state;
 	}
 
 </script>

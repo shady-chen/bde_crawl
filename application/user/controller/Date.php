@@ -26,9 +26,18 @@ class Date extends Index
      */
     public function getOrder(){
         $user = session('user');
+        $params = $this->request->param();
         $appOrder = new AppOrder();
-        $data = $appOrder->where(['uid'=>$user['id']])->select();
-        return json($data);
+        if($params['status'] != null && $params['status'] != '' ){
+            $data = $appOrder->where(function ($query) USE ($user,$params){
+                $query->where('status',$params['status'])->whereOr('status',$params['status']);
+            })->where(['uid'=>$user['id']])->order('create_time desc')->select();
+//            $data = $appOrder->where(['uid'=>$user['id'],'status'=>$params['status']])->order('create_time desc')->select();
+        }else{
+            $data = $appOrder->where(['uid'=>$user['id'],'status'=>$params['status']])->order('create_time desc')->select();
+
+        }
+        return json(['data'=>$data,'status'=>200]);
     }
 
 
@@ -42,7 +51,7 @@ class Date extends Index
        $user = session('user');
        $appOrder = new AppOrder();
        $data = $appOrder->where(['uid'=>$user['id'],'id'=>$order_id])->find();
-       return json($data);
+       return json(['data'=>$data,'status'=>200]);
     }
 
 
@@ -58,6 +67,7 @@ class Date extends Index
         $uid= $user['id'];
 
         $orderId = $this->request->param('order_id');
+        $remark = $this->request->param('remark');
         $appOrder = new AppOrder();
         $order = $appOrder->where(['id'=>$orderId])->find();
         if(!$order){
@@ -92,7 +102,8 @@ class Date extends Index
             //更新订单
             $appOrder->where(['id'=>$orderId])->update([
                 'status'=>2,
-                'img_url'=>DS.'upload' . $filename
+                'img_url'=>DS.'upload\\' . $filename,
+                'remarks'=>$remark,
             ]);
 
             return json(['msg'=>'提交成功，请等待审核','status'=>200]);
