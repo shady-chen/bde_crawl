@@ -209,7 +209,7 @@ class Admin extends Base
 
                 //资金明细
 
-                $remark = '金额增加'.$userData['money']-$old_money.',未结算金额增加'.$userData['unclear_money']-$old_unclear_money;
+                $remark = '金额增加'.($userData['money']-$old_money).',未结算金额增加'.($userData['unclear_money']-$old_unclear_money);
 
                 $money_steam->save([
                     'money'=>$orderData['money'],
@@ -218,6 +218,7 @@ class Admin extends Base
                     'remark'=>$remark,
                     'uid'=>$orderData['uid'],
                     'create_time'=>time(),
+                    'type'=>'抢红包',
                 ]);
 
 
@@ -236,7 +237,7 @@ class Admin extends Base
                 ]);
 
                 //资金明细
-                $remark = '金额增加'.$userData['money']-$old_money;
+                $remark = '金额增加'.($userData['money']-$old_money);
 
                 $money_steam->save([
                     'money'=>$orderData['money'],
@@ -245,6 +246,7 @@ class Admin extends Base
                     'remark'=>$remark,
                     'uid'=>$orderData['uid'],
                     'create_time'=>time(),
+                    'type'=>'抢红包',
                 ]);
 
                 return json(['msg'=>'审核通过','status'=>200]);
@@ -557,7 +559,7 @@ class Admin extends Base
 
                 //资金明细
 
-                $remark = '金额增加'.$appUserData['money']-$old_money.',未结算金额增加'.$lostMoney;
+                $remark = '金额增加'.($appUserData['money']-$old_money).',未结算金额增加'.$lostMoney;
 
                 $money_steam->save([
                     'money'=>$appWithdrawData['money'],
@@ -566,6 +568,7 @@ class Admin extends Base
                     'remark'=>$remark,
                     'uid'=>$appWithdrawData['uid'],
                     'create_time'=>time(),
+                    'type'=>'提现审核不通过',
                 ]);
 
             }else{
@@ -581,6 +584,7 @@ class Admin extends Base
                     'remark'=>$remark,
                     'uid'=>$appWithdrawData['uid'],
                     'create_time'=>time(),
+                    'type'=>'提现审核不通过',
                 ]);
             }
             $appUserSubmitData = [

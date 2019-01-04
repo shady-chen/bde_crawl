@@ -65,6 +65,7 @@ class Withdraw extends Index{
                 'remark'=>$remark,
                 'uid'=>$user['id'],
                 'create_time'=>time(),
+                'type'=>'提现',
             ]);
 
         }else{
@@ -73,7 +74,7 @@ class Withdraw extends Index{
 
             //资金明细
 
-            $remark = '金额减少'.$appData['money']-$money2.',未结算金额减少'.$appData['unclear_money'];
+            $remark = '金额减少'.($appData['money']-$money2).',未结算金额减少'.$appData['unclear_money'];
 
             $money_steam->save([
                 'money'=>$params['money'],
@@ -82,6 +83,7 @@ class Withdraw extends Index{
                 'remark'=>$remark,
                 'uid'=>$user['id'],
                 'create_time'=>time(),
+                'type'=>'提现',
             ]);
         }
 

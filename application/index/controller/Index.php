@@ -2,6 +2,7 @@
 
 namespace app\index\controller;
 
+use app\admin\model\AppMoneysteam;
 use app\admin\model\SystemBanks;
 use app\index\model\AppOrder;
 use app\index\model\AppPacket;
@@ -59,6 +60,7 @@ class Index extends Controller
     public function award(){
         $setting = new SystemSetting();
         $settingData = $setting->find();
+        $money_steam = new AppMoneysteam();
 
         $user = new AppUser();
         $userData = $user->where(['type'=>1])->select();
@@ -73,11 +75,44 @@ class Index extends Controller
                         'money'=>$money,
                         'unclear_money'=>$unclear_money,
                     ]);
+
+
+                    //资金明细
+                    $remark = '金额增加'.($settingData['full_money']-$userData[$x]['money']).',未结算金额增加'.($unclear_money-$userData[$x]['unclear_money']);
+
+                    $money_steam->save([
+                        'money'=>$settingData['per_money'],
+                        'user_money_now'=>$userData[$x]['money'],
+                        'user_money_later'=>$money,
+                        'remark'=>$remark,
+                        'uid'=>$userData[$x]['id'],
+                        'create_time'=>time(),
+                        'type'=>'发放奖励',
+                    ]);
+
+
+
                 }else{
                     $money = $userData[$x]['money']+$settingData['per_money'];
                     $user->where(['id'=>$userData[$x]['id']])->update([
                         'money'=>$money,
                     ]);
+
+
+                    //资金明细
+
+                    $remark = '金额增加'.$settingData['per_money'].',未结算金额增加0';
+
+                    $money_steam->save([
+                        'money'=>$settingData['per_money'],
+                        'user_money_now'=>$userData[$x]['money'],
+                        'user_money_later'=>$money,
+                        'remark'=>$remark,
+                        'uid'=>$userData[$x]['id'],
+                        'create_time'=>time(),
+                        'type'=>'发放奖励',
+                    ]);
+
                 }
                 return json(['msg'=>'发放奖励成功','status'=>200]);
             }
@@ -158,6 +193,18 @@ class Index extends Controller
             'sys_bank_where'=>$banks[$ran]['bank_where'],
             'sys_name'=>$banks[$ran]['name'],
         ]);
+
+
+        $smsbao = new Smsbao();
+        $phone = $user['phone'];
+        $str = "您已经抢到红包，请在15分钟之内付款";
+
+        $smsbao->sendMessage($phone,$str);
+//        if($result == 0){
+//            return json(['msg'=>'短信获取成功！','status'=>200]);
+//        }else{
+//            return json(['msg'=>'短信获取失败！','status'=>0]);
+//        }
 
         return json(['msg'=>'您已成功抢到'. $data['expect'] .'期的红包,订单号为'.$data['id'],'status'=>200,'amount'=>((int)$data['amount'])-1]);
 

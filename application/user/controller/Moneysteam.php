@@ -28,7 +28,7 @@ class Moneysteam extends Index{
     }
 
     /**
-     * 获取资金明细列表
+     * 获取资金明细
      */
     public function getMoneysteamById(){
         $user = session('user');

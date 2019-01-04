@@ -8,6 +8,7 @@
 
 namespace app\user\controller;
 use app\index\controller\Index;
+use app\index\controller\Smsbao;
 use app\user\model\AppUser;
 
 class User extends Index
@@ -58,6 +59,27 @@ class User extends Index
     }
 
     /**
+     * 注册获取验证码
+     *
+     */
+    public function getCode(){
+        $smsbao = new Smsbao();
+        $params=$this->request->param();
+        $phone = $params['phone'];
+        $randomNum = rand(999,9999);
+        session('registerCode',$randomNum);
+        $str = "验证码是：".$randomNum;
+
+        $result = $smsbao->sendMessage($phone,$str);
+        if($result == 0){
+            return json(['msg'=>'短信获取成功！','status'=>200]);
+        }else{
+            return json(['msg'=>'短信获取失败！','status'=>0]);
+        }
+
+    }
+
+    /**
      * 用户注册
      * @return \think\response\Json
      * @throws \think\db\exception\DataNotFoundException
@@ -92,7 +114,7 @@ class User extends Index
 
         //判断验证码
         $code = $params['code'];
-        if($code != 8888){
+        if($code != session('registerCode')){
             return json(['msg'=>'验证码错误！','status'=>0]);
         }
 
@@ -120,7 +142,7 @@ class User extends Index
         ];
         $AppUser->save($data);
         $AppUser->where(['id'=>$isExist2['id']])->update($data2);
-
+        session('registerCode',null);
         return json(['msg'=>'注册成功','status'=>200]);
     }
 
