@@ -22,7 +22,7 @@ class Moneysteam extends Index{
         }
         $appMoneysteam = new AppMoneysteam();
 
-        $data = $appMoneysteam->where('uid',$user['id'])->select();
+        $data = $appMoneysteam->where('uid',$user['id'])->order('create_time desc')->select();
 
         return json(['data'=>$data,'status'=>200]);
     }

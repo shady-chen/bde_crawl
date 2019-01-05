@@ -52,7 +52,7 @@ class Bank extends Index{
             return json(['msg'=>'尚未登录！','status'=>0]);
         }
         $appBanks = new AppBanks();
-        $data = $appBanks->where(['uid'=>$user['id']])->where(['status'=>1])->select();
+        $data = $appBanks->where(['uid'=>$user['id']])->where(['status'=>1])->order('create_time desc')->select();
 
         return json(['data'=>$data,'status'=>200]);
     }

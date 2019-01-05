@@ -24,7 +24,7 @@ class Index extends Controller
 
     public function index()
     {
-        return json(['data'=>122223]);
+        return $this->fetch();
     }
 
 

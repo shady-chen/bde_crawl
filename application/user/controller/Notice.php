@@ -28,7 +28,7 @@ class Notice extends Index{
 
         $data = $appNotice->where(function ($query) USE ($user){
             $query->where('uid',$user['id'])->whereOr('uid',0);
-        })->where(['states'=>1])->select();
+        })->where(['states'=>1])->order('create_time desc')->select();
 
         return json(['data'=>$data,'status'=>200]);
     }
