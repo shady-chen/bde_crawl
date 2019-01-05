@@ -219,13 +219,47 @@ class User extends Index
 
     /**
      *
-     * 我的团队
+     * session('user')团队
      */
     public function  getUserByInvitationCode(){
         $user = session('user');
         $appUser = new AppUser();
-        $data = $appUser->where(['invitation_code'=>$user['phone']])->select();
+        $slef = $appUser->where(['id'=>$user['id']])->find();
+
+        $data = [];
+        $data['self_steam'] = $slef['today_total'];
+        $data['self_sons'] = 0;
+
+
+        $team = $appUser->where(['invitation_code'=>$user['phone']])->select();
+        $teamTotal = 0;
+
+        foreach ($team as $key => $val) {
+
+            $teamTotal += $val['today_total'];
+            $data['self_sons']++;
+        }
+
+        $data['team_total'] = $teamTotal;
+
         return json($data);
+    }
+
+
+    /**
+     *
+     * session('user')团队
+     */
+    public function  getSons(){
+        $user = session('user');
+        $appUser = new AppUser();
+
+
+
+        $team = $appUser->where(['invitation_code'=>$user['phone']])->select();
+
+
+        return json($team);
     }
 
     /**
