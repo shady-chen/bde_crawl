@@ -21,11 +21,24 @@
 				<div class="formControls col-xs-8 col-sm-9">
 					<select name="object" class="input-text" id="notice_uid" value="{$data.uid}">
 						<option value="0">所有人</option>
-						<option value="13">指定用户</option>
+						<option value="13" onclick="showInput()">指定用户</option>
 					</select>
 				</div>
 			</div>
-			<div class="row cl">
+
+			<div class="row cl" id="is_someone" style="position:relative;">
+				<label class="form-label col-xs-4 col-sm-2">用户手机号：</label>
+				<div class="formControls col-xs-8 col-sm-9">
+					<input type="text" class="input-text" value="" placeholder="请输入指定用户的手机号码" id="someone" name="someone"  >
+				</div>
+				
+				<div class="formControls col-xs-8 col-sm-9" id="my-div" style="width: 100%;padding: 3px 0;position:absolute;top: 30px;left: 150px;">
+
+				</div>
+			</div>
+
+
+			<div class="row cl" style="margin-top: 200px;">
 				<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-2">
 					<div  class="btn btn-primary radius" onclick="release()">
 						<i class="Hui-iconfont">&#xe632;</i> 发布
@@ -35,16 +48,24 @@
 		</form>
 	</article>
 </section>
+<style>
+	.my-p{
+		background: #e2e2e2;
+		cursor: pointer;
+	}
+</style>
 {include file="public/footer" /}
 
 <script>
 	function release() {
+
+
 		$.ajax({
 			url:'/admin/admin/saveNotice',
 			type:'post',
 			data:{
 				id:$('#notice_id').val(),
-				uid:$('#notice_uid').val(),
+				uid:$('#notice_title').val()==0?0:$('#someone').val(),
 				title:$('#notice_title').val(),
 				content:$('#notice_content').val(),
 			},
@@ -82,6 +103,48 @@
 
 	}
 
+	$('#is_someone').hide();
+	$("#notice_uid").change(function(){
+		var opt=$("#notice_uid").val();
+
+
+		if(opt == 13){
+			$('#is_someone').show();
+		}else {
+			$('#is_someone').hide();
+		}
+	});
+
+
+
+
+	$("#someone").on('input propertychange',function(){
+
+		$.ajax({
+			url:'/admin/user/selectUser',
+			type:'get',
+			data:{
+				phone:$(this).val()
+			},
+			success:function(res){
+
+				$('#my-div').html("");
+				for(var i = 0; i<res.length;i++){
+					$('#my-div').append( '<p class="my-p"> '+  res[i].phone +'  </p>')
+				}
+			},
+			error:function(error){
+				//alert('发生未知错误！');
+			}
+		});
+	});
+
+
+
+	$(document).on("click", ".my-p", function(){
+		$('#someone').val($(this).html().replace(/\s+/g,""));
+		$('#my-div').html("");
+	});
 </script>
 
 

@@ -9,6 +9,7 @@
 namespace app\command;
 
 
+use app\index\controller\Index;
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
@@ -69,9 +70,27 @@ class Test extends Command
                 //获得当日0点的时间戳
                 $todaytimestemp = strtotime(date("Y-m-d"), time());
                 $startime = $data['star_time'] * 60 * 60;
-                $endtime = $data['end_time'] * 60 * 60;
+                if($data['end_time'] - $data['star_time'] >0){
+                    $endtime = $data['end_time'] * 60 * 60;
+                }else{
+                    $endtime = ($data['end_time']+24) * 60 * 60;
+                }
                 //现在的时间戳
                 $now = time();
+
+
+                $index = new Index();
+                //凌晨一点清除所有的打码量！！！！！
+                if($now == $todaytimestemp + (60 * 60 * 16 + 36*60 ))
+                {
+                    $index->award();
+                    echo "all today_total have been clean!\n";
+                }
+
+                //修改过期订单状态
+                $index->updateOrder();
+
+
                 //时间对比 达到刚好发包时间时 发包
                 $appPacket = new AppPacket(); //要写数据库的话 这行代码要放在while循环中
                 for ($i = 0; $i < (($endtime - $startime) / ($data['how_long'])); $i++) {

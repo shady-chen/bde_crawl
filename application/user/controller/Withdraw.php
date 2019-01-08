@@ -28,10 +28,21 @@ class Withdraw extends Index{
         $user = session('user');
         $money_steam = new AppMoneysteam();
         $params = $this->request->param();
+
+        //获得当日0点的时间戳
+        $todaytimestemp = strtotime(date("Y-m-d"), time());
+        //现在的时间戳
+        $now = time();
+
         if(!$user){
             return json(['msg'=>'尚未登录！','status'=>0]);
         }
-        if($params['phoneMess']>session('code')){
+
+        if($now < $todaytimestemp + (60 * 60 * 9 ) || $now > $todaytimestemp + (60 * 60 * 17 )){
+            return json(['msg'=>'提现时间为早上9点到下午5点，其他时间不予提现！','status'=>1]);
+        }
+
+            if($params['phoneMess']>session('code')){
             return json(['msg'=>'验证码有误！','status'=>1]);
         }
 

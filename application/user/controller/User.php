@@ -107,7 +107,7 @@ class User extends Index
 
         //判斷邀請碼是否有效
         $invitation_code = $params['invitation_code'];
-        $isExist2 = $AppUser->where(['invitation_code'=>$invitation_code])->find();
+        $isExist2 = $AppUser->where(['id'=>$invitation_code])->find();
         if(!$isExist2){
             return json(['msg'=>'邀请码不存在！','status'=>0]);
         }
@@ -138,7 +138,7 @@ class User extends Index
         ];
 
         $data2 = [
-            'sons'=>$isExist2['id']+1,
+            'sons'=>$isExist2['sons']+1,
         ];
         $AppUser->save($data);
         $AppUser->where(['id'=>$isExist2['id']])->update($data2);

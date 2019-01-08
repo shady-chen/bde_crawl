@@ -43,4 +43,15 @@ class User extends Base
         return json(['msg'=>'登录成功！','status'=>200]);
     }
 
+
+    public function selectUser(){
+        $params = $this->request->param();
+        $phone = $params['phone'];
+
+        $AppUser = new AppUser();
+        $users = $AppUser->where('phone','like',"%".$phone."%")->select();
+
+        return json($users);
+    }
+
 }

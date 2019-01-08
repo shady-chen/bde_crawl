@@ -105,8 +105,13 @@ class Admin extends Base
     public function saveNotice(){
         $notice = new AppNotice();
         $params = $this->request->param();
+
+        $phone = $params['uid'];
+        $appUser = new AppUser();
+        $user = $appUser->where(['phone'=>$phone])->find();
+
         $data = [
-            'uid'=>$params['uid'],
+            'uid'=>$user['id']?$user['id']:0,
             'title'=>$params['title'],
             'content'=>$params['content'],
             'states'=>0,
@@ -192,9 +197,11 @@ class Admin extends Base
             $old_money = $userData['money'];
             $old_unclear_money = $userData['unclear_money'];
 
-            if($userData['money']+$orderData['money']>$settingData['full_money']){
+            $fanAddMoney = $orderData['money']*(1+$setting[bunus_money]);
 
-                $userData['unclear_money'] += $userData['money']+$orderData['money']-$settingData['full_money'];
+            if($userData['money']+$fanAddMoney>$settingData['full_money']){
+
+                $userData['unclear_money'] += $userData['money']+$fanAddMoney-$settingData['full_money'];
                 $userData['money'] = $settingData['full_money'];
                 $userData['today_total'] += $orderData['money'];
                 $user->where(['id'=>$userData['id']])->update([
@@ -224,7 +231,7 @@ class Admin extends Base
 
                 return json(['msg'=>'审核通过','status'=>200]);
             }else{
-                $userData['money'] += $orderData['money'];
+                $userData['money'] += $fanAddMoney;
 
                 $userData['today_total'] += $orderData['money'];
                 $user->where(['id'=>$userData['id']])->update([
@@ -336,11 +343,17 @@ class Admin extends Base
         if($params['bonus_rule']<=0){
             return json(['msg'=>'阶级金额不能小于0','status'=>0]);
         }
-        if($params['star_time']<0 || $params['star_time']>=$params['end_time'] || $params['end_time']>23){
-            return json(['msg'=>'开始时间不能大于结束时间','status'=>0]);
-        }
+//        if($params['star_time']<0 || $params['star_time']>=$params['end_time'] || $params['end_time']>23){
+//            return json(['msg'=>'开始时间不能大于结束时间','status'=>0]);
+//        }
         if($params['per_total']<=0){
             return json(['msg'=>'发包总金额不能小于0','status'=>0]);
+        }
+        if($params['minManey']<=0){
+            return json(['msg'=>'每个红包的最小金额不能小于0','status'=>0]);
+        }
+        if($params['minManey']>$params['per_total']/$params['how_many']){
+            return json(['msg'=>'每个红包的最小金额不能大于总金额的平均数','status'=>0]);
         }
         if($params['how_many']<=0){
             return json(['msg'=>'发包不能为小于1','status'=>0]);
@@ -365,6 +378,7 @@ class Admin extends Base
             'bunus_money'=>$params['bunus_money'],
             'full_money'=>$params['full_money'],
             'sons'=>$params['sons'],
+            'minManey'=>$params['minManey'],
         ];
 
         $sys_setting->where(['id'=>1])->update($data);
