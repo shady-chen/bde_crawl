@@ -158,7 +158,7 @@
 						skin: 'alert-skin',//弹出层皮肤，可自定义也可用官方
 						title: ['订单审核', 'color:rgb(139, 181, 219);'],//弹出层title,数组右半部份设置title样式
 						// area: 'auto',
-						area: ['450px', '420px'],
+						area: ['750px', '720px'],
 						maxWidth: 1500,
 						maxHeight:1000,
 						btn: ['确定', '取消'],//设置底部按钮
@@ -190,39 +190,39 @@
 						//content为弹出层内容
 						content: "<table class='table345'>" +
 								"<div class=\"row cl\">"+
-								"<label class=\"form-label col-xs-4 col-sm-5\">用户名：</label>" +
-								"<div class=\"formControls col-xs-8 col-sm-6\">" +
+								"<label class=\"form-label col-xs-2 col-sm-3\">用户：</label>" +
+								"<div class=\"form-label col-xs-10 col-sm-9\">" +
 								"<label id='withdraw_user_phone'>"+res.data.user_phone+"</label>" +
 								"</div>"+
 								"</div>"+
 								"<div class=\"row cl\">"+
-								"<label class=\"form-label col-xs-4 col-sm-5\">金额：</label>" +
-								"<div class=\"formControls col-xs-8 col-sm-6\">" +
+								"<label class=\"form-label col-xs-2 col-sm-3\">金额：</label>" +
+								"<div class=\"form-label col-xs-10 col-sm-9\">" +
 								"<label>"+res.data.money+"</label>" +
 								"</div>"+
 								"</div>"+
 								"<div class=\"row cl\">"+
-								"<label class=\"form-label col-xs-4 col-sm-5\">红包期数：</label>" +
-								"<div class=\"formControls col-xs-8 col-sm-6\">" +
+								"<label class=\"form-label col-xs-2 col-sm-3\">期数：</label>" +
+								"<div class=\"form-label col-xs-10 col-sm-9\">" +
 								"<label>"+res.data.packet_expect+"</label>" +
 								"</div>"+
 								"</div>"+
 								"<div class=\"row cl\">"+
-								"<label class=\"form-label col-xs-4 col-sm-5\">凭证图片：</label>" +
-								"<div class=\"formControls col-xs-8 col-sm-6\">" +
-								"<img src='"+res.data.img_url+"' alt='凭证' height='180px' width='100px'>"+
+								"<label class=\"form-label col-xs-2 col-sm-3\">凭证：</label>" +
+								"<div class=\"form-label col-xs-10 col-sm-9\">" +
+								"<img src='"+res.data.img_url+"' alt='凭证' height='380px' width='400px'>"+
 								"</div>"+
 								"</div>"+
 								"<div class=\"row cl\">"+
-								"<label class=\"form-label col-xs-4 col-sm-5\">订单时间：</label>" +
+								"<label class=\"form-label col-xs-2 col-sm-3\">时间：</label>" +
 								"<div class=\"formControls col-xs-8 col-sm-7\">" +
 								"<label>"+res.data.create_time+"</label>" +
 								"</div>"+
 								"</div>"+
 								"</div>"+
 								"<div class=\"row cl\">"+
-								"<label class=\"form-label col-xs-4 col-sm-5\">审核：</label>" +
-								"<div class=\"formControls col-xs-8 col-sm-6\">" +
+								"<label class=\"form-label col-xs-2 col-sm-3\">审核：</label>" +
+								"<div class=\"form-label col-xs-10 col-sm-9\">" +
 								"<select name='' id='order_state'>" +
 									"<option value ='3'>通过</option>"+
 									"<option value ='4'>不通过</option>"+

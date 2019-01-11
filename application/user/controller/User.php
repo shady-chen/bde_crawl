@@ -68,7 +68,7 @@ class User extends Index
         $phone = $params['phone'];
         $randomNum = rand(999,9999);
         session('registerCode',$randomNum);
-        $str = "验证码是：".$randomNum;
+        $str = "验证码是：".$randomNum . "，五分钟内有效，请勿告诉他人！";
 
         $result = $smsbao->sendMessage($phone,$str);
         if($result == 0){
@@ -107,7 +107,7 @@ class User extends Index
 
         //判斷邀請碼是否有效
         $invitation_code = $params['invitation_code'];
-        $isExist2 = $AppUser->where(['id'=>$invitation_code])->find();
+        $isExist2 = $AppUser->where(['phone'=>$invitation_code])->find();
         if(!$isExist2){
             return json(['msg'=>'邀请码不存在！','status'=>0]);
         }

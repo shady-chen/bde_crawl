@@ -197,7 +197,7 @@ class Admin extends Base
             $old_money = $userData['money'];
             $old_unclear_money = $userData['unclear_money'];
 
-            $fanAddMoney = $orderData['money']*(1+$setting[bunus_money]);
+            $fanAddMoney = $orderData['money']*(1+$settingData['bunus_money']);
 
             if($userData['money']+$fanAddMoney>$settingData['full_money']){
 
