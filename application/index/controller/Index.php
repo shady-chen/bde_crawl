@@ -316,11 +316,11 @@ class Index extends Controller
         ]);
 
 
-        $smsbao = new Smsbao();
+        /*$smsbao = new Smsbao();
         $phone = $user['phone'];
         $str = "您已经抢到红包，请在15分钟之内付款";
 
-        $smsbao->sendMessage($phone,$str);
+        $smsbao->sendMessage($phone,$str);*/
 //        if($result == 0){
 //            return json(['msg'=>'短信获取成功！','status'=>200]);
 //        }else{

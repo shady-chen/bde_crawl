@@ -68,7 +68,7 @@ class User extends Index
         $phone = $params['phone'];
         $randomNum = rand(999,9999);
         session('registerCode',$randomNum);
-        $str = "验证码是：".$randomNum . "，五分钟内有效，请勿告诉他人！";
+        $str = "【投呗】验证码是：".$randomNum . "，五分钟内有效，请勿告诉他人。";
 
         $result = $smsbao->sendMessage($phone,$str);
         if($result == 0){
