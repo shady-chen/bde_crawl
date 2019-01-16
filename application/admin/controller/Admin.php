@@ -199,11 +199,13 @@ class Admin extends Base
 
             $fanAddMoney = $orderData['money']*(1+$settingData['bunus_money']);
 
-            if($userData['money']+$fanAddMoney>$settingData['full_money']){
+            if($userData['money']+$fanAddMoney>$settingData['full_money'])
+            {
 
                 $userData['unclear_money'] += $userData['money']+$fanAddMoney-$settingData['full_money'];
                 $userData['money'] = $settingData['full_money'];
                 $userData['today_total'] += $orderData['money'];
+
                 $user->where(['id'=>$userData['id']])->update([
                     'money'=>$userData['money'],
                     'unclear_money'=>$userData['unclear_money'],
@@ -236,11 +238,11 @@ class Admin extends Base
                 $userData['today_total'] += $orderData['money'];
                 $user->where(['id'=>$userData['id']])->update([
                     'money'=>$userData['money'],
+                    'today_total'=>$userData['today_total'],
                 ]);
 
                 $order->where(['id'=>$params['id']])->update([
                     'status'=>3,
-                   // 'today_total'=>$userData['today_total'],
                 ]);
 
                 //资金明细
