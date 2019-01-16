@@ -182,18 +182,11 @@ class User extends Index
      * 修改登录密码
      */
     public function updatePassword(){
-//        $user = session('user');
         $user = session('user');
         $params = $this->request->param();
         if(!$user){
             return json(['msg'=>'尚未登录！','status'=>0]);
         }
-
-        //判断验证码
-//        $code = $params['code'];
-//        if($code != 8888){
-//            return json(['msg'=>'验证码错误！','status'=>0]);
-//        }
 
         if($user['password'] != md5($params['oldPass'])){
             return json(['msg'=>'原密码不正确！','status'=>0]);
@@ -205,6 +198,34 @@ class User extends Index
         ]);
         return json(['msg'=>'密码修改成功','status'=>200]);
     }
+
+
+
+    /**
+     * 修改登录密码2
+     */
+    public function updatePassword2(){
+        $userMondel = new AppUser();
+        $params = $this->request->param();
+        $user = $userMondel->where(['phone'=>$params['phone']])->find();
+        if(!$user){
+            return json(['msg'=>'该用户尚未注册','status'=>0]);
+        }
+
+
+        //判断验证码
+        $code = $params['code'];
+        if($code != session('registerCode')){
+            return json(['msg'=>'验证码错误！','status'=>0]);
+        }
+
+        $user->where(['id'=>$user['id']])->update([
+            'password'=>md5($params['newPass']),
+        ]);
+        return json(['msg'=>'密码修改成功','status'=>200]);
+    }
+
+
 
     /**
      * 获取用户信息

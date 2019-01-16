@@ -612,4 +612,31 @@ class Admin extends Base
 
         }
     }
+
+
+    /*
+     * 游戏规则
+     */
+    public function rules(){
+
+        $setting = new SystemSetting();
+        $data = $setting->where(['id'=>1])->find();
+        $this->assign('data',$data);
+
+        return $this->fetch();
+    }
+    /*
+     * 游戏规则
+     */
+    public function update_rules(){
+
+        $setting = new SystemSetting();
+        $params = $this->request->param();
+        $res = $setting->where(['id'=>1])->update(['text_rules'=>$params['rules']]);
+        if($res){
+            return json(['status'=>200]);
+        }else{
+            return json(['status'=>0]);
+        }
+    }
 }

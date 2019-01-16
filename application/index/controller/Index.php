@@ -379,6 +379,21 @@ class Index extends Controller
     }
 
 
+    /**
+     * 获取游戏规则内容
+     * @return \think\response\Json
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public function getSettingData(){
+
+        $setting = new SystemSetting();
+        $data = $setting->where(['id'=>1])->find();
+
+        return json($data);
+    }
+
 
 
 
