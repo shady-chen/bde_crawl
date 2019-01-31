@@ -69,8 +69,8 @@ class Index extends Controller
         {
             $userXiaji = $user->where(['type'=>1])->where(['invitation_code'=>$userData[$x]['phone']])->select();
             $totalSum = $userData[$x]['today_total'];
-            if($userXiaji != null){
-                for ($y = 0; $y<count($userData);$y++){
+            if(!empty($userXiaji)){
+                for ($y = 0; $y<count($userXiaji);$y++){
                     $totalSum += $userXiaji[$y]['today_total'];
                 }
             }
@@ -259,12 +259,12 @@ class Index extends Controller
         if(!$data ) return json(['msg'=>'期数异常！','status'=>0]);
 
         if($data['amount'] == 0){
-            return json(['msg'=>'该红包已抢完！','status'=>0]);
+            return json(['msg'=>'该任务已被领取完！','status'=>0]);
         }
 
         //是否已抢过这个包
         $isAlreadyRob = $appOrder->where(['packet_id'=>$data['id']])->where(['uid'=>$user['id']])->find();
-        if($isAlreadyRob) return json(['msg'=>'您已抢过该红包！','status'=>0]);
+        if($isAlreadyRob) return json(['msg'=>'您已领取过该任务！','status'=>0]);
 
 
         //修改红包数量
@@ -327,7 +327,7 @@ class Index extends Controller
 //            return json(['msg'=>'短信获取失败！','status'=>0]);
 //        }
 
-        return json(['msg'=>'您已成功抢到'. $data['expect'] .'期的红包,订单号为'.$data['id'],'status'=>200,'amount'=>((int)$data['amount'])-1,'money'=>$randMoney]);
+        return json(['msg'=>'您已成功领取到'. $data['expect'] .'期的任务,订单号为'.$data['id'],'status'=>200,'amount'=>((int)$data['amount'])-1,'money'=>$randMoney]);
 
     }
 

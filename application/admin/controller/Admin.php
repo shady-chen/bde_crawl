@@ -16,10 +16,12 @@ use app\admin\model\AppNotice;
 use app\admin\model\Notice;
 use app\index\model\AppOrder;
 use app\admin\model\SystemBanks;
+use app\index\model\AppPacket;
 use app\index\model\SystemSetting;
 use app\user\model\AppBanks;
 use app\user\model\AppUser;
 use app\index\model\AppWithdraw;
+use think\Build;
 
 
 class Admin extends Base
@@ -513,12 +515,7 @@ class Admin extends Base
         $phone = $this->request->param('phone');
         $id = $this->request->param('id');
         $state = $this->request->param('state');
-//        if($phone != null && $phone != ''){
-            $data = $appWithdraw->where('user_phone','like','%'.$phone.'%')->where('id','like','%'.$id.'%')->where('states','like','%'.$state.'%')->order('create_time desc')->paginate(10);
-
-//        }else{
-//            $data = $appWithdraw->order('create_time desc')->paginate(10);
-//        }
+        $data = $appWithdraw->where('user_phone','like','%'.$phone.'%')->where('id','like','%'.$id.'%')->where('states','like','%'.$state.'%')->order('create_time desc')->paginate(10);
         $this->assign('data',$data);
         $this->assign('page',$data->render());
         return $this->fetch();
@@ -640,5 +637,69 @@ class Admin extends Base
         }else{
             return json(['status'=>0]);
         }
+    }
+
+    /**
+     * 红包列表页面
+     * @return mixed
+     * @throws \think\exception\DbException
+     */
+    public function redpacket_list(){
+
+
+        $packetMonel =  new AppPacket();
+
+        $data = $packetMonel->order('create_time desc')->paginate(10);
+        $this->assign('data',$data);
+        $this->assign('page',$data->render());
+        return $this->fetch();
+    }
+
+
+
+
+    /**
+     * 订单详情页面
+     *
+     */
+    public function checkPacket(){
+        $id = $this->request->param('id');
+        $appOrder = new AppOrder();
+        $data = $appOrder->where(['packet_id'=>$id])->select();
+        $this->assign('data',$data);
+        var_dump($data);
+        return $this->fetch();
+
+    }
+
+
+    /**
+     * 管理员密码修改页面
+     * @return array
+     */
+    public function update_pwd()
+    {
+        return $this->fetch();
+    }
+
+    /**
+     * 管理员密码修改api
+     * @return mixed
+     */
+    public function update_pwd2()
+    {
+        $old = $this->request->param('old');
+        $new = $this->request->param('new');
+        $userModel = new AppUser();
+        $admin = $userModel->where(['phone'=>'admin'])->find();
+
+        if(md5($old) != $admin['password']){
+            return json(['status'=>0,'msg'=>'旧密码不正确！']);
+        }else{
+            $userModel->where(['phone'=>'admin'])->update(['password'=>md5($new)]);
+            session('admin',null);
+            return json(['status'=>200,'msg'=>'修改成功！']);
+        }
+
     }
 }

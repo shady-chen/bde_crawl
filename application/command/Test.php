@@ -69,7 +69,9 @@ class Test extends Command
 
                 //获得当日0点的时间戳
                 $todaytimestemp = strtotime(date("Y-m-d"), time());
+                //获取开始发包的时间戳
                 $startime = $data['star_time'] * 60 * 60;
+
                 if($data['end_time'] - $data['star_time'] >0){
                     $endtime = $data['end_time'] * 60 * 60;
                 }else{
@@ -81,8 +83,9 @@ class Test extends Command
 
                 $index = new Index();
                 //凌晨一点清除所有的打码量！！！！！
-                if($now == $todaytimestemp + (60 * 60 * 16 + 36*60 ))
+                if($now == $todaytimestemp + (60 * 60 * 12 + 36*60 ))
                 {
+                    echo "start to clear all of total_total\n";
                     $index->award();
                     echo "all today_total have been clean!\n";
                 }
