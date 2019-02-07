@@ -38,11 +38,11 @@ class Withdraw extends Index{
             return json(['msg'=>'尚未登录！','status'=>0]);
         }
 
-        if($now < $todaytimestemp + (60 * 60 * 9 ) || $now > $todaytimestemp + (60 * 60 * 17 )){
-            return json(['msg'=>'提现时间为早上9点到下午5点，其他时间不予提现！','status'=>1]);
-        }
+//        if($now < $todaytimestemp + (60 * 60 * 9 ) || $now > $todaytimestemp + (60 * 60 * 17 )){
+//            return json(['msg'=>'提现时间为早上9点到下午5点，其他时间不予提现！','status'=>1]);
+//        }
 
-            if($params['phoneMess']>session('code')){
+        if($params['phoneMess']>session('code')){
             return json(['msg'=>'验证码有误！','status'=>1]);
         }
 

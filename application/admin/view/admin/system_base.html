@@ -65,6 +65,12 @@
                 </div>
             </div>
             <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-2">每个红包的最小金额：</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="number" id="maxManey" value="{$data.maxManey}">
+                </div>
+            </div>
+            <div class="row cl">
                 <label class="form-label col-xs-4 col-sm-2">抢包单次佣金：</label>
                 <div class="formControls col-xs-8 col-sm-9">
                     <input type="number" id="bunus_money" value="{$data.bunus_money}">
@@ -100,6 +106,7 @@
                 star_time:$('#star_time').val(),
                 per_total:$('#per_total').val(),
                 minManey:$('#minManey').val(),
+                maxManey:$('#maxManey').val(),
                 how_many:$('#how_many').val(),
                 end_time:$('#end_time').val(),
                 how_long:$('#how_long').val(),

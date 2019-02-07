@@ -356,6 +356,10 @@ class Admin extends Base
         if($params['minManey']<=0){
             return json(['msg'=>'每个红包的最小金额不能小于0','status'=>0]);
         }
+        if($params['minManey']>$params['maxManey']){
+            return json(['msg'=>'最小金额不能大于最大金额','status'=>0]);
+        }
+
         if($params['minManey']>$params['per_total']/$params['how_many']){
             return json(['msg'=>'每个红包的最小金额不能大于总金额的平均数','status'=>0]);
         }
@@ -383,6 +387,7 @@ class Admin extends Base
             'full_money'=>$params['full_money'],
             'sons'=>$params['sons'],
             'minManey'=>$params['minManey'],
+            'maxManey'=>$params['maxManey'],
         ];
 
         $sys_setting->where(['id'=>1])->update($data);

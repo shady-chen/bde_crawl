@@ -57,7 +57,7 @@ class Smsbao extends Index {
         $phone = $params['phone'];
         $randomNum = rand(999,9999);
         session('code',$randomNum);
-        $str = "验证码是：".$randomNum;
+        $str = "【投呗】您的验证码是：".$randomNum;
 
         $result = $this->sendMessage($phone,$str);
 

@@ -296,7 +296,7 @@ class Index extends Controller
                 }
                 //每次发包的平均金额必须大于系统设置在最小金额
             }
-            $randMoney = rand($setting['minManey'],round($shengxiaMoney/$shengxiageshu)*2-$setting['minManey']);
+            $randMoney = rand($setting['minManey'],$setting['maxManey']);
         }
         //存入order表中
         $appOrder->save([
