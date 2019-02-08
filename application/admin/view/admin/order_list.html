@@ -11,18 +11,19 @@
 	</nav>
 	<div class="Hui-article">
 		<article class="cl pd-20">
+			<form action="/admin/admin/order_list2" method="post">
 			<div >
 				<label>用户名:</label>
-				<input type="text" name=""  placeholder="" style="width:150px" class="input-text" id="find_user_phone">
+				<input type="text" name="phone"  placeholder="" style="width:150px" class="input-text" id="find_user_phone">
 				&nbsp;&nbsp;
 				<label>订单号:</label>
-				<input type="text" name=""  placeholder="" style="width:150px" class="input-text" id="find_user_id">
+				<input type="text" name="id"  placeholder="" style="width:150px" class="input-text" id="find_user_id">
 				&nbsp;&nbsp;
 				<label>红包期数:</label>
-				<input type="text" name=""  placeholder="" style="width:150px" class="input-text" id="find_user_expect">
+				<input type="text" name="expect"  placeholder="" style="width:150px" class="input-text" id="find_user_expect">
 				&nbsp;&nbsp;
 				<label>状态:</label>
-				<select  style="width:150px;height: 31px" id="find_user_state">
+				<select  style="width:150px;height: 31px" name="state" id="find_user_state">
 					<option value="">请选择状态</option>
 					<option value="0">过期</option>
 					<option value="1">待付款</option>
@@ -31,17 +32,19 @@
 					<option value="4">审核不通过</option>
 				</select>
 
+				<button name=""  class="btn btn-success" type="submit" onclick="find_user()"><i class="Hui-iconfont">&#xe665;</i> 搜订单</button>
 			</div>
 			<br>
 			<div>
-				<label>订单时间:</label>
-				<input type="date" name=""  placeholder="" style="width:150px" class="input-text" id="find_user_starttime">
-				<span>~</span>
-				<input type="date" name=""  placeholder="" style="width:150px" class="input-text" id="find_user_endtime">
+				<!--<label>订单时间:</label>-->
+				<!--<input type="date" name="starttime"  placeholder="" style="width:150px" class="input-text" id="find_user_starttime">-->
+				<!--<span>~</span>-->
+				<!--<input type="date" name="endtime"  placeholder="" style="width:150px" class="input-text" id="find_user_endtime">-->
 				&nbsp;&nbsp;
-				<div name=""  class="btn btn-success" type="submit" onclick="find_user()"><i class="Hui-iconfont">&#xe665;</i> 搜订单</div>
+
 
 			</div>
+			</form>
 			<!--<div class="cl pd-5 bg-1 bk-gray mt-20">-->
 				<!--<span class="l">-->
 				<!--<a class="btn btn-primary radius" data-title="添加订单" _href="article-add.html" onclick="window.location.href = 'article_add.html'" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 添加订单</a>-->
@@ -76,7 +79,7 @@
 										<span class="label label-default radius">已过期</span>
 									{/case}
 									{case value="1" }
-										<span class="label label-danger radius">待付款</span>
+										<span class="label label-danger radius text-l">待付款</span>
 									{/case}
 									{case value="2" }
 										<span class="label label-primary radius">已付款，审核中</span>
@@ -92,7 +95,7 @@
 							</td>
 							<td>
 								{if condition="$vo.img_url"}
-										<img src="{$vo.img_url}" alt="" width="40px" height="40px">
+										<img src="{$vo.img_url}" alt="" width="40px" height="40px" onclick='showBig(this)'>
 									{else /} 尚未上传凭证
 								{/if}
 							</td>
@@ -108,24 +111,8 @@
 							</td>
 							<td class="f-14 td-manage">
 								<button class="btn btn-success radius" onclick="watchBanks({$vo.id})">系统银行卡</button>
-								{switch name="vo.status" }
-									{case value="0"}
-										<span class="label label-default radius">已过期，无法操作</span>
-									{/case}
-									{case value="1" }
-										<span class="label label-danger radius">待付款，无法操作</span>
-									{/case}
-									{case value="2" }
-										<button class="btn btn-danger radius" onclick="orderPass({$vo.id})">通过审核</button>
-									{/case}
-									{case value="3" }
-										<span class="label label-success radius">审核已通过，无法操作</span>
-									{/case}
-									{case value="4" }
-										<span class="label label-warning radius">审核不通过，无法操作</span>
-									{/case}
-									{default /}未知
-								{/switch}
+
+								<button class="btn btn-primary radius" onclick="orderPass({$vo.id})">修改</button>
 
 							</td>
 						</tr>
@@ -141,7 +128,19 @@
 </section>
 
 {include file="public/footer" /}
+<style>
+	.line-1{
+		display: inline-block;
+		width: 200px;
+	}
 
+	#order_state{
+		width: 200px;
+		height: 30px;
+		text-align: center;
+		border-radius: 10px;
+	}
+</style>
 <script>
 	function orderPass(id){
 		$.ajax({
@@ -158,7 +157,7 @@
 						skin: 'alert-skin',//弹出层皮肤，可自定义也可用官方
 						title: ['订单审核', 'color:rgb(139, 181, 219);'],//弹出层title,数组右半部份设置title样式
 						// area: 'auto',
-						area: ['600px', '600px'],
+						area: ['800px', '620px'],
 						maxWidth: 1500,
 						maxHeight:1000,
 						btn: ['确定', '取消'],//设置底部按钮
@@ -188,50 +187,31 @@
 							});
 						},
 						//content为弹出层内容
-						content: "<table class='table345'>" +
-								"<div class=\"row cl\">"+
-								"<label class=\"form-label col-xs-2 col-sm-3\">用户：</label>" +
-								"<div class=\"form-label col-xs-10 col-sm-9\">" +
-								"<label id='withdraw_user_phone'>"+res.data.user_phone+"</label>" +
-								"</div>"+
-								"</div>"+
-								"<div class=\"row cl\">"+
-								"<label class=\"form-label col-xs-2 col-sm-3\">金额：</label>" +
-								"<div class=\"form-label col-xs-10 col-sm-9\">" +
-								"<label>"+res.data.money+"</label>" +
-								"</div>"+
-								"</div>"+
-								"<div class=\"row cl\">"+
-								"<label class=\"form-label col-xs-2 col-sm-3\">期数：</label>" +
-								"<div class=\"form-label col-xs-10 col-sm-9\">" +
-								"<label>"+res.data.packet_expect+"</label>" +
-								"</div>"+
-								"</div>"+
-								"<div class=\"row cl\">"+
-								"<label class=\"form-label col-xs-2 col-sm-3\">凭证：</label>" +
-								"<div class=\"form-label col-xs-10 col-sm-9\">" +
-								"<img src='"+res.data.img_url+"' alt='凭证' height='380px' width='400px'>"+
-								"</div>"+
-								"</div>"+
-								"<div class=\"row cl\">"+
-								"<label class=\"form-label col-xs-2 col-sm-3\">时间：</label>" +
-								"<div class=\"formControls col-xs-8 col-sm-7\">" +
-								"<label>"+res.data.create_time+"</label>" +
-								"</div>"+
-								"</div>"+
-								"</div>"+
-								"<div class=\"row cl\">"+
-								"<label class=\"form-label col-xs-2 col-sm-3\">审核：</label>" +
-								"<div class=\"form-label col-xs-10 col-sm-9\">" +
-								"<select name='' id='order_state'>" +
-									"<option value ='3'>通过</option>"+
-									"<option value ='4'>不通过</option>"+
+						content:
+
+
+								`<div style="font-weight: 700;">
+									<span class="line-1">用户：`+ res.data.user_phone + `  </span>
+									<span class="line-1">期数：`+ res.data.packet_expect + `  </span>
+									<span class="line-1">金额：`+ res.data.money + `</span>
+								</div>`
+								+
+								`<div style="margin-top: 5px;">
+								    <img src='`+ res.data.img_url +`' alt='凭证' height='380px' width='520px'>
+								</div>`+
+
+								`<span> 操作：   </span>`	+
+								"<select name='' id='order_state' lay-verify=''>" +
+									"<option value ='1'>待付款</option>"+
+									"<option value ='0'>订单过期</option>"+
+									"<option value ='2'>审核中</option>"+
+									"<option value ='3'>通过审核</option>"+
+									"<option value ='4'>不通过审核</option>"+
 								"</select>"+
-								"</div>"+
-								"</div>"+
-								"<input type='hidden' value='"+res.data.id+"' id='order_id'/>"+
-								// "<div class='table2-line'></div>"+
-						"</table>"
+
+								"<input type='hidden' value='"+res.data.id+"' id='order_id'/>"
+
+
 					})
 				}
 				else{
@@ -268,13 +248,13 @@
 							layer.close(layer.open());
 						},
 						content: "<div>" +
-									"<span>银行卡\\支付宝:</span><span>"+res.data.sys_bank_which+"</span>"+
+									"<span>银行类型:</span><span> "+res.data.sys_bank_which+"</span>"+
 								"</div>"+
 								"<div>" +
-								"<span>账号:</span><span>"+res.data.sys_bank_num+"</span>"+
+								"<span>银行账号:</span><span> "+res.data.sys_bank_num+"</span>"+
 								"</div>"+
 								"<div>" +
-								"<span>姓名:</span><span>"+res.data.sys_name+"</span>"+
+								"<span>银行姓名:</span><span> "+res.data.sys_name+"</span>"+
 								"</div>"
 					})
 				}
@@ -288,13 +268,33 @@
 		});
 		return false;
 	}
-	function find_user() {
-		var phone = $('#find_user_phone').val();
-		var id = $('#find_user_id').val();
-		var expect = $('#find_user_expect').val();
-		var state = $('#find_user_state').val();
-		var starttime = $('#find_user_starttime').val();
-		var endtime = $('#find_user_endtime').val();
-		window.location.href = 'order_list.html?phone='+phone+'&id='+id+'&expect='+expect+'&state='+state+'&starttime='+starttime+'&endtime='+endtime;
+	// function find_user() {
+	// 	var phone = $('#find_user_phone').val();
+	// 	var id = $('#find_user_id').val();
+	// 	var expect = $('#find_user_expect').val();
+	// 	var state = $('#find_user_state').val();
+	// 	var starttime = $('#find_user_starttime').val();
+	// 	var endtime = $('#find_user_endtime').val();
+	// 	window.location.href = '/admin/admin/order_list?phone='+phone+'&id='+id+'&expect='+expect+'&state='+state+'&starttime='+starttime+'&endtime='+endtime;
+	// }
+
+
+
+
+	function showBig(url){
+	  console.log(url.src);
+        layer.open({
+            skin: 'alert-skin',//弹出层皮肤，可自定义也可用官方
+            title: ['查看大图', 'color:rgb(139, 181, 219);'],//弹出层title,数组右半部份设置title样式
+			area: 'auto',
+            //area: ['800px', '1000px'],
+            maxWidth: 1500,
+            maxHeight:1000,
+            btn: ['关闭'],//设置底部按钮
+
+            //content为弹出层内容
+            content: "<img src='" + url.src +"' style='width: 800px;height: 500px;'>"
+        })
+
 	}
 </script>

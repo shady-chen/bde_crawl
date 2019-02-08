@@ -41,7 +41,7 @@
                         <th width="50">用户余额</th>
                         <th width="80">冻结金额</th>
                         <th width="80">总奖金金额</th>
-                        <th width="120">今天打码数</th>
+                        <th width="120" onclick="orderByTt()">今天打码数</th>
                         <th width="120">用戶邀请码</th>
                         <th width="75">下线数量</th>
                         <th width="60">注册时间</th>
@@ -355,6 +355,9 @@
         var invitation_code = $('#find_user_invitation_code').val();
         var state = $('#find_user_state').val();
         window.location.href = 'user_list.html?phone='+phone+'&invitation_code='+invitation_code+'&state='+state;
+    }
+
+    function orderByTt(){
     }
 
 

@@ -160,6 +160,17 @@ class Admin extends Base
         return $this->fetch();
     }
 
+    public function order_list2(){
+        $appOrder = new AppOrder();
+        $phone = $this->request->param('phone');
+        $id = $this->request->param('id');
+        $expect = $this->request->param('expect');
+        $state = $this->request->param('state');
+        $data = $appOrder->where('user_phone','like','%'.$phone.'%')->where('id','like','%'.$id.'%')->where('packet_expect','like','%'.$expect.'%')->where('status','=',$state)->order('create_time desc')->select();
+        $this->assign('data',$data);
+        return $this->fetch();
+    }
+
     /**
      * 订单审核弹框
      *
@@ -183,6 +194,8 @@ class Admin extends Base
         $user = new AppUser();
         $money_steam = new AppMoneysteam();
         $setting = new SystemSetting();
+
+
 
         if($status == 4){
             $order->where(['id'=>$params['id']])->update([
@@ -263,6 +276,15 @@ class Admin extends Base
                 return json(['msg'=>'审核通过','status'=>200]);
             }
         }
+
+
+
+        $order->where(['id'=>$params['id']])->update([
+            'status'=>$status,
+        ]);
+
+        return json(['msg'=>'修改成功','status'=>200]);
+
     }
 
     /**

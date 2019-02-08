@@ -282,22 +282,25 @@ class Index extends Controller
         $coun = count($banks);
         $ran = rand(0,$coun-1);
         //获取随机金额
-        $orderData = $appOrder->where(['packet_id'=>$data['id']])->select();
-        $shengxiaMoney = $data['money'];
-        $shengxiageshu = ((int)$data['amount']);
+//        $orderData = $appOrder->where(['packet_id'=>$data['id']])->select();
+//        $shengxiaMoney = $data['money'];
+//        $shengxiageshu = ((int)$data['amount']);
 
-        if($shengxiageshu == 1){
-            $randMoney = $shengxiaMoney;
-        }else{
-            if($orderData != null){//如果有订单就要获取剩下的金额再随机
+//        if($shengxiageshu == 1){
+//            $randMoney = $shengxiaMoney;
+//        }else{
+//            if($orderData != null){//如果有订单就要获取剩下的金额再随机
+//
+//                for($x = 0;$x<count($orderData);$x++){
+//                    $shengxiaMoney -= $orderData[$x][money];
+//                }
+//                //每次发包的平均金额必须大于系统设置在最小金额
+//            }
+//            $randMoney = rand($setting['minManey'],$setting['maxManey']);
+//        }
+        //2-8 先确保能用的 302行
+        $randMoney = rand($setting['minManey'],$setting['maxManey']);
 
-                for($x = 0;$x<count($orderData);$x++){
-                    $shengxiaMoney -= $orderData[$x][money];
-                }
-                //每次发包的平均金额必须大于系统设置在最小金额
-            }
-            $randMoney = rand($setting['minManey'],$setting['maxManey']);
-        }
         //存入order表中
         $appOrder->save([
             'uid'=>$user['id'],
