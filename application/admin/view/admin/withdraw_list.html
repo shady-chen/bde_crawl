@@ -94,7 +94,9 @@
                             {$vo.create_time}
                         </td>
                         <td style="color: red">
-                            {$vo.admin_remark?$vo.admin_remark:'无'}
+                            <textarea name="" id="remarks{$i}" cols="20" rows="3">{$vo.admin_remark?$vo.admin_remark:'无'}</textarea>
+                            <br>
+                            <button class="btn btn-success radius" onclick="update_remark({$vo.id},'remarks{$i}')">修改</button>
                         </td>
                         <td class="f-14 td-manage">
                             <button class="btn btn-success radius" onclick="pass({$vo.id})">修改</button>
@@ -148,7 +150,7 @@
                                     id:$('#withdraw_id').val(),
                                     states:$('#withdraw_state').val(),
                                     user_phone:res.data.user_phone,
-                                    admin_remark:$('#admin_remark').val(),
+                                    //admin_remark:$('#admin_remark').val(),
                                 },
                                 success:function(res){
                                     if(res.status == 200)
@@ -232,5 +234,29 @@
             }
         });
 
+    }
+
+
+    function update_remark(id,text){
+        $.ajax({
+            url:'/admin/admin/update_remark',
+            type:'post',
+            data:{
+                id:id,
+                admin_remark:$('#' + text).val(),
+            },
+            success:function(res){
+                if(res.status == 200)
+                {
+                    alert('保存成功')
+                }
+                else{
+                    alert('修改失败!  ');
+                }
+            },
+            error:function(error){
+                alert('发生未知错误！');
+            }
+        });
     }
 </script>

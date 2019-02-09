@@ -574,7 +574,7 @@ class Admin extends Base
         if($status == 2){
             $data = [
                 'states'=>$params['states'],
-                'admin_remark'=>$params['admin_remark']
+                //'admin_remark'=>$params['admin_remark']
             ];
             $appWithdraw->where(['id'=>$params['id']])->update($data);
             return json(['msg'=>'审核通过','status'=>200]);
@@ -584,7 +584,7 @@ class Admin extends Base
         if($status == 3){
             $data = [
                 'states'=>$params['states'],
-                'admin_remark'=>$params['admin_remark']
+                //'admin_remark'=>$params['admin_remark']
             ];
 
             $appUser = new AppUser();
@@ -757,6 +757,20 @@ class Admin extends Base
         return json($data);
 
 
+    }
+
+
+    /**
+     * 更新管理员的备注
+     */
+    public function update_remark(){
+        $params = $this->request->param();
+        $appWithdraw = new AppWithdraw();
+        $data = [
+            'admin_remark'=>$params['admin_remark']
+        ];
+        $appWithdraw->where(['id'=>$params['id']])->update($data);
+        return json(['msg'=>'审核通过','status'=>200]);
     }
 
 
