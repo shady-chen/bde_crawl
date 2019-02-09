@@ -18,6 +18,7 @@ use app\index\model\AppOrder;
 use app\admin\model\SystemBanks;
 use app\index\model\AppPacket;
 use app\index\model\SystemSetting;
+use app\user\controller\Moneysteam;
 use app\user\model\AppBanks;
 use app\user\model\AppUser;
 use app\index\model\AppWithdraw;
@@ -700,7 +701,6 @@ class Admin extends Base
         $appOrder = new AppOrder();
         $data = $appOrder->where(['packet_id'=>$id])->select();
         $this->assign('data',$data);
-        var_dump($data);
         return $this->fetch();
 
     }
@@ -773,6 +773,147 @@ class Admin extends Base
         return json(['msg'=>'审核通过','status'=>200]);
     }
 
+
+
+
+
+
+
+    /**
+     * 查看用户的资金流水
+     */
+     public function show_user_money_steam(){
+
+         $id = $this->request->param('id');
+         $user_phone = $this->request->param('user_phone');
+         $steamModel = new AppMoneysteam();
+         $data = $steamModel->where(['uid'=>$id])->limit(30)->order('create_time desc')->select();
+
+
+
+
+         /************************************历史记录开始***************************************************/
+         //获取所有抢红包的钱
+         $allPacketMoneyToday = $steamModel->where(['uid'=>$id])->where(['type'=>'抢红包'])->select();
+         //历史奖励总量
+         $allPacketLottery = 0;
+         //历史打码总量
+         $allPacketMoney = 0;
+
+         for($i=0;$i<count($allPacketMoneyToday);$i++)
+         {
+             $allPacketLottery += $allPacketMoneyToday[$i]['user_money_later'] - $allPacketMoneyToday[$i]['user_money_now'] - $allPacketMoneyToday[$i]['money'];
+             $allPacketMoney   += $allPacketMoneyToday[$i]['money'];
+         }
+
+
+
+         //获取所有提现的钱
+         $allWtData = $steamModel->where(['uid'=>$id])->where(['type'=>'提现'])->select();
+         $allWtmoney = 0;
+         for($i=0;$i<count($allWtData);$i++)
+         {
+             $allWtmoney   += $allWtData[$i]['money'];
+         }
+
+
+         /************************************历史记录结束***************************************************/
+
+
+
+         /************************************今日记录开始***************************************************/
+
+         //获得当日0点的时间戳
+         $todaytimestemp = strtotime(date("Y-m-d"), time());
+
+         $da = $steamModel->where(['uid'=>$id])->where('create_time','>',$todaytimestemp)
+             ->where(['type'=>'抢红包'])
+             ->select();
+         //今天奖励总量
+         $todayPacketLottery = 0;
+         //今天打码总量
+         $todayPacketMoney = 0;
+         for($i=0;$i<count($da);$i++)
+         {
+             $todayPacketLottery += $da[$i]['user_money_later'] - $da[$i]['user_money_now'] - $da[$i]['money'];
+             $todayPacketMoney   += $da[$i]['money'];
+         }
+
+
+
+         //获取今天提现的钱
+         $todayWtData = $steamModel->where(['uid'=>$id])->where('create_time','>',$todaytimestemp)->where(['type'=>'提现'])->select();
+         $todayWtmoney = 0;
+         for($i=0;$i<count($todayWtData);$i++)
+         {
+             $todayWtmoney   += $todayWtData[$i]['money'];
+         }
+
+
+         /************************************今日记录结束***************************************************/
+
+
+         /************************************昨天记录开始***************************************************/
+
+         //获得当日0点的时间戳
+         $todaytimestemp = strtotime(date("Y-m-d"), time());
+         //获取昨天数据
+         $da1 = $steamModel->where(['uid'=>$id])->where('create_time','<',$todaytimestemp)
+             ->where('create_time','>',$todaytimestemp-(3600*24))
+             ->where(['type'=>'抢红包'])
+             ->select();
+         //昨天奖励总量
+         $yesTodayPacketLottery = 0;
+         //昨天打码总量
+         $yesTodayPacketMoney = 0;
+         for($i=0;$i<count($da1);$i++)
+         {
+             $yesTodayPacketLottery += $da1[$i]['user_money_later'] - $da1[$i]['user_money_now'] - $da1[$i]['money'];
+             $yesTodayPacketMoney   += $da1[$i]['money'];
+         }
+
+         //获取昨天提现的钱
+         $yesTodayWtData = $steamModel->where(['uid'=>$id])->where('create_time','>',$todaytimestemp)->where(['type'=>'提现'])
+             ->where('create_time','>',$todaytimestemp-(3600*24))
+             ->select();
+         $yesTodayWtmoney = 0;
+         for($i=0;$i<count($yesTodayWtData);$i++)
+         {
+             $yesTodayWtmoney   += $yesTodayWtData[$i]['money'];
+         }
+
+
+         /************************************昨天记录结束***************************************************/
+
+
+
+         //数据渲染
+
+         //历史奖励总量
+         $this->assign('allPacketLottery',$allPacketLottery);
+         //历史打码总量
+         $this->assign('allPacketMoney',$allPacketMoney);
+         //获取所有提现的钱
+         $this->assign('allWtmoney',$allWtmoney);
+
+         //今天奖励总量
+         $this->assign('todayPacketLottery',$todayPacketLottery);
+         //今天打码总量
+         $this->assign('todayPacketMoney',$todayPacketMoney);
+         //获取今天提现的钱
+         $this->assign('todayWtmoney',$todayWtmoney);
+
+         //昨天奖励总量
+         $this->assign('yesTodayPacketLottery',$yesTodayPacketLottery);
+         //昨天打码总量
+         $this->assign('yesTodayPacketMoney',$yesTodayPacketMoney);
+         //获取昨天提现的钱
+         $this->assign('yesTodayWtmoney',$yesTodayWtmoney);
+
+         $this->assign('data',$data);
+         $this->assign('user_phone',$user_phone);
+         return $this->fetch();
+     }
 
 
 

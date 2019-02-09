@@ -78,6 +78,7 @@
                         <td class="f-14 td-manage">
                             <button class="btn btn-success radius" onclick="updateUser({$vo.id})">修改</button>
                             <button class="btn btn-success radius" onclick="selectUserBanks({$vo.id})">银行卡</button>
+                            <button class="btn btn-success radius" onclick="showSteam({$vo.id},{$vo.phone})">查看流水</button>
                             <!--<button class="btn btn-danger radius" onclick="deleteUser({$vo.id})">冻结</button>-->
                         </td>
                     </tr>
@@ -360,17 +361,10 @@
     function orderByTt(){
     }
 
+    function showSteam(id,phone){
+        window.location.href = '/admin/admin/show_user_money_steam?user_phone='+phone+'&id='+id;
+    }
+
 
 
 </script>
-<!--<style>-->
-    <!--.alert-skin .layui-layer-btn0 {-->
-        <!--height: 30px;-->
-        <!--text-align: center;-->
-        <!--color: white;-->
-        <!--font-size: 12px;-->
-        <!--border-radius: 5px;-->
-        <!--width: 110px;-->
-    <!--}-->
-
-<!--</style>-->
