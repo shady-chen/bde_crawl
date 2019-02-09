@@ -61,6 +61,22 @@ class Date extends Index
 
 
     /**
+     * 用户获取自己2小时内的订单信息
+     * @return \think\response\Json
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public function getOrder2Hour()
+    {
+        $user = session('user');
+        $appOrder = new AppOrder();
+        $data = $appOrder->where("create_time",">",time() - 60*60*2)->where(['uid' => $user['id']])->order('create_time desc')->select();
+        return json(['data' => $data, 'status' => 200]);
+    }
+
+
+    /**
      * 用户获取订单详情页面
      */
 

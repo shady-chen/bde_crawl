@@ -82,9 +82,7 @@
                             <p>{$vo.bank_which}</p>
                             <p>{$vo.bank_where?$vo.bank_where:'无'}</p>
                         </td>
-
                         <td>
-
                             {if condition="$vo.remarks"}
                             <p>{$vo.remarks}</p>
                             {else /} 用户无备注
@@ -99,7 +97,13 @@
                             <button class="btn btn-success radius" onclick="update_remark({$vo.id},'remarks{$i}')">修改</button>
                         </td>
                         <td class="f-14 td-manage">
+                            {switch name="vo.states" }
+                            {case value="1" }
                             <button class="btn btn-success radius" onclick="pass({$vo.id})">修改</button>
+                            {/case}
+                            {default /}
+                            已修改一次订单状态，现不可操作。
+                            {/switch}
                         </td>
                     </tr>
                     </tbody>
