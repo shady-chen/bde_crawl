@@ -244,12 +244,27 @@ class Index extends Controller
             return json(['msg'=>'您暂时不能抢红包，请联系管理员！','status'=>0]);
         }
 
+        /********************先检测是否有达到系统的规定金额***********************************/
+
+        $SystemSetting = new SystemSetting();
+        $setting = $SystemSetting->where('id', 1)->find();
+
+        $userModel = new AppUser();
+        $userData = $userModel->where(['id'=>$user['id']])->find();
+
+        if($userData['today_total']>$setting['full_money'] && $userData['sons'] < $setting['sons']){
+            return json(['msg'=>'您今日已无法领取！','status'=>0]);
+        }
+
+
+
+        /********************检测完成***********************************/
+
+
         $appOrder = new AppOrder();
         //期数
         $expect = $this->request->param('expect');
         //user
-
-
 
         //找到红包
         $appPacket = new AppPacket();
@@ -272,8 +287,7 @@ class Index extends Controller
 
 
 
-        $SystemSetting = new SystemSetting();
-        $setting = $SystemSetting->where('id', 1)->find();
+
 
         $SystemBanks = new SystemBanks();
         $banks = $SystemBanks->where(['is_use'=>1])->select();

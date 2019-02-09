@@ -224,7 +224,7 @@ class Admin extends Base
                 $user->where(['id'=>$userData['id']])->update([
                     'money'=>$userData['money'],
                     'unclear_money'=>$userData['unclear_money'],
-                    'state'=>2,
+                    //'state'=>2,
                     'today_total'=>$userData['today_total'],
                 ]);
                 $order->where(['id'=>$params['id']])->update([
@@ -569,16 +569,22 @@ class Admin extends Base
         $money_steam = new AppMoneysteam();
 
         $appWithdraw = new AppWithdraw();
+
+        //审核通过时
         if($status == 2){
             $data = [
                 'states'=>$params['states'],
+                'admin_remark'=>$params['admin_remark']
             ];
             $appWithdraw->where(['id'=>$params['id']])->update($data);
             return json(['msg'=>'审核通过','status'=>200]);
         }
+
+        //审核不通过时
         if($status == 3){
             $data = [
                 'states'=>$params['states'],
+                'admin_remark'=>$params['admin_remark']
             ];
 
             $appUser = new AppUser();
@@ -711,7 +717,6 @@ class Admin extends Base
 
     /**
      * 管理员密码修改api
-     * @return mixed
      */
     public function update_pwd2()
     {
@@ -729,4 +734,39 @@ class Admin extends Base
         }
 
     }
+
+
+    /**
+     * 定时更新订单 提示音
+     */
+    public function newOrder()
+    {
+        $orderModel = new AppOrder();
+        $withdrawOrderModel = new AppWithdraw();
+
+        $newOrder = $orderModel->where('create_time','>',time()-60)->find();
+
+        $newWithdraw = $withdrawOrderModel->where('create_time','>',time()-60)->find();
+
+        $data = [
+            'order'=>$newOrder,
+            'withdraw'=>$newWithdraw,
+        ];
+
+
+        return json($data);
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
 }

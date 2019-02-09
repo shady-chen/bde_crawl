@@ -4,10 +4,47 @@
 <script type="text/javascript" src="/static/h-ui/js/H-ui.js"></script>
 <script type="text/javascript" src="/static/h-ui.admin/js/H-ui.admin.page.js"></script>
 <!--/_footer /作为公共模版分离出去-->
-
+<audio src="" autoplay="autoplay"  controls id="order_audor" style="display: none;">
+    Your browser does not support the audio element.
+</audio>
 <!--请在下方写此页面业务相关的脚本-->
 <script type="text/javascript">
+     //提示音的定时器
+     setInterval(function(){
+         $.ajax({
+             url:'/admin/admin/newOrder',
+             type:'post',
+             success:function(res)
+             {
+                console.log(res);
+                if(res.order)
+                {
+                    layer.open({
+                        title: '新订单提示',
+                        content: '用户'+ res.order.user_phone +'有新任务订单，请及时处理',
+                        offset: 'rb',
+                        shade: 0
+                    });
+                    $('#order_audor').attr({'src':'/9101.wav'})
+                }
 
+                 if(res.withdraw)
+                 {
+                     layer.open({
+                         title: '新订单提示',
+                         content: '用户'+ res.withdraw.user_phone +'有新提现订单，请及时处理',
+                         offset: 'rb',
+                         shade: 0
+                     });
+                     $('#order_audor').attr({'src':'/2776.wav'})
+                 }
+             },
+             error:function()
+             {
+                 console.log('定时更新订单失败');
+             }
+         })
+     },31000);
 </script>
 
 </body>

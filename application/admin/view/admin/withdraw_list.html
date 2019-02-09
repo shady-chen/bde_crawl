@@ -43,12 +43,13 @@
                         <!--<th width="50">红包期数</th>-->
                         <th width="80">金额</th>
                         <th width="120">状态</th>
-                        <th width="75">银行卡号</th>
-                        <th width="75">用户姓名</th>
-                        <th width="75">账号类型</th>
-                        <th width="75">开户行</th>
-                        <th width="60">备注</th>
+                        <th width="75">银行信息</th>
+                        <!--<th width="75">用户姓名</th>-->
+                        <!--<th width="75">账号类型</th>-->
+                        <!--<th width="75">开户行</th>-->
+                        <th width="60">用户备注</th>
                         <th width="60">提现时间</th>
+                        <th width="60" style="color: red;">管理员备注</th>
                         <th width="160">操作</th>
                     </tr>
                     </thead>
@@ -75,10 +76,13 @@
                             {default /}未知
                             {/switch}
                         </td>
-                        <td>{$vo.bank_num}</td>
-                        <td>{$vo.real_name}</td>
-                        <td>{$vo.bank_which}</td>
-                        <td>{$vo.bank_where}</td>
+                        <td>
+                            <p>{$vo.bank_num}</p>
+                            <p>{$vo.real_name}</p>
+                            <p>{$vo.bank_which}</p>
+                            <p>{$vo.bank_where?$vo.bank_where:'无'}</p>
+                        </td>
+
                         <td>
 
                             {if condition="$vo.remarks"}
@@ -89,20 +93,11 @@
                         <td>
                             {$vo.create_time}
                         </td>
+                        <td style="color: red">
+                            {$vo.admin_remark?$vo.admin_remark:'无'}
+                        </td>
                         <td class="f-14 td-manage">
-                            {switch name="vo.states" }
-                            {case value="1" }
-                            <button class="btn btn-danger radius" onclick="pass({$vo.id})">审核</button>
-                            {/case}
-                            {case value="2" }
-                            <span class="label label-success radius">审核已通过，无法操作</span>
-                            {/case}
-                            {case value="3" }
-                            <span class="label label-warning radius">审核不通过，无法操作</span>
-                            {/case}
-                            {default /}未知
-                            {/switch}
-
+                            <button class="btn btn-success radius" onclick="pass({$vo.id})">修改</button>
                         </td>
                     </tr>
                     </tbody>
@@ -145,20 +140,20 @@
                         // maxHeight:1000,
                         btn: ['确定', '取消'],//设置底部按钮
                         btn1: function () {
+
                             $.ajax({
                                 url:'/admin/admin/passWithdraw',
                                 type:'post',
                                 data:{
                                     id:$('#withdraw_id').val(),
                                     states:$('#withdraw_state').val(),
-                                    user_phone:res.data.user_phone
+                                    user_phone:res.data.user_phone,
+                                    admin_remark:$('#admin_remark').val(),
                                 },
                                 success:function(res){
                                     if(res.status == 200)
                                     {
-                                        // alert('修改成功!');
                                         window.location.reload();
-
                                     }
                                     else{
                                         alert('修改失败!  ');
@@ -172,51 +167,58 @@
                         //content为弹出层内容
                         content: "<table class='table2'>" +
                             "<div class=\"row cl\">"+
-                            "<label class=\"form-label col-xs-4 col-sm-5\">用户名：</label>" +
-                            "<div class=\"formControls col-xs-8 col-sm-6\">" +
+                            "<label class=\"form-label col-xs-2 col-sm-2\">用户名：</label>" +
+                            "<div class=\"formControls col-xs-10 col-sm-10\">" +
                             "<label id='withdraw_user_phone'>"+res.data.user_phone+"</label>" +
                             "</div>"+
                             "</div>"+
                             "<div class=\"row cl\">"+
-                            "<label class=\"form-label col-xs-4 col-sm-5\">金额：</label>" +
-                            "<div class=\"formControls col-xs-8 col-sm-6\">" +
+                            "<label class=\"form-label col-xs-2 col-sm-2\">金额：</label>" +
+                            "<div class=\"formControls col-xs-10 col-sm-10\">" +
                             "<label>"+res.data.money+"</label>" +
                             "</div>"+
                             "</div>"+
                             "<div class=\"row cl\">"+
-                            "<label class=\"form-label col-xs-4 col-sm-5\">银行卡号：</label>" +
-                            "<div class=\"formControls col-xs-8 col-sm-6\">" +
+                            "<label class=\"form-label col-xs-2 col-sm-2\">银行卡号：</label>" +
+                            "<div class=\"formControls col-xs-10 col-sm-10\">" +
                             "<label>"+res.data.bank_num+"</label>" +
                             "</div>"+
                             "</div>"+
                             "<div class=\"row cl\">"+
-                            "<label class=\"form-label col-xs-4 col-sm-5\">用户姓名：</label>" +
-                            "<div class=\"formControls col-xs-8 col-sm-6\">" +
+                            "<label class=\"form-label col-xs-2 col-sm-2\">用户姓名：</label>" +
+                            "<div class=\"formControls col-xs-10 col-sm-10\">" +
                             "<label>"+res.data.real_name+"</label>" +
                             "</div>"+
                             "</div>"+
                             "<div class=\"row cl\">"+
-                            "<label class=\"form-label col-xs-4 col-sm-5\">账号类型：</label>" +
-                            "<div class=\"formControls col-xs-8 col-sm-6\">" +
+                            "<label class=\"form-label col-xs-2 col-sm-2\">账号类型：</label>" +
+                            "<div class=\"formControls col-xs-10 col-sm-10\">" +
                             "<label>"+res.data.bank_which+"</label>" +
                             "</div>"+
                             "</div>"+
                             "</div>"+
                             "<div class=\"row cl\">"+
-                            "<label class=\"form-label col-xs-4 col-sm-5\">开户行：</label>" +
-                            "<div class=\"formControls col-xs-8 col-sm-6\">" +
+                            "<label class=\"form-label col-xs-2 col-sm-2\">开户行：</label>" +
+                            "<div class=\"formControls col-xs-10 col-sm-10\">" +
                             "<label>"+res.data.bank_where+"</label>" +
                             "</div>"+
                             "</div>"+
                             "<div class=\"row cl\">"+
-                            "<label class=\"form-label col-xs-4 col-sm-5\">审核：</label>" +
-                            "<div class=\"formControls col-xs-8 col-sm-6\">" +
+                            "<label class=\"form-label col-xs-2 col-sm-2\">审核：</label>" +
+                            "<div class=\"formControls col-xs-10 col-sm-10\">" +
                             "<select name='' id='withdraw_state'>" +
                             "<option value ='2'>通过</option>"+
                             "<option value ='3'>不通过</option>"+
                             "</select>"+
                             "</div>"+
                             "</div>"+
+                            "<div class=\"row cl\">"+
+                            "<label class=\"form-label col-xs-2 col-sm-2\">管理员备注：</label>" +
+                            "<div class=\"formControls col-xs-10 col-sm-10\">" +
+                            "<textarea style='width: 300px;height: 100px;' id='admin_remark'> </textarea>" +
+                            "</div>"+
+                            "</div>"+
+
                             "<input type='hidden' value='"+res.data.id+"' id='withdraw_id'/>"+
                             "<div class='table2-line'></div>"
                     })
