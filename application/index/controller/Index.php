@@ -235,6 +235,7 @@ class Index extends Controller
     public function robPacket()
     {
 
+
         $user = session('user');
 
         if(!$user){

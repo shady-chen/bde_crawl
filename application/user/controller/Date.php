@@ -71,7 +71,7 @@ class Date extends Index
     {
         $user = session('user');
         $appOrder = new AppOrder();
-        $data = $appOrder->where("create_time",">",time() - 60*60*2)->where(['uid' => $user['id']])->order('create_time desc')->select();
+        $data = $appOrder->where("create_time",">",time() - 60*60*2)->where(['uid' => $user['id'],'status'=>1])->order('create_time desc')->select();
         return json(['data' => $data, 'status' => 200]);
     }
 

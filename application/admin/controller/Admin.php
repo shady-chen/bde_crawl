@@ -243,6 +243,7 @@ class Admin extends Base
                     'remark'=>$remark,
                     'uid'=>$orderData['uid'],
                     'create_time'=>time(),
+                    'xishu'=>$settingData['bunus_money'],
                     'type'=>'抢红包',
                 ]);
 
@@ -271,6 +272,7 @@ class Admin extends Base
                     'remark'=>$remark,
                     'uid'=>$orderData['uid'],
                     'create_time'=>time(),
+                    'xishu'=>$settingData['bunus_money'],
                     'type'=>'抢红包',
                 ]);
 
