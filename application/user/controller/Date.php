@@ -109,12 +109,12 @@ class Date extends Index
         if (!$order) {
             return json(['msg' => '订单异常！', 'status' => 0]);
         }
-        if ($order['status'] == 0) {
-            return json(['msg' => '订单已过期！', 'status' => 0]);
-        }
-        if ($order['status'] == 4) {
-            return json(['msg' => '订单审核不通过 无法再提交！', 'status' => 0]);
-        }
+//        if ($order['status'] == 0) {
+//            return json(['msg' => '订单已过期！', 'status' => 0]);
+//        }
+//        if ($order['status'] == 4) {
+//            return json(['msg' => '订单审核不通过 无法再提交！', 'status' => 0]);
+//        }
 
         if ($order['status'] == 1) {
             // 获取表单上传文件
@@ -140,8 +140,8 @@ class Date extends Index
             ]);
 
             return json(['msg' => '提交成功，请等待审核', 'status' => 200]);
-
-
+        }else{
+            return json(['msg' => '订单已操作过或已过期，请勿重复提交！', 'status' => 0]);
         }
 
     }

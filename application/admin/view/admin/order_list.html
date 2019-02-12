@@ -112,7 +112,25 @@
 							<td class="f-14 td-manage">
 								<button class="btn btn-success radius" onclick="watchBanks({$vo.id})">系统银行卡</button>
 
+								{switch name="vo.status" }
+								{case value="0"}
+								<span class="label label-default radius">已过期</span>
+								{/case}
+								{case value="1" }
+								<span class="label label-danger radius text-l">待付款</span>
+								{/case}
+								{case value="2" }
 								<button class="btn btn-primary radius" onclick="orderPass({$vo.id})">修改</button>
+								{/case}
+								{case value="3" }
+								<span class="label label-success radius">审核通过</span>
+								{/case}
+								{case value="4" }
+								<span class="label label-warning radius">审核不通过</span>
+								{/case}
+								{default /}未知
+								{/switch}
+
 
 							</td>
 						</tr>
