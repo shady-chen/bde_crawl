@@ -61,6 +61,11 @@ class Admin extends Base
         {
             $allWtmoney   += $allWtData[$i]['money'];
         }
+        $unpassWtmoneyData = $moneyStreamModel->where(['type'=>'提现审核不通过'])->select();
+        for($i=0;$i<count($unpassWtmoneyData);$i++)
+        {
+            $allWtmoney   -= $unpassWtmoneyData[$i]['money'];
+        }
         $this->assign('allWtmoney',$allWtmoney);
 
         //3今日打码量  今天奖励总量
@@ -85,6 +90,11 @@ class Admin extends Base
         for($i=0;$i<count($todayWtData);$i++)
         {
             $todayWtmoney   += $todayWtData[$i]['money'];
+        }
+        $unpassWtmoneyData1 = $moneyStreamModel->where('create_time','>',$todaytimestemp)->where(['type'=>'提现审核不通过'])->select();
+        for($i=0;$i<count($unpassWtmoneyData1);$i++)
+        {
+            $todayWtmoney   -= $unpassWtmoneyData1[$i]['money'];
         }
         $this->assign('todayWtmoney',$todayWtmoney);
 
@@ -116,6 +126,11 @@ class Admin extends Base
         for($i=0;$i<count($yesTodayWtData);$i++)
         {
             $yesTodayWtmoney   += $yesTodayWtData[$i]['money'];
+        }
+        $unpassWtmoneyData2 = $moneyStreamModel->where('create_time','<',$todaytimestemp)->where('create_time','>',$todaytimestemp-(3600*24))->where(['type'=>'提现审核不通过'])->select();
+        for($i=0;$i<count($unpassWtmoneyData2);$i++)
+        {
+            $yesTodayWtmoney   -= $unpassWtmoneyData2[$i]['money'];
         }
         $this->assign('yesTodayWtmoney',$yesTodayWtmoney);
 
@@ -161,6 +176,18 @@ class Admin extends Base
         $todayUserBest = $userModel->order('today_total desc')->find();
         $this->assign('todayUserBest',$todayUserBest);
 
+
+        //4用户当前余额
+        $userBalanceMoneyTotal = 0;
+        $userUnClearBalanceMoneyTotal = 0;
+        for($i=0;$i<count($userData);$i++)
+        {
+            $userBalanceMoneyTotal   += $userData[$i]['money'];
+            $userUnClearBalanceMoneyTotal   += $userData[$i]['unclear_money'];
+        }
+
+        $this->assign('userBalanceMoneyTotal',$userBalanceMoneyTotal);
+        $this->assign('userUnClearBalanceMoneyTotal',$userUnClearBalanceMoneyTotal);
 //dump($todayUserBest);exit;
         return $this->fetch();
     }
@@ -315,6 +342,16 @@ class Admin extends Base
         $money_steam = new AppMoneysteam();
         $setting = new SystemSetting();
 
+        //防止管理员连续点击2次
+        $orderDataOld = $order->where(['id'=>$params['id']])->find();
+        if(time() - $orderDataOld['create_time'] <= 10){
+            return json(['msg'=>'请勿频繁操作订单','status'=>0]);
+        }
+
+        //防止修改2次订单  订单修改过后不可再次修改
+        if($orderDataOld['status'] == 4 || $orderDataOld['status'] == 3){
+            return json(['msg'=>'已修改的订单不可再修改！！！','status'=>0]);
+        }
 
 
         if($status == 4){
@@ -352,9 +389,7 @@ class Admin extends Base
                 ]);
 
                 //资金明细
-
                 $remark = '金额增加'.($userData['money']-$old_money).',未结算金额增加'.($userData['unclear_money']-$old_unclear_money);
-
                 $money_steam->save([
                     'money'=>$orderData['money'],
                     'user_money_now'=>$old_money,
@@ -401,9 +436,9 @@ class Admin extends Base
 
 
 
-        $order->where(['id'=>$params['id']])->update([
-            'status'=>$status,
-        ]);
+//        $order->where(['id'=>$params['id']])->update([
+//            'status'=>$status,
+//        ]);
 
         return json(['msg'=>'修改成功','status'=>200]);
 
@@ -937,6 +972,11 @@ class Admin extends Base
          {
              $allWtmoney   += $allWtData[$i]['money'];
          }
+         $allWtUnPassData = $steamModel->where(['uid'=>$id])->where(['type'=>'提现审核不通过'])->select();
+         for($i=0;$i<count($allWtUnPassData);$i++)
+         {
+             $allWtmoney   -= $allWtUnPassData[$i]['money'];
+         }
 
 
          /************************************历史记录结束***************************************************/
@@ -972,6 +1012,11 @@ class Admin extends Base
          {
              $todayWtmoney   += $todayWtData[$i]['money'];
          }
+         $allWtUnPassData2 = $steamModel->where(['uid'=>$id])->where('create_time','>',$todaytimestemp)->where(['type'=>'提现审核不通过'])->select();
+         for($i=0;$i<count($allWtUnPassData2);$i++)
+         {
+             $todayWtmoney   -= $allWtUnPassData2[$i]['money'];
+         }
 
 
          /************************************今日记录结束***************************************************/
@@ -1005,7 +1050,13 @@ class Admin extends Base
          {
              $yesTodayWtmoney   += $yesTodayWtData[$i]['money'];
          }
-
+         $allWtUnPassData3 = $steamModel->where(['uid'=>$id])->where('create_time','<',$todaytimestemp)->where(['type'=>'提现审核不通过'])
+             ->where('create_time','>',$todaytimestemp-(3600*24))
+             ->select();
+         for($i=0;$i<count($allWtUnPassData3);$i++)
+         {
+             $yesTodayWtmoney   -= $allWtUnPassData3[$i]['money'];
+         }
 
          /************************************昨天记录结束***************************************************/
 
@@ -1037,6 +1088,31 @@ class Admin extends Base
          $this->assign('data',$data);
          $this->assign('user_phone',$user_phone);
          return $this->fetch();
+     }
+
+
+
+
+     public function test()
+     {
+         $steamModel = new AppMoneysteam();
+         $data = $steamModel->where(['type'=>'抢红包'])->select();
+         $money = 0;
+         for($i=0;$i<count($data);$i++)
+         {
+             if($i==count($data)-1){
+                 echo "总计数：".$money;
+                 return;
+             }
+
+             if($data[$i]['money'] == $data[$i+1]['money'])
+             {
+                 $money += $data[$i]['money'];
+                 echo $data[$i]['id'] ."-----------". $data[$i]['money'] .'----uid:' .$data[$i]['uid']  .'<hr>';
+             }
+
+         }
+
      }
 
 

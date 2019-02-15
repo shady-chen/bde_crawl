@@ -62,6 +62,7 @@
 							<th width="120">状态</th>
 							<th width="75">凭证图片</th>
 							<th width="60">备注</th>
+							<th width="60">系统银行卡</th>
 							<th width="60">订单时间</th>
 							<th width="160">操作</th>
 						</tr>
@@ -107,26 +108,29 @@
 								{/if}
 							</td>
 							<td>
+								<button class="btn btn-success radius" onclick="watchBanks({$vo.id})">查看银行卡</button>
+							</td>
+							<td>
 								{$vo.create_time}
 							</td>
 							<td class="f-14 td-manage">
-								<button class="btn btn-success radius" onclick="watchBanks({$vo.id})">系统银行卡</button>
+
 
 								{switch name="vo.status" }
 								{case value="0"}
-								<span class="label label-default radius">已过期</span>
+								<!--<span class="label label-default radius">已过期</span>-->
 								{/case}
 								{case value="1" }
-								<span class="label label-danger radius text-l">待付款</span>
+								<!--<span class="label label-danger radius text-l">待付款</span>-->
 								{/case}
 								{case value="2" }
-								<button class="btn btn-primary radius" onclick="orderPass({$vo.id})">修改</button>
+								<button class="btn btn-primary radius" onclick="orderPass({$vo.id})">操作</button>
 								{/case}
 								{case value="3" }
-								<span class="label label-success radius">审核通过</span>
+								<!--<span class="label label-success radius">审核通过</span>-->
 								{/case}
 								{case value="4" }
-								<span class="label label-warning radius">审核不通过</span>
+								<!--<span class="label label-warning radius">审核不通过</span>-->
 								{/case}
 								{default /}未知
 								{/switch}
@@ -219,10 +223,8 @@
 								</div>`+
 
 								`<span> 操作：   </span>`	+
-								"<select name='' id='order_state' lay-verify=''>" +
-									"<option value ='1'>待付款</option>"+
-									"<option value ='0'>订单过期</option>"+
-									"<option value ='2'>审核中</option>"+
+								"<select name='' id='order_state' lay-verify='' style='margin-top: 15px;'>" +
+
 									"<option value ='3'>通过审核</option>"+
 									"<option value ='4'>不通过审核</option>"+
 								"</select>"+
