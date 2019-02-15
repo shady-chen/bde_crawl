@@ -499,6 +499,7 @@ class Admin extends Base
             'bank_which'=>$params['bank_which'],
             'bank_where'=>$params['bank_where'],
             'name'=>$params['name'],
+            'acount'=>$params['acount'],
             'is_use'=>1,
             'create_time'=>time(),
         ];

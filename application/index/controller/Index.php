@@ -289,31 +289,37 @@ class Index extends Controller
 
 
 
-
+        //使用银行卡
         $SystemBanks = new SystemBanks();
         $banks = $SystemBanks->where(['is_use'=>1])->select();
 
-        //获取随机银行卡
-        $coun = count($banks);
-        $ran = rand(0,$coun-1);
-        //获取随机金额
-//        $orderData = $appOrder->where(['packet_id'=>$data['id']])->select();
-//        $shengxiaMoney = $data['money'];
-//        $shengxiageshu = ((int)$data['amount']);
+        //没有银行卡时
+        if(count($banks) == 0)
+        {
+            return json(['msg'=>'任务超前，等待中','status'=>0]);
+        }
 
-//        if($shengxiageshu == 1){
-//            $randMoney = $shengxiaMoney;
-//        }else{
-//            if($orderData != null){//如果有订单就要获取剩下的金额再随机
-//
-//                for($x = 0;$x<count($orderData);$x++){
-//                    $shengxiaMoney -= $orderData[$x][money];
-//                }
-//                //每次发包的平均金额必须大于系统设置在最小金额
-//            }
-//            $randMoney = rand($setting['minManey'],$setting['maxManey']);
-//        }
-        //2-8 先确保能用的 302行
+        $ran = -1;
+        for($i=0;$i<count($banks);$i++)
+        {
+            if($banks[$i]['been_use'] < $banks[$i]['acount'])
+            {
+                $ran = $i;
+                break;
+            }
+        }
+
+
+        //所有卡都满载的时候
+        if($ran == -1)
+        {
+            return json(['msg'=>'所有银行卡已完成任务','status'=>0]);
+        }
+
+        //可使用时 次数+1
+        $SystemBanks->where(['id'=>$banks[$ran]['id']])->update(['been_use'=> ((int)$banks[$ran]['been_use'])+1]);
+
+        //获取随机金额
         $randMoney = rand($setting['minManey'],$setting['maxManey']);
 
         //存入order表中
@@ -334,16 +340,6 @@ class Index extends Controller
         ]);
 
 
-        /*$smsbao = new Smsbao();
-        $phone = $user['phone'];
-        $str = "您已经抢到红包，请在15分钟之内付款";
-
-        $smsbao->sendMessage($phone,$str);*/
-//        if($result == 0){
-//            return json(['msg'=>'短信获取成功！','status'=>200]);
-//        }else{
-//            return json(['msg'=>'短信获取失败！','status'=>0]);
-//        }
 
         return json(['msg'=>'您已成功领取到'. $data['expect'] .'期的任务,订单号为'.$data['id'],'status'=>200,'amount'=>((int)$data['amount'])-1,'money'=>$randMoney]);
 
