@@ -147,4 +147,85 @@ class Date extends Index
     }
 
 
+
+
+    /**
+     * 上传凭证的接口
+     * @return \think\response\Json
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public function OrderTogether()
+    {
+        $user = session('user');
+        $uid = $user['id'];
+        $appOrder = new AppOrder();
+        $orderId = $this->request->param('order_id');
+        $ids = explode(",", $orderId );
+        $remark = $this->request->param('remark');
+        $money = $this->request->param('money');
+        $sys_bank_num = $this->request->param('sys_bank_num');
+        $sys_bank_which = $this->request->param('sys_bank_which');
+        $sys_bank_where = $this->request->param('sys_bank_where');
+        $sys_name = $this->request->param('sys_name');
+
+
+        //更新合并的订单
+        for($i=0;$i<count($ids);$i++)
+        {
+            $appOrder->where(['id' => $ids[$i]])->update([
+                'status' => 0,
+                'remarks' => $remark,
+            ]);
+        }
+
+
+
+        $order = $appOrder->where(['id' => $orderId])->find();
+        if (!$order) {
+            return json(['msg' => '订单异常！', 'status' => 0]);
+        }
+
+
+
+        // 获取表单上传文件
+        $file = request()->file('img_file');
+        if (empty($file)) {
+            return json(['msg' => '请选择上传您的凭证文件', 'status' => 0]);
+        }
+        // 移动到框架应用根目录/public/uploads/ 目录下
+        $info = $file->move(ROOT_PATH . 'public' . DS . 'upload' . DS);
+        //如果不清楚文件上传的具体键名，可以直接打印$info来查看
+        //获取文件（文件名），$info->getFilename()  ***********不同之处，笔记笔记哦
+        //获取文件（日期/文件名），$info->getSaveName()  **********不同之处，笔记笔记哦
+        $filename = $info->getSaveName();  //在测试的时候也可以直接打印文件名称来查看
+        if (!$filename) {
+            return json(['msg' => $file->getError(), 'status' => 0]);
+        }
+
+        //更新订单
+
+        $appOrder->save([
+            'uid'=>$user['id'],
+            'packet_id'=>88888,
+            'user_phone'=>$user['phone'],
+            'packet_expect'=>88888,
+            'money'=>$money,
+            'status'=>2,
+            'img_url' => DS . 'upload\\' . $filename,
+            'remarks' => $remark,
+            'create_time'=>time(),
+            'sys_bank_num'=>$sys_bank_num,
+            'sys_bank_which'=>$sys_bank_which,
+            'sys_bank_where'=>$sys_bank_where,
+            'sys_name'=>$sys_name,
+        ]);
+
+        return json(['msg' => '提交成功，请等待审核', 'status' => 200]);
+
+
+    }
+
+
 }
