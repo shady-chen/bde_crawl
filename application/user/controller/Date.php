@@ -171,6 +171,27 @@ class Date extends Index
         $sys_name = $this->request->param('sys_name');
 
 
+        //是否已存在这订单
+        $isExits = $appOrder->where([
+            'uid'=>$user['id'],
+            'packet_id'=>88888,
+            'user_phone'=>$user['phone'],
+            'packet_expect'=>88888,
+            'money'=>$money,
+            'status'=>2,
+            'remarks' => $remark,
+            'sys_bank_num'=>$sys_bank_num,
+            'sys_bank_which'=>$sys_bank_which,
+            'sys_bank_where'=>$sys_bank_where,
+            'sys_name'=>$sys_name,
+        ])->find();
+        if($isExits)
+        {
+            return json(['msg' => '订单已提交，请勿重复提交！', 'status' => 0]);
+        }
+
+
+
         //更新合并的订单
         for($i=0;$i<count($ids);$i++)
         {
@@ -204,8 +225,10 @@ class Date extends Index
             return json(['msg' => $file->getError(), 'status' => 0]);
         }
 
-        //更新订单
 
+
+
+        //更新订单
         $appOrder->save([
             'uid'=>$user['id'],
             'packet_id'=>88888,
