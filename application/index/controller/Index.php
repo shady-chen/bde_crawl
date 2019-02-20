@@ -261,8 +261,17 @@ class Index extends Controller
         $userModel = new AppUser();
         $userData = $userModel->where(['id'=>$user['id']])->find();
 
+        //排除例外的  另外一条线的客户
         if($userData['today_total']>$setting['full_money'] && $userData['sons'] < $setting['sons']){
-            return json(['msg'=>'您今日已无法领取！','status'=>0]);
+            if($userData['invitation_code'] == 17040686488 || $userData['invitation_code'] == '17040686488')
+            {
+
+            }
+            else
+            {
+                return json(['msg'=>'您今日已无法领取！','status'=>0]);
+            }
+
         }
 
 

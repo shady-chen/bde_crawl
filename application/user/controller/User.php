@@ -102,8 +102,15 @@ class User extends Index
         $AppUser = new AppUser();
         $isExist = $AppUser->where(['phone'=>$phone])->find();
         if($isExist){
+            if($isExist['invitation_code'] == 17040686488 || $isExist['invitation_code'] == '17040686488')
+            {
+                return json(['msg'=>'推荐号码不可推荐用户注册！','status'=>0]);
+            }
             return json(['msg'=>'该手机号已注册！','status'=>0]);
         }
+
+
+
 
         //判斷邀請碼是否有效
         $invitation_code = $params['invitation_code'];
@@ -117,6 +124,11 @@ class User extends Index
         if($code != session('registerCode')){
             return json(['msg'=>'验证码错误！','status'=>0]);
         }
+
+
+
+
+
 
         $data = [
             'phone'=>$phone,
