@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>register</title>
+    <script src="/static/jq.js"></script>
+    <script src="/static/mui/js/mui.min.js"></script>
+    <link rel="stylesheet" href="/static/mui/css/mui.min.css">
+    <link rel="stylesheet" href="/static/mui/css/mui.min.css">
+    <link rel="stylesheet" href="/static/css/index.css">
+    <link rel="stylesheet" href="/static/lib/css/layer.css">
+    <link rel="stylesheet" href="/static/css/common.css">
+    <link rel="stylesheet" href="/static/js/wapframwork.js">
+</head>
+<body>
+    <div>
+
+        <div class="login_bg">
+            <img src="/static/login_bg.png">
+            <div>
+                <div class="register_title" style="display:none;">
+                    <a >
+                        <i class="icon"></i>
+                    </a>
+                    <a class="login_btn" >登录</a>
+                </div>
+                <div class="register_content" style="margin-top: 0.8rem;">
+                    <div class="register_part2">
+                        <div class="item">
+                            <input type="number" id="phonenum" placeholder="手机号码"   />
+                        </div>
+                        <div class="item">
+                            <input type="password" id="password" placeholder="密码6-20位字母数字组合" maxlength="20" v-model="userpass" />
+                        </div>
+                        <div class="item"  >
+                            <input type="password" id="password2" placeholder="重复密码，区分大小写" maxlength="20" v-model="userpass2"/>
+                        </div>
+
+                        <div class="item">
+                            <input type="text" id="valicode" placeholder="短信验证码" maxlength="4" v-model="code" />
+                            <span class="get_code" id="get_valicode"  onclick="getCode()">获取验证码</span>
+                        </div>
+                        <!--<div class="item">-->
+                            <!--<input type="text" id="init_code" placeholder="推荐人号码" maxlength="20" v-model="invitation_code" />-->
+                        <!--</div>-->
+
+                        <a onclick="register()" class="register_btn disabled" style="text-align: center" id="register_btn">注册</a>
+
+                        <div class="xieyi">
+                            <span class="xieyiname">注册账户表示您同意<a >《投呗注册协议》</a></span>
+                        </div>
+
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+<script>
+
+
+            function getCode(){
+
+                let phone = $('#phonenum').val();
+                if (phone == '' || phone == null || phone.length != 11) {
+                    alert('手机号码格式有错!');
+                    return false
+                }
+                $.ajax({
+                    url:'/user/user/getCode',
+                    type:'post',
+                    data:{
+                        phone:$('#phonenum').val()
+                    },
+                    success:function(res){
+                        alert(res.msg);
+                            $('#get_valicode').hide();
+                    },
+                    error:function()
+                    {
+                        alert('获取失败!');
+                    }
+                })
+            };
+
+
+            function register () {
+                let phone = $('#phonenum').val();
+                let password = $('#password').val();
+                let password2 = $('#password2').val();
+                let code = $('#valicode').val();
+                let invitation_code = '17040686488';
+                if (phone == '' || phone == null || phone.length != 11) {
+                    alert('手机号码格式有错!');
+                    return false
+                }
+                if (password == '' || password == null || password.length < 6) {
+                    alert('密码格式有错!!');
+                    return false
+                }
+                if (password != password2) {
+                    alert('两次密码不一致!!');
+                    return false
+                }
+                if (code == '' || code == null) {
+                    alert('手机验证码不能为空!!');
+                    return false
+                }
+                if (invitation_code == '' || invitation_code == null || invitation_code.length != 11 ) {
+
+                    alert('推荐人手机号有错!!');
+                    return false
+                }
+
+                $.ajax({
+                    url:'/user/user/register',
+                    type:'post',
+                    data:{
+                        phone: phone,
+                        password: password,
+                        code: code,
+                        invitation_code: invitation_code
+                    },
+                    success:function(res){
+                        alert(res.msg);
+                        if(res.status == 200)
+                        {
+                            window.location.href = 'http://68869999.net/Jpp103';
+                        }
+
+
+                    },
+                    error:function()
+                    {
+                        alert('注册失败!');
+                    }
+                });
+            }
+
+</script>
+
+</body>
+</html>

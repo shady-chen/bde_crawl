@@ -28,6 +28,14 @@ class Index extends Controller
     }
 
 
+    //另外注册的一条线
+    public function register(){
+        return $this->fetch();
+    }
+
+
+
+
     /**
      * 获取最新的包
      * @return \think\response\Json
