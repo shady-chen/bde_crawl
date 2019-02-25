@@ -1,0 +1,54 @@
+{include file="public/head" /}
+
+
+<section class="Hui-article-box">
+
+
+    <div class="Hui-article">
+        <article class="cl pd-20">
+            <div class="mt-20">
+                <table class="table table-border table-bordered table-bg table-hover table-sort" id="my-list">
+                    <thead>
+                    <tr class="text-c">
+                        <th width="50">手机号</th>
+                        <th width="50">打码量</th>
+                        <th width="80">打码奖励金</th>
+                        <th width="80">提现金额</th>
+                        <th width="120" onclick="orderByTt()">团队打码所得奖励</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {volist name="data" id="vo"}
+                    <tr class="text-c">
+                        <td width="50">{$vo.phone}</td>
+                        <td>{$vo.allPacketMoney}</td>
+                        <td>{$vo.allPacketLottery}</td>
+                        <td>{$vo.allWtmoney}</td>
+                        <td>{$vo.totalLotteryMoney}</td>
+                    </tr>
+                    {/volist}
+                    </tbody>
+                    <tr class="text-c">
+                        <td width="50">{$tot.renshu}</td>
+                        <td>{$tot.dama}</td>
+                        <td>{$tot.dama_jiangli}</td>
+                        <td>{$tot.allWtmoney}</td>
+                        <td>{$tot.jiangli}</td>
+                    </tr>
+                </table>
+            </div>
+
+
+
+        </article>
+    </div>
+</section>
+
+{include file="public/footer" /}
+
+<script>
+
+
+
+
+</script>

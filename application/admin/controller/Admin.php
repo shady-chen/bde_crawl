@@ -944,7 +944,7 @@ class Admin extends Base
          $id = $this->request->param('id');
          $user_phone = $this->request->param('user_phone');
          $steamModel = new AppMoneysteam();
-         $data = $steamModel->where(['uid'=>$id])->limit(30)->order('create_time desc')->select();
+         $data = $steamModel->where(['uid'=>$id])->order('create_time desc')->select();
 
 
 
@@ -1115,6 +1115,157 @@ class Admin extends Base
          }
 
      }
+
+
+
+
+      public function show()
+      {
+          $userModel = new AppUser();
+          $i_code = $this->request->param('i_code');
+          echo $i_code;
+          $users = $userModel->where(['invitation_code'=>$i_code])->select();
+          $TeamLeader = $userModel->where(['phone'=>$i_code])->find();
+          //$TeamLeader = $TeamLeader->toArray();
+
+           $c = 0;
+          for($j=0;$j<count($users);$j++)
+          {
+              $users[$j] = $users[$j]->toArray();
+              $c = $j;
+
+          }
+          $users[$c+1] = $TeamLeader;
+          $sModel = new AppMoneysteam();
+          $userData = [];
+          for ($i=0;$i<count($users);$i++)
+          {
+              //获取所有抢红包的钱
+              $allPacketMoneyToday = $sModel->where('create_time','>',1550764800)
+                  ->where('create_time','<',1550851200)
+                  ->where(['uid'=>$users[$i]['id']])->where(['type'=>'抢红包'])->select();
+              //历史奖励总量
+              $allPacketLottery = 0;
+              //历史打码总量
+              $allPacketMoney = 0;
+
+              for($j=0;$j<count($allPacketMoneyToday);$j++)
+              {
+
+                  $allPacketLottery += ($allPacketMoneyToday[$j]['xishu']?$allPacketMoneyToday[$j]['xishu']:0.006)   * $allPacketMoneyToday[$j]['money'];
+                  $allPacketMoney   += $allPacketMoneyToday[$j]['money'];
+              }
+
+              $userData[$i]['allPacketLottery']    = $allPacketLottery;
+              $userData[$i]['allPacketMoney']      = $allPacketMoney;
+              $userData[$i]['phone'] = $users[$i]['phone'];
+
+
+              //获取所有提现的钱
+              $allWtData = $sModel->where('create_time','>',1550764800)
+                  ->where('create_time','<',1550851200)->where(['uid'=>$users[$i]['id']])->where(['type'=>'提现'])->select();
+              $allWtmoney = 0;
+              for($k=0;$k<count($allWtData);$k++)
+              {
+                  $allWtmoney   += $allWtData[$k]['money'];
+              }
+              $allWtUnPassData = $sModel->where('create_time','>',1550764800)
+                  ->where('create_time','<',1550851200)->where(['uid'=>$users[$i]['id']])->where(['type'=>'提现审核不通过'])->select();
+              for($l=0;$l<count($allWtUnPassData);$l++)
+              {
+                  $allWtmoney   -= $allWtUnPassData[$l]['money'];
+              }
+              $userData[$i]['allWtmoney']      = $allWtmoney;
+
+              $totalLottery= $sModel->where('create_time','>',1550764800)
+                  ->where('create_time','<',1550851200)->where(['type'=>'发放奖励','uid'=>$users[$i]['id']])->select();
+              $totalLotteryMoney = 0;
+              for($a=0;$a<count($totalLottery);$a++)
+              {
+                  $totalLotteryMoney   += $totalLottery[$a]['money'];
+              }
+
+              $userData[$i]['totalLotteryMoney']      = $totalLotteryMoney;
+          }
+          $tot = ['renshu'=>0,'dama'=>0,'dama_jiangli'=>0,'allWtmoney'=>0,'jiangli'=>0];
+          for($j=0;$j<count($userData);$j++)
+          {
+              $tot['renshu'] = count($userData);
+              $tot['dama'] += $userData[$j]['allPacketMoney'];
+              $tot['dama_jiangli'] += $userData[$j]['allPacketLottery'];
+              $tot['allWtmoney'] += $userData[$j]['allWtmoney'];
+              $tot['jiangli'] += $userData[$j]['totalLotteryMoney'];
+          }
+
+          $this->assign('data',$userData);
+          $this->assign('tot',$tot);
+
+          return $this->fetch();
+
+
+
+
+
+      }
+
+
+      public function zzz()
+      {
+          $userModel = new AppUser();
+          $sModel = new AppMoneysteam();
+          $users = $userModel->select();
+          $c = 0;
+          for ($i=0;$i<count($users);$i++)
+          {
+              //获取所有抢红包的钱
+              $allPacketMoneyToday = $sModel->where(['uid'=>$users[$i]['id']])->where(['type'=>'抢红包'])->select();
+              //历史奖励总量
+              $allPacketLottery = 0;
+              //历史打码总量
+              $allPacketMoney = 0;
+
+              for($j=0;$j<count($allPacketMoneyToday);$j++)
+              {
+
+                  $allPacketLottery += ($allPacketMoneyToday[$j]['xishu']?$allPacketMoneyToday[$j]['xishu']:0.006)   * $allPacketMoneyToday[$j]['money'];
+                  $allPacketMoney   += $allPacketMoneyToday[$j]['money'];
+              }
+
+
+              //获取所有提现的钱
+              $allWtData = $sModel->where(['uid'=>$users[$i]['id']])->where(['type'=>'提现'])->select();
+              $allWtmoney = 0;
+              for($k=0;$k<count($allWtData);$k++)
+              {
+                  $allWtmoney   += $allWtData[$k]['money'];
+              }
+              $allWtUnPassData = $sModel->where(['uid'=>$users[$i]['id']])->where(['type'=>'提现审核不通过'])->select();
+              for($l=0;$l<count($allWtUnPassData);$l++)
+              {
+                  $allWtmoney   -= $allWtUnPassData[$l]['money'];
+              }
+
+
+              $totalLottery= $sModel->where(['type'=>'发放奖励','uid'=>$users[$i]['id']])->select();
+              $totalLotteryMoney = 0;
+              for($a=0;$a<count($totalLottery);$a++)
+              {
+                  $totalLotteryMoney   += $totalLottery[$a]['money'];
+              }
+
+                $result = $allPacketLottery + $allPacketMoney - $allWtmoney - $users[$i]['money'] - $users[$i]['unclear_money'] -$totalLotteryMoney;
+              if( $result < -1  ||  $result > 1)
+              {
+                  $c++;
+                  echo $allPacketLottery + $allPacketMoney - $allWtmoney - $users[$i]['money'] - $users[$i]['unclear_money'] -$totalLotteryMoney . '-----------' . $users[$i]['phone'] . '<hr>';
+              }
+          }
+          echo $c;
+            exit;
+
+
+          return;
+      }
 
 
 

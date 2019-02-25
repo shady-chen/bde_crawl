@@ -19,7 +19,7 @@
                     <th>打码量</th>
                     <th>奖励量</th>
                     <th>提现量</th>
-                    <th>奖励量</th>
+                    <th>团队奖励量</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -73,6 +73,10 @@
                 <tr>
                     <td>当前用户未结算总余额</td>
                     <td>{$userUnClearBalanceMoneyTotal}</td>
+                </tr>
+                <tr>
+                    <td>差值</td>
+                    <td>{$allTotalPacketMoney+$allTotalLotteryMoney+$totalLotteryMoney-$allWtmoney-$userBalanceMoneyTotal-$userUnClearBalanceMoneyTotal}</td>
                 </tr>
                 </tbody>
             </table>
