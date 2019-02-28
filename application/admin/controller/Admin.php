@@ -14,6 +14,7 @@ namespace app\admin\controller;
 use app\admin\model\AppMoneysteam;
 use app\admin\model\AppNotice;
 use app\admin\model\Notice;
+use app\admin\model\SystemLog;
 use app\index\model\AppOrder;
 use app\admin\model\SystemBanks;
 use app\index\model\AppPacket;
@@ -934,6 +935,18 @@ class Admin extends Base
 
 
 
+    public function send_msg_all()
+    {
+        return $this->fetch();
+    }
+
+    public function send_msg_all_post()
+    {
+        return $this->fetch();
+    }
+
+
+
 
 
     /**
@@ -1115,6 +1128,20 @@ class Admin extends Base
          }
 
      }
+
+
+    public function test2()
+    {
+        $logModel = new SystemLog();
+        $addMoney = 100;
+        $logModel->save([
+            'phone'=>15880630261,
+            'why'=>'奖励发放失败',
+            'money'=>$addMoney,
+            'create_time'=>time(),
+        ]);
+
+    }
 
 
 

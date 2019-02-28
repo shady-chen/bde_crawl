@@ -4,6 +4,7 @@ namespace app\index\controller;
 
 use app\admin\model\AppMoneysteam;
 use app\admin\model\SystemBanks;
+use app\admin\model\SystemLog;
 use app\index\model\AppOrder;
 use app\index\model\AppPacket;
 use app\user\model\AppUser;
@@ -66,6 +67,7 @@ class Index extends Controller
      *
      */
     public function award(){
+        $logModel = new SystemLog();
         $setting = new SystemSetting();
         $settingData = $setting->find();
         $money_steam = new AppMoneysteam();
@@ -107,16 +109,11 @@ class Index extends Controller
                 {
                     $money = $settingData['full_money'];
                     $unclear_money = $userData[$x]['money']+$userData[$x]['unclear_money']+$addMoney-$settingData['full_money'];
-                    $user->where(['id'=>$userData[$x]['id']])->update([
-                        'money'=>$money,
-                        'unclear_money'=>$unclear_money,
-                    ]);
-
 
                     //资金明细
                     $remark = '金额增加'.($settingData['full_money']-$userData[$x]['money']).',未结算金额增加'.($unclear_money-$userData[$x]['unclear_money']);
 
-                    $money_steam->save([
+                    $flag = $money_steam->save([
                         'money'=>$addMoney,
                         'user_money_now'=>$userData[$x]['money'],
                         'user_money_later'=>$money,
@@ -125,23 +122,30 @@ class Index extends Controller
                         'create_time'=>time(),
                         'type'=>'发放奖励',
                     ]);
-
-
-
+                    if(!$flag){
+                        $logModel->save([
+                            'phone'=>$userData[$x]['phone'],
+                            'why'=>'奖励发放失败',
+                            'money'=>$addMoney,
+                            'create_time'=>time(),
+                        ]);
+                    }
+                    else
+                    {
+                        $user->where(['id'=>$userData[$x]['id']])->update([
+                            'money'=>$money,
+                            'unclear_money'=>$unclear_money,
+                        ]);
+                    }
                 }
                 else
                 {
                     $money = $userData[$x]['money']+ $addMoney ;
-                    $user->where(['id'=>$userData[$x]['id']])->update([
-                        'money'=>$money,
-                    ]);
-
 
                     //资金明细
-
                     $remark = '金额增加'.$settingData['per_money'].',未结算金额增加0';
 
-                    $money_steam->save([
+                    $flag2 = $money_steam->save([
                         'money'=>$settingData['per_money'],
                         'user_money_now'=>$userData[$x]['money'],
                         'user_money_later'=>$money,
@@ -150,6 +154,21 @@ class Index extends Controller
                         'create_time'=>time(),
                         'type'=>'发放奖励',
                     ]);
+
+                    if(!$flag2){
+                        $logModel->save([
+                            'phone'=>$userData[$x]['phone'],
+                            'why'=>'奖励发放失败',
+                            'money'=>$addMoney,
+                            'create_time'=>time(),
+                        ]);
+                    }
+                    else
+                    {
+                        $user->where(['id'=>$userData[$x]['id']])->update([
+                            'money'=>$money,
+                        ]);
+                    }
 
                 }
                 echo $userData[$x]['phone'].'的奖励发送成功！';
