@@ -63,18 +63,17 @@ class Index extends Controller
 
     /**
      * 发放奖励
-     * @return \think\response\Json
      *
      */
     public function award(){
-        $logModel = new SystemLog();
+
         $setting = new SystemSetting();
         $settingData = $setting->find();
         $money_steam = new AppMoneysteam();
 
         $user = new AppUser();
         $userData = $user->where(['type'=>1])->select();
-
+        $data = [];//
         for ($x = 0; $x<count($userData);$x++)
         {
             $userXiaji = $user->where(['type'=>1])->where(['invitation_code'=>$userData[$x]['phone']])->select();
@@ -99,6 +98,7 @@ class Index extends Controller
             if($addMoneyXing != 0){
                 $this->awardXing($userData[$x],$addMoneyXing,'发放星级奖励');
             }
+
             //发放推荐人团队奖励
             if($userData[$x]['sons']+1>=$settingData['sons'] && $totalSum>=$settingData['bonus_rule'])
             {
@@ -113,7 +113,7 @@ class Index extends Controller
                     //资金明细
                     $remark = '金额增加'.($settingData['full_money']-$userData[$x]['money']).',未结算金额增加'.($unclear_money-$userData[$x]['unclear_money']);
 
-                    $flag = $money_steam->save([
+                    $data[]=[
                         'money'=>$addMoney,
                         'user_money_now'=>$userData[$x]['money'],
                         'user_money_later'=>$money,
@@ -121,22 +121,12 @@ class Index extends Controller
                         'uid'=>$userData[$x]['id'],
                         'create_time'=>time(),
                         'type'=>'发放奖励',
+                    ];
+
+                    $user->where(['id'=>$userData[$x]['id']])->update([
+                        'money'=>$money,
+                        'unclear_money'=>$unclear_money,
                     ]);
-                    if(!$flag){
-                        $logModel->save([
-                            'phone'=>$userData[$x]['phone'],
-                            'why'=>'奖励发放失败',
-                            'money'=>$addMoney,
-                            'create_time'=>time(),
-                        ]);
-                    }
-                    else
-                    {
-                        $user->where(['id'=>$userData[$x]['id']])->update([
-                            'money'=>$money,
-                            'unclear_money'=>$unclear_money,
-                        ]);
-                    }
                 }
                 else
                 {
@@ -145,7 +135,7 @@ class Index extends Controller
                     //资金明细
                     $remark = '金额增加'.$settingData['per_money'].',未结算金额增加0';
 
-                    $flag2 = $money_steam->save([
+                    $data[]=[
                         'money'=>$settingData['per_money'],
                         'user_money_now'=>$userData[$x]['money'],
                         'user_money_later'=>$money,
@@ -153,25 +143,19 @@ class Index extends Controller
                         'uid'=>$userData[$x]['id'],
                         'create_time'=>time(),
                         'type'=>'发放奖励',
+                    ];
+
+                    $user->where(['id'=>$userData[$x]['id']])->update([
+                        'money'=>$money,
                     ]);
 
-                    if(!$flag2){
-                        $logModel->save([
-                            'phone'=>$userData[$x]['phone'],
-                            'why'=>'奖励发放失败',
-                            'money'=>$addMoney,
-                            'create_time'=>time(),
-                        ]);
-                    }
-                    else
-                    {
-                        $user->where(['id'=>$userData[$x]['id']])->update([
-                            'money'=>$money,
-                        ]);
-                    }
-
                 }
-                echo $userData[$x]['phone'].'的奖励发送成功！';
+
+
+
+                $money_steam->saveAll($data);
+                sleep(1);
+                echo $userData[$x]['phone'].'reward('. $addMoney .') has been awarded' . "\n";
             }
 
 
