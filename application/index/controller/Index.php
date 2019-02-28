@@ -89,7 +89,6 @@ class Index extends Controller
             if($totalSum >= 2000000 && $totalSum <5000000){
                 $addMoneyXing = 2000;
 
-
             }else if($totalSum >= 5000000 && $totalSum <8000000){
                 $addMoneyXing = 5000;
             }else if($totalSum >= 8000000){
@@ -150,17 +149,8 @@ class Index extends Controller
                     ]);
 
                 }
-
-
-
-                $money_steam->saveAll($data);
-                sleep(1);
                 echo $userData[$x]['phone'].'reward('. $addMoney .') has been awarded' . "\n";
             }
-
-
-
-
 
         }
 
@@ -170,6 +160,9 @@ class Index extends Controller
                 'today_total'=>0,
             ]);
         }
+
+        $money_steam->saveAll($data);
+
 
 
     }
