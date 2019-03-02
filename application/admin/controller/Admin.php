@@ -1168,8 +1168,8 @@ class Admin extends Base
           for ($i=0;$i<count($users);$i++)
           {
               //获取所有抢红包的钱
-              $allPacketMoneyToday = $sModel->where('create_time','>',1550764800)
-                  ->where('create_time','<',1550851200)
+              $allPacketMoneyToday = $sModel->where('create_time','>',1551369600)
+                  ->where('create_time','<',1551456000)
                   ->where(['uid'=>$users[$i]['id']])->where(['type'=>'抢红包'])->select();
               //历史奖励总量
               $allPacketLottery = 0;
@@ -1189,23 +1189,23 @@ class Admin extends Base
 
 
               //获取所有提现的钱
-              $allWtData = $sModel->where('create_time','>',1550764800)
-                  ->where('create_time','<',1550851200)->where(['uid'=>$users[$i]['id']])->where(['type'=>'提现'])->select();
+              $allWtData = $sModel->where('create_time','>',1551369600)
+                  ->where('create_time','<',1551456000)->where(['uid'=>$users[$i]['id']])->where(['type'=>'提现'])->select();
               $allWtmoney = 0;
               for($k=0;$k<count($allWtData);$k++)
               {
                   $allWtmoney   += $allWtData[$k]['money'];
               }
-              $allWtUnPassData = $sModel->where('create_time','>',1550764800)
-                  ->where('create_time','<',1550851200)->where(['uid'=>$users[$i]['id']])->where(['type'=>'提现审核不通过'])->select();
+              $allWtUnPassData = $sModel->where('create_time','>',1551369600)
+                  ->where('create_time','<',1551456000)->where(['uid'=>$users[$i]['id']])->where(['type'=>'提现审核不通过'])->select();
               for($l=0;$l<count($allWtUnPassData);$l++)
               {
                   $allWtmoney   -= $allWtUnPassData[$l]['money'];
               }
               $userData[$i]['allWtmoney']      = $allWtmoney;
 
-              $totalLottery= $sModel->where('create_time','>',1550764800)
-                  ->where('create_time','<',1550851200)->where(['type'=>'发放奖励','uid'=>$users[$i]['id']])->select();
+              $totalLottery= $sModel->where('create_time','>',1551369600)
+                  ->where('create_time','<',1551456000)->where(['type'=>'发放奖励','uid'=>$users[$i]['id']])->select();
               $totalLotteryMoney = 0;
               for($a=0;$a<count($totalLottery);$a++)
               {

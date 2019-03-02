@@ -42,8 +42,8 @@ class Withdraw extends Index{
 //            return json(['msg'=>'提现时间为早上9点到下午5点，其他时间不予提现！','status'=>1]);
 //        }
 
-        if($params['phoneMess']>session('code')){
-            return json(['msg'=>'验证码有误！','status'=>1]);
+        if($params['money']%10 != 0){
+            return json(['msg'=>'提现只能整十整百','status'=>1]);
         }
 
         //获取银行卡信息
