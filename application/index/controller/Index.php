@@ -135,7 +135,7 @@ class Index extends Controller
                     $remark = '金额增加'.$settingData['per_money'].',未结算金额增加0';
 
                     $data[]=[
-                        'money'=>$settingData['per_money'],
+                        'money'=>$addMoney,
                         'user_money_now'=>$userData[$x]['money'],
                         'user_money_later'=>$money,
                         'remark'=>$remark,

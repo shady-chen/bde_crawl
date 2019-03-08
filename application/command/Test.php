@@ -83,7 +83,7 @@ class Test extends Command
 
                 $index = new Index();
                 //凌晨12。09点清除所有的打码量！！！！！
-                if($now == $todaytimestemp + (60 * 1))
+                if($now == $todaytimestemp + (60 * 60 * 23) + (60 * 50) + 10)
                 {
                     echo "start to clear all of total_total\n";
                     $index->award();
