@@ -264,7 +264,7 @@ class Index extends Controller
 
         //排除例外的  另外一条线的客户
         if($userData['today_total']>$setting['full_money'] && $userData['sons'] < $setting['sons']){
-            if($userData['invitation_code'] == 17040686488 || $userData['invitation_code'] == '17040686488')
+            if($userData['invitation_code'] == 17040686488 || $userData['invitation_code'] == '17040686488' || $userData['invitation_code'] == 13123178708 || $userData['invitation_code'] == '13123178708')
             {
 
             }
