@@ -101,11 +101,9 @@ class User extends Index
         //判断手机号是否已注册
         $AppUser = new AppUser();
         $isExist = $AppUser->where(['phone'=>$phone])->find();
+
         if($isExist){
-            if($isExist['invitation_code'] == 17040686488 || $isExist['invitation_code'] == '17040686488' ||  $isExist['invitation_code'] == 13123178708 || $isExist['invitation_code'] == '13123178708')
-            {
-                return json(['msg'=>'推荐号码不可推荐用户注册！','status'=>0]);
-            }
+
             return json(['msg'=>'该手机号已注册！','status'=>0]);
         }
 
@@ -116,7 +114,14 @@ class User extends Index
         $invitation_code = $params['invitation_code'];
         $isExist2 = $AppUser->where(['phone'=>$invitation_code])->find();
         if(!$isExist2){
+
             return json(['msg'=>'邀请码不存在！','status'=>0]);
+        }
+        else{
+            if($isExist2['invitation_code'] == 17040686488 || $isExist2['invitation_code'] == '17040686488' ||  $isExist2['invitation_code'] == 13123178708 || $isExist2['invitation_code'] == '13123178708')
+            {
+                return json(['msg'=>'推荐号码不可推荐用户注册！','status'=>0]);
+            }
         }
 
         //判断验证码
