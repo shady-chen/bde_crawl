@@ -34,6 +34,11 @@ class Index extends Controller
         return $this->fetch();
     }
 
+    //另外注册的一条线
+    public function register2(){
+        return $this->fetch();
+    }
+
 
 
 

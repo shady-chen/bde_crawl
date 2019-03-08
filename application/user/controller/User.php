@@ -102,7 +102,7 @@ class User extends Index
         $AppUser = new AppUser();
         $isExist = $AppUser->where(['phone'=>$phone])->find();
         if($isExist){
-            if($isExist['invitation_code'] == 17040686488 || $isExist['invitation_code'] == '17040686488')
+            if($isExist['invitation_code'] == 17040686488 || $isExist['invitation_code'] == '17040686488' ||  $isExist['invitation_code'] == 13123178708 || $isExist['invitation_code'] == '13123178708')
             {
                 return json(['msg'=>'推荐号码不可推荐用户注册！','status'=>0]);
             }
