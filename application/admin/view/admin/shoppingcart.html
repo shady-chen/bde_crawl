@@ -1,0 +1,113 @@
+﻿{include file="public/head" /}
+
+
+<section class="Hui-article-box">
+    <nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页
+        <span class="c-gray en">&gt;</span>
+        订单管理
+        <span class="c-gray en">&gt;</span>
+        订单列表
+        <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px"
+           href="javascript:location.replace(location.href);" title="刷新"><i class="Hui-iconfont">&#xe68f;</i></a>
+    </nav>
+    <div class="Hui-article">
+        <article class="cl pd-20">
+
+            <br>
+
+            <div class="mt-20">
+                <table class="table table-border table-bordered table-bg table-hover table-sort">
+                    <thead>
+                    <tr class="text-c">
+                        <th width="40">用户名</th>
+                        <th width="40">性别</th>
+                        <th width="40">电话</th>
+                        <th width="40">邮箱</th>
+                        <th width="40">住址</th>
+
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    <tr class="text-c">
+                        <td>{$data.txtfirstname|default="没写"} {$data.txtlastname|default="没写"}</td>
+                        <td>{$data.rbsex?"男":"女"}</td>
+                        <td>{$data.txttelephone|default="没写"}</td>
+                        <td>{$data.txtemailaddress|default="没写"}</td>
+                        <td>{$data.txtstreetaddress|default="没写"}</td>
+
+                    </tr>
+                    </tbody>
+
+                </table>
+
+
+            </div>
+            <div class="mt-20">
+                <table class="table table-border table-bordered table-bg table-hover table-sort">
+                    <thead>
+                    <tr class="text-c">
+                        <th width="40">所在国家</th>
+                        <th width="40">所在城市</th>
+                        <th width="40">邮编</th>
+                        <th width="40">生日</th>
+                        <th width="40">IP地址</th>
+
+
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    <tr class="text-c">
+                        <td>{$data.drpcountry|default="没写"}</td>
+                        <td>{$data.txtcity|default="没写"}</td>
+                        <td>{$data.txtpostcode|default="没写"}</td>
+                        <td>{$data.txtbirthday|default="没写"}</td>
+                        <td>{$data.localip|default="没写"}</td>
+
+
+                    </tr>
+                    </tbody>
+
+                </table>
+            </div>
+
+
+            <div class="mt-20">
+                <table class="table table-border table-bordered table-bg table-hover table-sort">
+                    <thead>
+                    <tr class="text-c">
+                        <th width="40">账单名字</th>
+                        <th width="40">账单城市</th>
+                        <th width="40">账单国家</th>
+                        <th width="40">账单地址</th>
+                        <th width="40">账单邮编</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    <tr class="text-c">
+                        <td>{$data.billingfirstname|default="没写"}{$data.billinglastname|default="没写"}</td>
+                        <td>{$data.billingcity|default="没写"}</td>
+                        <td>{$data.billingcountry|default="没写"}</td>
+                        <td>{$data.billingstreetaddress|default="没写"}</td>
+                        <td>{$data.billingpostcode|default="没写"}</td>
+                    </tr>
+                    </tbody>
+
+                </table>
+            </div>
+
+
+
+        </article>
+    </div>
+</section>
+
+{include file="public/footer" /}
+
+<script>
+
+
+
+</script>

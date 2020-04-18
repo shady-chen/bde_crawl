@@ -19,13 +19,10 @@ class Base extends Controller
         if(!$admin){
             return false;
         }
-        if($admin['phone'] != 'admin'){
+        if($admin['username'] != 'bde'){
             return false;
         }
 
-        if($admin['type'] != 0){
-            return false;
-        }
 
         return true;
 

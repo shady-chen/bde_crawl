@@ -1,320 +1,216 @@
 ﻿{include file="public/head" /}
+<script src="/static/lib/My97DatePicker/4.8/WdatePicker.js"></script>
+<style>
+    .username{
+        font-size: 16px;
+        font-weight: 700;
+        color: #0a6999;
+    }
+    .filter-wrap
+    {
+        width: 100%;
 
+    }
+    .Hui-article
+    {
+        top: 0;
+    }
+</style>
 
 <section class="Hui-article-box">
-	<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页
-		<span class="c-gray en">&gt;</span>
-		订单管理
-		<span class="c-gray en">&gt;</span>
-		订单列表
-		<a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a>
-	</nav>
-	<div class="Hui-article">
-		<article class="cl pd-20">
-			<form action="/admin/admin/order_list2" method="post">
-			<div >
-				<label>用户名:</label>
-				<input type="text" name="phone"  placeholder="" style="width:150px" class="input-text" id="find_user_phone">
-				&nbsp;&nbsp;
-				<label>订单号:</label>
-				<input type="text" name="id"  placeholder="" style="width:150px" class="input-text" id="find_user_id">
-				&nbsp;&nbsp;
-				<label>红包期数:</label>
-				<input type="text" name="expect"  placeholder="" style="width:150px" class="input-text" id="find_user_expect">
-				&nbsp;&nbsp;
-				<label>状态:</label>
-				<select  style="width:150px;height: 31px" name="state" id="find_user_state">
-					<option value="">请选择状态</option>
-					<option value="0">过期</option>
-					<option value="1">待付款</option>
-					<option value="2">审核中</option>
-					<option value="3">审核通过</option>
-					<option value="4">审核不通过</option>
-				</select>
 
-				<button name=""  class="btn btn-success" type="submit" onclick="find_user()"><i class="Hui-iconfont">&#xe665;</i> 搜订单</button>
-			</div>
-			<br>
-			<div>
-				<!--<label>订单时间:</label>-->
-				<!--<input type="date" name="starttime"  placeholder="" style="width:150px" class="input-text" id="find_user_starttime">-->
-				<!--<span>~</span>-->
-				<!--<input type="date" name="endtime"  placeholder="" style="width:150px" class="input-text" id="find_user_endtime">-->
-				&nbsp;&nbsp;
+    <div class="Hui-article">
+        <article class="cl pd-20">
+
+            <form action="">
+            <div class="filter-wrap" style="overflow: hidden;float:left;width: 230px;">
+                <div  style="width: 230px;margin-bottom: 10px; ">
+                     <span>域名：</span>
+                     <select name="domain"  class="select" style="width: 150px;" >
+                        <option value="">请选择</option>
+                        {volist name='website_list' id='item' }
+
+                        <option value="{$item.domain}" {if $Think.get.domain == $item.domain} selected {/if}  > {$item.domain}</option>
+                        {/volist}
+                     </select>
+                </div>
+
+                <div  style="margin-bottom: 10px;">
+                    <span>国家：</span>
+                    <input type="text" name="country" value="{$Think.get.country}"  class="input-text" style="width: 150px;" placeholder="请输入国家名称">
+                </div>
+
+                <div  style="margin-bottom: 10px;">
+                    <span>人名：</span>
+                    <input type="text" name="username" value="{$Think.get.username}" class="input-text" style="width: 150px;" placeholder="请输入客户姓名">
+                </div>
 
 
-			</div>
-			</form>
-			<!--<div class="cl pd-5 bg-1 bk-gray mt-20">-->
-				<!--<span class="l">-->
-				<!--<a class="btn btn-primary radius" data-title="添加订单" _href="article-add.html" onclick="window.location.href = 'article_add.html'" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 添加订单</a>-->
-				<!--</span>-->
-				<!--<span class="r">共有数据：<strong>54</strong> 条</span>-->
-			<!--</div>-->
-			<div class="mt-20">
-				<table class="table table-border table-bordered table-bg table-hover table-sort">
-					<thead>
-						<tr class="text-c">
-							<th width="40">订单号</th>
-							<th width="90">用户名</th>
-							<th width="50">红包期数</th>
-							<th width="80">金额</th>
-							<th width="120">状态</th>
-							<th width="75">凭证图片</th>
-							<th width="60">备注</th>
-							<th width="60">系统银行卡</th>
-							<th width="60">订单时间</th>
-							<th width="160">操作</th>
-						</tr>
-					</thead>
-					<tbody>
-					{volist name="data" id="vo"}
-						<tr class="text-c">
-							<td>{$vo.id}</td>
-							<td>{$vo.user_phone}</td>
-							<td>{$vo.packet_expect}</td>
-							<td>{$vo.money}</td>
-							<td class="td-status">
-								{switch name="vo.status" }
-									{case value="0"}
-										<span class="label label-default radius">已过期</span>
-									{/case}
-									{case value="1" }
-										<span class="label label-danger radius text-l">待付款</span>
-									{/case}
-									{case value="2" }
-										<span class="label label-primary radius">已付款，审核中</span>
-									{/case}
-									{case value="3" }
-										<span class="label label-success radius">审核通过</span>
-									{/case}
-									{case value="4" }
-										<span class="label label-warning radius">审核不通过</span>
-									{/case}
-									{default /}未知
-								{/switch}
-							</td>
-							<td>
-								{if condition="$vo.img_url"}
-										<img src="{$vo.img_url}" alt="" width="40px" height="40px" onclick='showBig(this)'>
-									{else /} 尚未上传凭证
-								{/if}
-							</td>
-							<td>
+                <div class="clearFloat"></div>
 
-								{if condition="$vo.remarks"}
-								    <p>{$vo.remarks}</p>
-									{else /} 用户无备注
-								{/if}
-							</td>
-							<td>
-								<button class="btn btn-success radius" onclick="watchBanks({$vo.id})">查看银行卡</button>
-							</td>
-							<td>
-								{$vo.create_time}
-							</td>
-							<td class="f-14 td-manage">
+            </div>
+
+            <div class="filter-wrap" style="overflow: hidden;float:left;width: 230px;">
+
+                <div  style="margin-bottom: 10px;">
+                    <span>产品：</span>
+                    <input type="text" name="product_name" value="{$Think.get.product_name}" class="input-text" style="width: 150px;" placeholder="请输入产品名称">
+                </div>
+
+                <div  style="margin-bottom: 10px;">
+                    <span>开始：</span>
+
+                    <input type="text" name="start_time" value="{$Think.get.start_time}" onfocus="WdatePicker()" id="start" class="input-text Wdate" style="width:150px;">
+                </div>
+
+                <div  style="margin-bottom: 10px;">
+                    <span>结束：</span>
+                    <input type="text" name="end_time" value="{$Think.get.end_time}" onfocus="WdatePicker()" id="end" class="input-text Wdate" style="width:150px;">
+                </div>
+
+                <div class="clearFloat"></div>
+
+            </div>
+
+            <div class="filter-wrap" style="overflow: hidden;float:left;width: 80px;">
 
 
-								{switch name="vo.status" }
-								{case value="0"}
-								<!--<span class="label label-default radius">已过期</span>-->
-								{/case}
-								{case value="1" }
-								<!--<span class="label label-danger radius text-l">待付款</span>-->
-								{/case}
-								{case value="2" }
-								<button class="btn btn-primary radius" onclick="orderPass({$vo.id})">操作</button>
-								{/case}
-								{case value="3" }
-								<!--<span class="label label-success radius">审核通过</span>-->
-								{/case}
-								{case value="4" }
-								<!--<span class="label label-warning radius">审核不通过</span>-->
-								{/case}
-								{default /}未知
-								{/switch}
+                <div  style="margin-bottom: 10px;">
+                    <a class="btn btn-primary" href="/admin/admin/down_load" target="_blank">下载</a>
+                </div>
 
 
-							</td>
-						</tr>
-					</tbody>
-					{/volist}
-				</table>
-			</div>
+                <div  style="margin-bottom: 10px;">
+                    <a class="btn btn-danger" href="/admin/admin/redpacket_list">重置</a>
+                </div>
 
-			<div class="pagination">{$page}</div>
 
-		</article>
-	</div>
+                <div  style="margin-bottom: 10px;">
+                    <button class="btn btn-success">搜索</button>
+                </div>
+            </form>
+
+
+                <div class="clearFloat"></div>
+
+            </div>
+
+
+
+
+
+            <div class="filter-wrap" style="overflow: hidden;float:left;width: 530px;">
+
+                <div  style="margin-bottom: 10px;">
+                    <div class="pagination">{$page}</div>
+                </div>
+
+
+
+                <div class="clearFloat"></div>
+
+            </div>
+
+
+
+
+
+            <!----------------------------------下面是table------------------------------------------------>
+            <br>
+
+            <div class="mt-20">
+                <table class="table table-border table-bordered table-bg table-hover table-sort">
+                    <thead>
+                    <tr class="text-c">
+<!--                        <th width="40">序号</th>-->
+                        <th >订单号</th>
+                        <th >付款时间</th>
+                        <th >订单状态</th>
+                        <th >下单产品</th>
+                        <th >运费</th>
+                        <th >总价</th>
+                        <th >客户信息</th>
+                        <th >下单网站</th>
+                        <th >客户电话</th>
+                        <th >付款方式</th>
+
+
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {volist name="data" id="vo" key="k"}
+                    <tr class="text-c">
+
+                        <td >{$vo.order_id|default="unknown"}</td>
+
+                        <td>{$vo.finished_time|default="unknown"}</td>
+
+                        <td>{$vo.order_state|default="unknown"}</td>
+
+                        <!--这是购物车的内容 要完整的-->
+                        <td class="text-l">
+                            {volist name="vo.product" id="v" key="key"}
+                            <div style="height: 120px;">
+                                <div style="height: 120px;width: 120px;float:left;">
+                                    <img src="{$v.imgurl}" alt="" style="width: 100px;height: 100px;">
+                                </div>
+                                <div style="height: 120px;float:left;width: 300px;">
+                                        <p style="margin-bottom:5px;">产品名称：{$v.productname}</p>
+                                        <p style="margin-bottom:5px;">产品单价：{$v.productprice}</p>
+                                        <p style="margin-bottom:5px;">购买数量：{$v.quantity}</p>
+                                </div>
+                            </div>
+                            {/volist}
+
+                        </td>
+
+                        <!--运费-->
+                        <td>
+                            {$vo.freight}
+                        </td>
+
+                        <!--总价-->
+                        <td>
+                               <b style="color: red;">{$vo.total|default="Unknown"}</b>
+                        </td>
+
+                        <!--这是客户的信息-->
+                        <td class="text-l">
+                            <p>姓名：{$vo.first_name}{$vo.last_name}    </p>
+                            <p>性别：{$vo.rbsex}   </p>
+                            <p>邮箱：
+                                <a href="/admin/admin/onePerson?contentId={$vo.id}" target="_blank" style="color: #0a6999" >
+                                    {$vo.email|default="Unknown"}
+                                </a>
+                            </p>
+                            <p>国家：{$vo.country}      </p>
+                            <p>住址：{$vo.address}      </p>
+                        </td>
+                        <td>{$vo.website}</td>
+                        <td>{$vo.phone}</td>
+                        <td>{$vo.pay_way}</td>
+
+                    </tr>
+                    </tbody>
+                    {/volist}
+                </table>
+            </div>
+
+
+
+        </article>
+    </div>
 </section>
 
 {include file="public/footer" /}
-<style>
-	.line-1{
-		display: inline-block;
-		width: 200px;
-	}
 
-	#order_state{
-		width: 200px;
-		height: 30px;
-		text-align: center;
-		border-radius: 10px;
-	}
-</style>
 <script>
-	function orderPass(id){
-		$.ajax({
-			url:'/admin/admin/checkOrder',
-			type:'post',
-			data:{
-				id:id
-
-			},
-			success:function(res){
-				if(res.status == 200)
-				{
-					layer.open({
-						skin: 'alert-skin',//弹出层皮肤，可自定义也可用官方
-						title: ['订单审核', 'color:rgb(139, 181, 219);'],//弹出层title,数组右半部份设置title样式
-						// area: 'auto',
-						area: ['800px', '620px'],
-						maxWidth: 1500,
-						maxHeight:1000,
-						btn: ['确定', '取消'],//设置底部按钮
-						btn1: function () {
-							$.ajax({
-								url:'/admin/admin/passOrder',
-								type:'post',
-								data:{
-									id:$('#order_id').val(),
-									status:$('#order_state').val(),
-									user_phone:res.data.user_phone
-								},
-								success:function(res){
-									if(res.status == 200)
-									{
-										// alert('修改成功!');
-										window.location.reload();
-
-									}
-									else{
-										alert('修改失败!  ');
-									}
-								},
-								error:function(error){
-									alert('发生未知错误！');
-								}
-							});
-						},
-						//content为弹出层内容
-						content:
-
-
-								`<div style="font-weight: 700;">
-									<span class="line-1">用户：`+ res.data.user_phone + `  </span>
-									<span class="line-1">期数：`+ res.data.packet_expect + `  </span>
-									<span class="line-1">金额：`+ res.data.money + `</span>
-								</div>`
-								+
-								`<div style="margin-top: 5px;">
-								    <img src='`+ res.data.img_url +`' alt='凭证' height='380px' width='520px'>
-								</div>`+
-
-								`<span> 操作：   </span>`	+
-								"<select name='' id='order_state' lay-verify='' style='margin-top: 15px;'>" +
-
-									"<option value ='3'>通过审核</option>"+
-									"<option value ='4'>不通过审核</option>"+
-								"</select>"+
-
-								"<input type='hidden' value='"+res.data.id+"' id='order_id'/>"
-
-
-					})
-				}
-				else{
-					alert('修改失败!  ');
-				}
-			},
-			error:function(error){
-				alert('发生未知错误！');
-			}
-		});
-	}
-
-
-	function watchBanks(id){
-		$.ajax({
-			url:'/index/index/findPackById',
-			type:'post',
-			data:{
-				id:id
-
-			},
-			success:function(res){
-				if(res.status == 200)
-				{
-					// alert('银行\\支付宝:'+res.data.sys_bank_which+'\n银行卡号\\支付宝账号:'+res.data.sys_bank_num+'\n姓名:'+res.data.sys_name);
-					layer.open({
-						skin: 'alert-skin',//弹出层皮肤，可自定义也可用官方
-						title: ['银行卡信息', 'color:rgb(139, 181, 219);'],//弹出层title,数组右半部份设置title样式
-						area: 'auto',
-						maxWidth: 1500,
-						// maxHeight:1000,
-						btn: ['确定'],//设置底部按钮
-						btn1: function () {
-							layer.close(layer.open());
-						},
-						content: "<div>" +
-									"<span>银行类型:</span><span> "+res.data.sys_bank_which+"</span>"+
-								"</div>"+
-								"<div>" +
-								"<span>银行账号:</span><span> "+res.data.sys_bank_num+"</span>"+
-								"</div>"+
-								"<div>" +
-								"<span>银行姓名:</span><span> "+res.data.sys_name+"</span>"+
-								"</div>"
-					})
-				}
-				else{
-					alert('显示失败!  ');
-				}
-			},
-			error:function(error){
-				alert('发生未知错误！');
-			}
-		});
-		return false;
-	}
-	// function find_user() {
-	// 	var phone = $('#find_user_phone').val();
-	// 	var id = $('#find_user_id').val();
-	// 	var expect = $('#find_user_expect').val();
-	// 	var state = $('#find_user_state').val();
-	// 	var starttime = $('#find_user_starttime').val();
-	// 	var endtime = $('#find_user_endtime').val();
-	// 	window.location.href = '/admin/admin/order_list?phone='+phone+'&id='+id+'&expect='+expect+'&state='+state+'&starttime='+starttime+'&endtime='+endtime;
-	// }
+    //displaynavbar("pngfix");
+    function orderPass(id) {
+        // window.location.href = '/admin/admin/shoppingcart.html'+'?id='+id;
+        window.open('/admin/admin/shoppingcart.html'+'?id='+id,"_blank");
+    }
 
 
 
-
-	function showBig(url){
-	  console.log(url.src);
-        layer.open({
-            skin: 'alert-skin',//弹出层皮肤，可自定义也可用官方
-            title: ['查看大图', 'color:rgb(139, 181, 219);'],//弹出层title,数组右半部份设置title样式
-			area: 'auto',
-            //area: ['800px', '1000px'],
-            maxWidth: 1500,
-            maxHeight:1000,
-            btn: ['关闭'],//设置底部按钮
-
-            //content为弹出层内容
-            content: "<img src='" + url.src +"' style='width: 800px;height: 500px;'>"
-        })
-
-	}
 </script>

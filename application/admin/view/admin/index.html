@@ -16,38 +16,39 @@
                 </tr>
                 <tr class="text-c">
                     <th>统计</th>
-                    <th>打码量</th>
-                    <th>奖励量</th>
-                    <th>提现量</th>
-                    <th>团队奖励量</th>
+                    <th>网站数量</th>
+                    <th>数据数量</th>
+
                 </tr>
                 </thead>
                 <tbody>
                 <tr class="text-c">
                     <td>总数</td>
-                    <td>{$allTotalPacketMoney}</td>
-                    <td>{$allTotalLotteryMoney}</td>
-                    <td>{$allWtmoney}</td>
-                    <td>{$totalLotteryMoney}</td>
+                    <td>{$website_count}</td>
+                    <td>{$file_count}</td>
+
                 </tr>
-                <tr class="text-c">
-                    <td>今日</td>
-                    <td>{$todayPacketMoney}</td>
-                    <td>{$todayPacketLottery}</td>
-                    <td>{$todayWtmoney}</td>
-                    <td>尚未结算</td>
-                </tr>
-                <tr class="text-c">
-                    <td>昨日</td>
-                    <td>{$yesTodayPacketMoney}</td>
-                    <td>{$yesTodayPacketLottery}</td>
-                    <td>{$yesTodayWtmoney}</td>
-                    <td>{$yesTodayLotteryMoney}</td>
-                </tr>
+<!--                <tr class="text-c">-->
+<!--                    <td>今日</td>-->
+<!--                    <td></td>-->
+<!--                    <td></td>-->
+<!--                    <td></td>-->
+<!--                    <td></td>-->
+<!--                </tr>-->
+<!--                <tr class="text-c">-->
+<!--                    <td>昨日</td>-->
+<!--                    <td></td>-->
+<!--                    <td></td>-->
+<!--                    <td></td>-->
+<!--                    <td></td>-->
+
+<!--                </tr>-->
 
                 </tbody>
             </table>
-            <table class="table table-border table-bordered table-bg mt-20">
+
+
+          <!--  <table class="table table-border table-bordered table-bg mt-20">
                 <thead>
                 <tr>
                     <th colspan="2" scope="col">其它信息</th>
@@ -56,30 +57,24 @@
                 <tbody>
                 <tr>
                     <th width="30%">平台会员总数</th>
-                    <td><span id="lbServerName">{$userCount-2}</span></td>
                 </tr>
                 <tr>
                     <td>今日新增会员数</td>
-                    <td>{$todayUserCount}</td>
                 </tr>
                 <tr>
                     <td>今日打码量最高者(打码量)</td>
-                    <td>{$todayUserBest['phone']}  <b style="color: red;">({$todayUserBest['today_total']})</b></td>
                 </tr>
                 <tr>
                     <td>当前用户总余额</td>
-                    <td>{$userBalanceMoneyTotal}</td>
                 </tr>
                 <tr>
                     <td>当前用户未结算总余额</td>
-                    <td>{$userUnClearBalanceMoneyTotal}</td>
                 </tr>
                 <tr>
                     <td>差值</td>
-                    <td>{$allTotalPacketMoney+$allTotalLotteryMoney+$totalLotteryMoney-$allWtmoney-$userBalanceMoneyTotal-$userUnClearBalanceMoneyTotal}</td>
                 </tr>
                 </tbody>
-            </table>
+            </table>-->
         </article>
 
 

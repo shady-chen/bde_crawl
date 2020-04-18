@@ -1,0 +1,134 @@
+﻿{include file="public/head" /}
+
+
+<section class="Hui-article-box">
+
+    <div class="Hui-article">
+        <article class="cl pd-20">
+            <h1 class="tips">正在检测网站数量......</h1>
+            <br>
+            <div class="mt-20 hide table-div">
+                <table class="table table-border table-bordered table-bg table-hover table-sort">
+                    <thead>
+                        <tr class="text-c">
+                            <th>序号</th>
+                            <th>网址</th>
+                            <th>数量</th>
+                            <th>已下载</th>
+                            <th>未下载</th>
+                            <th width="200">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="be_append">
+                    </tbody>
+                </table>
+            </div>
+
+        </article>
+    </div>
+</section>
+<div id="modal-demo" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content radius">
+            <div class="modal-header">
+                <h3 class="modal-title">发生了未知错误</h3>
+                <a class="close" data-dismiss="modal" aria-hidden="true" href="javascript:void();">×</a>
+            </div>
+            <div class="modal-body">
+                <p>请刷新页面重试，如仍然出来此情况，请与开发者联络！</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary">确定</button>
+                <button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+{include file="public/footer" /}
+<script>
+    displaynavbar("pngfix");
+
+    //获取网站数量
+    setTimeout(function(){
+        $.ajax({
+            url:"/admin/admin/getWebSiteList",
+            success:function(res)
+            {
+                $('.tips').hide();
+                $('.table-div').show();
+                console.log(res);
+                var data = res;
+                var html = "";
+                var file_count = 0;
+                var download_count = 0;
+                var new_count = 0;
+                for(var i = 0; i<data.length;i++)
+                {
+                    html +='<tr class="text-c">'
+                        + '<td>'+ 1 +'</td>'
+                        + '<td>'+ data[i].domain +'</td>'
+                        + '<td>' + data[i].count +'</td>'
+                        + '<td>' + data[i].downloaded +'</td>'
+                        + '<td>' + data[i].new +'</td>'
+                        + '<td><button class="btn btn-primary d-btn'+ i +'" onClick="downLoad(\''+ data[i].domain +'\',\'d-btn'+i+'\')">下载</button></td></tr>';
+
+                    file_count += data[i].count;
+                    download_count += data[i].downloaded;
+                    new_count += data[i].new;
+                }
+                html +='<tr class="text-c">'
+                    + '<td>统计</td>'
+                    + '<td>共有'+ data.length +'个站</td>'
+                    + '<td>' + file_count +'</td>'
+                    + '<td>' + download_count +'</td>'
+                    + '<td>' + new_count +'</td>'
+                    + '<td><button class="btn btn-success btn-all" onClick="downLoad(\'all\',\'btn-all\')">一键下载</button></td></tr>';
+
+                $(".be_append").prepend(html);
+            },
+            error:function(err)
+            {
+                $("#modal-demo").modal("show")
+            }
+        });
+    },1000);
+
+
+
+
+    function downLoad(website_url,className)
+    {
+
+        $('.'+className).remove('btn-primary').attr({'disabled':'true'});
+        var l = 0;
+        var str = ['正','正在','正在下','正在下载','正在下载.','正在下载..','正在下载...'];
+        var timeId = setInterval(function(){
+            if(l>str.length) l=0;
+            $('.'+className).html(str[l]);
+            l++
+        },500);
+        $.ajax({
+            url:"/admin/admin/getFileContent",
+            type:'post',
+            data:{"url":website_url},
+            success:function(res)
+            {
+                clearInterval(timeId);
+                $('.'+className).html("已完成，总数量："+ res.count +"，下载成功数：" + res.count);
+                //分类入库
+                classified();
+            },
+            error:function(err)
+            {
+                console.log(err);
+                $("#modal-demo").modal("show")
+            }
+        });
+    }
+
+    function classified()
+    {
+        $.ajax({'url':"/admin/admin/classifiedData"});
+    }
+
+</script>

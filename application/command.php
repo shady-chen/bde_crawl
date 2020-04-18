@@ -10,5 +10,7 @@
 // +----------------------------------------------------------------------
 
 return [
-    'app\command\Test'
+    'app\command\Test',
+    'app\command\GetFileName',
+    'app\command\Classified',
 ];

@@ -10,21 +10,7 @@ namespace app\admin\controller;
 
 
 
-
-use app\admin\model\AppMoneysteam;
-use app\admin\model\AppNotice;
-use app\admin\model\Notice;
-use app\admin\model\SystemLog;
-use app\index\model\AppOrder;
-use app\admin\model\SystemBanks;
-use app\index\model\AppPacket;
-use app\index\model\SystemSetting;
-use app\user\controller\Moneysteam;
-use app\user\model\AppBanks;
-use app\user\model\AppUser;
-use app\index\model\AppWithdraw;
-use think\Build;
-
+use think\Request;
 
 class Admin extends Base
 {
@@ -41,1258 +27,358 @@ class Admin extends Base
      */
     public function index()
     {
-        //1历史打码量 历史奖励金额
-        $moneyStreamModel = new AppMoneysteam();
-        $allStreamData = $moneyStreamModel->where(['type'=>'抢红包'])->select();
-
-        $allTotalPacketMoney = 0;
-        $allTotalLotteryMoney = 0;
-        for($i=0;$i<count($allStreamData);$i++)
-        {
-            $allTotalPacketMoney  += $allStreamData[$i]['money'];
-            $allTotalLotteryMoney += ($allStreamData[$i]['xishu']?$allStreamData[$i]['xishu']:0.006)   * $allStreamData[$i]['money'];
-        }
-        $this->assign('allTotalPacketMoney',$allTotalPacketMoney);
-        $this->assign('allTotalLotteryMoney',$allTotalLotteryMoney);
-
-        //2历史提现总量
-        $allWtData = $moneyStreamModel->where(['type'=>'提现'])->select();
-        $allWtmoney = 0;
-        for($i=0;$i<count($allWtData);$i++)
-        {
-            $allWtmoney   += $allWtData[$i]['money'];
-        }
-        $unpassWtmoneyData = $moneyStreamModel->where(['type'=>'提现审核不通过'])->select();
-        for($i=0;$i<count($unpassWtmoneyData);$i++)
-        {
-            $allWtmoney   -= $unpassWtmoneyData[$i]['money'];
-        }
-        $this->assign('allWtmoney',$allWtmoney);
-
-        //3今日打码量  今天奖励总量
-        $todaytimestemp = strtotime(date("Y-m-d"), time());
-
-        $da = $moneyStreamModel->where('create_time','>',$todaytimestemp)
-            ->where(['type'=>'抢红包'])
-            ->select();
-        $todayPacketLottery = 0;
-        $todayPacketMoney = 0;
-        for($i=0;$i<count($da);$i++)
-        {
-            $todayPacketLottery += ($da[$i]['xishu']?$da[$i]['xishu']:0.006)   * $da[$i]['money'];
-            $todayPacketMoney   += $da[$i]['money'];
-        }
-        $this->assign('todayPacketLottery',$todayPacketLottery);
-        $this->assign('todayPacketMoney',$todayPacketMoney);
-
-        //4今日提现总量
-        $todayWtData = $moneyStreamModel->where('create_time','>',$todaytimestemp)->where(['type'=>'提现'])->select();
-        $todayWtmoney = 0;
-        for($i=0;$i<count($todayWtData);$i++)
-        {
-            $todayWtmoney   += $todayWtData[$i]['money'];
-        }
-        $unpassWtmoneyData1 = $moneyStreamModel->where('create_time','>',$todaytimestemp)->where(['type'=>'提现审核不通过'])->select();
-        for($i=0;$i<count($unpassWtmoneyData1);$i++)
-        {
-            $todayWtmoney   -= $unpassWtmoneyData1[$i]['money'];
-        }
-        $this->assign('todayWtmoney',$todayWtmoney);
-
-
-        //5昨天打码量 昨天奖励总量
-
-        $todaytimestemp = strtotime(date("Y-m-d"), time());
-        //获取昨天数据
-        $da1 = $moneyStreamModel->where('create_time','<',$todaytimestemp)
-            ->where('create_time','>',$todaytimestemp-(3600*24))
-            ->where(['type'=>'抢红包'])
-            ->select();
-        $yesTodayPacketLottery = 0;
-        $yesTodayPacketMoney = 0;
-        for($i=0;$i<count($da1);$i++)
-        {
-            $yesTodayPacketLottery += ($da1[$i]['xishu']?$da1[$i]['xishu']:0.006)   * $da1[$i]['money'];
-            $yesTodayPacketMoney   += $da1[$i]['money'];
-        }
-
-        $this->assign('yesTodayPacketLottery',$yesTodayPacketLottery);
-        $this->assign('yesTodayPacketMoney',$yesTodayPacketMoney);
-
-        //6获取昨天提现的钱
-        $yesTodayWtData = $moneyStreamModel->where('create_time','<',$todaytimestemp)->where(['type'=>'提现'])
-            ->where('create_time','>',$todaytimestemp-(3600*24))
-            ->select();
-        $yesTodayWtmoney = 0;
-        for($i=0;$i<count($yesTodayWtData);$i++)
-        {
-            $yesTodayWtmoney   += $yesTodayWtData[$i]['money'];
-        }
-        $unpassWtmoneyData2 = $moneyStreamModel->where('create_time','<',$todaytimestemp)->where('create_time','>',$todaytimestemp-(3600*24))->where(['type'=>'提现审核不通过'])->select();
-        for($i=0;$i<count($unpassWtmoneyData2);$i++)
-        {
-            $yesTodayWtmoney   -= $unpassWtmoneyData2[$i]['money'];
-        }
-        $this->assign('yesTodayWtmoney',$yesTodayWtmoney);
-
-        //7奖励总量 昨天的奖励量
-        $totalLottery= $moneyStreamModel->where(['type'=>'发放奖励'])->select();
-        $totalLotteryMoney = 0;
-        for($i=0;$i<count($totalLottery);$i++)
-        {
-            $totalLotteryMoney   += $totalLottery[$i]['money'];
-        }
-        $this->assign('totalLotteryMoney',$totalLotteryMoney);
-
-
-
-        $yesTodayLottery= $moneyStreamModel->where('create_time','>',$todaytimestemp)->where(['type'=>'发放奖励'])
-            ->where('create_time','>',$todaytimestemp-(3600*24))
-            ->select();
-        $yesTodayLotteryMoney = 0;
-        for($i=0;$i<count($yesTodayLottery);$i++)
-        {
-            $yesTodayLotteryMoney   += $yesTodayLottery[$i]['money'];
-        }
-        $this->assign('yesTodayLotteryMoney',$yesTodayLotteryMoney);
-
-
-
-
-
-
-        /********其它数据*****************/
-        //1平台会员总数
-        $userModel = new AppUser();
-        $userData = $userModel->select();
-        $userCount = count($userData);
-        $this->assign('userCount',$userCount);
-
-        //2今天新增多少用户
-        $todayUser = $userModel->where('create_time','>',$todaytimestemp)->select();
-        $todayUserCount = count($todayUser);
-        $this->assign('todayUserCount',$todayUserCount);
-
-        //3今日打码量最高者
-        $todayUserBest = $userModel->order('today_total desc')->find();
-        $this->assign('todayUserBest',$todayUserBest);
-
-
-        //4用户当前余额
-        $userBalanceMoneyTotal = 0;
-        $userUnClearBalanceMoneyTotal = 0;
-        for($i=0;$i<count($userData);$i++)
-        {
-            $userBalanceMoneyTotal   += $userData[$i]['money'];
-            $userUnClearBalanceMoneyTotal   += $userData[$i]['unclear_money'];
-        }
-
-        $this->assign('userBalanceMoneyTotal',$userBalanceMoneyTotal);
-        $this->assign('userUnClearBalanceMoneyTotal',$userUnClearBalanceMoneyTotal);
-//dump($todayUserBest);exit;
+        $website_count = db('website_list')->count();
+        $file_count = db('file_name')->count();
+        $this->assign('website_count',$website_count);
+        $this->assign('file_count',$file_count);
         return $this->fetch();
     }
 
-    /**
-     * 通知列表
-     */
-    public function article_list(){
-        $notice = new AppNotice();
-        $title = $this->request->param('title');
-        $uid = $this->request->param('uid');
-        $state = $this->request->param('state');
-        $data = $notice->where('title','like','%'.$title.'%')->where('uid','like','%'.$uid.'%')->where('states','like','%'.$state.'%')->order('create_time desc')->paginate(10);
-        $this->assign('data',$data);
-        $this->assign('page',$data->render());
-        return $this->fetch();
-    }
 
     /**
-     * 发布和下架通知
-     */
-    public function updateStateNotice(){
-        $notice = new AppNotice();
-        $params = $this->request->param();
-        $data = [
-            'states'=>$params['states'],
-            'create_time'=>time(),
-            'read_states'=>0,
-        ];
-        $notice->where(['id'=>$params['id']])->update($data);
-        return json(['status'=>200]);
-    }
-
-    /**
-     * 删除通知
-     */
-    public function deleteNotice(){
-        $id = $this->request->param('id');
-        $notice = new AppNotice();
-        $notice->where(['id'=>$id])->delete();
-        return json(['status'=>200]);
-    }
-
-
-    /**
-     * 系统发送通知
+     * 订单列表的页面
      * @return mixed
-     */
-    public function article_add($id){
-        $notice = new AppNotice();
-        if($id == 0){
-            $data = null;
-        }else{
-            $data = $notice->where(['id'=>$id])->find();
-        }
-        $this->assign('data',$data);
-
-        return $this->fetch();
-    }
-
-    /**
-     * 添加通知
-     */
-    public function saveNotice(){
-        $notice = new AppNotice();
-        $params = $this->request->param();
-
-        $phone = $params['uid'];
-        $appUser = new AppUser();
-        $user = $appUser->where(['phone'=>$phone])->find();
-
-        $data = [
-            'uid'=>$user['id']?$user['id']:0,
-            'title'=>$params['title'],
-            'content'=>$params['content'],
-            'states'=>0,
-            'create_time'=>time(),
-        ];
-        if($params['id'] == null || $params['id'] == ''){
-            $notice->save($data);
-            $msg = '添加成功';
-        }else{
-            $notice->where(['id'=>$params['id']])->update($data);
-            $msg =  '更新成功';
-        }
-
-        return json(['status'=>200,'msg'=>$msg]);
-    }
-
-
-    /**
-     * 订单列表
-     * @return mixed
-     */
-    public function order_list(){
-        $appOrder = new AppOrder();
-        $phone = $this->request->param('phone');
-        $id = $this->request->param('id');
-        $expect = $this->request->param('expect');
-        $state = $this->request->param('state');
-
-        $time1 = $this->request->param('starttime');
-        $time2 = $this->request->param('endtime');
-
-
-
-        if($time1 != null && $time1 != '' && $time2 != null && $time2 != '' ){
-            $starttime = strtotime($time1.' 00:00:00');
-            $endtime = strtotime($time2.' 23:59:59');
-            $data = $appOrder->where('create_time','>',$starttime)->where('create_time','<',$endtime)->where('user_phone','like','%'.$phone.'%')->where('id','like','%'.$id.'%')->where('packet_expect','like','%'.$expect.'%')->where('status','like','%'.$state.'%')->order('create_time desc')->paginate(10);
-
-        }else{
-            $data = $appOrder->where('user_phone','like','%'.$phone.'%')->where('id','like','%'.$id.'%')->where('packet_expect','like','%'.$expect.'%')->where('status','like','%'.$state.'%')->order('create_time desc')->paginate(10);
-        }
-        $this->assign('data',$data);
-        $this->assign('page',$data->render());
-        return $this->fetch();
-    }
-
-    public function order_list2(){
-        $appOrder = new AppOrder();
-        $phone = $this->request->param('phone');
-        $id = $this->request->param('id');
-        $expect = $this->request->param('expect');
-        $state = $this->request->param('state');
-        $data = $appOrder->where('user_phone','like','%'.$phone.'%')->where('id','like','%'.$id.'%')->where('packet_expect','like','%'.$expect.'%')->where('status','=',$state)->order('create_time desc')->select();
-        $this->assign('data',$data);
-        return $this->fetch();
-    }
-
-    /**
-     * 订单审核弹框
-     *
-     */
-    public function checkOrder(){
-        $id = $this->request->param('id');
-        $appOrder = new AppOrder();
-        $data = $appOrder->where(['id'=>$id])->find();
-
-        return json(['data'=>$data,'status'=>200]);
-    }
-
-    /**
-     * 订单审核
-     */
-    public function passOrder(){
-        $params = $this->request->param();
-        $status = $params['status'];
-
-        $order = new AppOrder();
-        $user = new AppUser();
-        $money_steam = new AppMoneysteam();
-        $setting = new SystemSetting();
-
-        //防止管理员连续点击2次
-        $orderDataOld = $order->where(['id'=>$params['id']])->find();
-        if(time() - $orderDataOld['create_time'] <= 10){
-            return json(['msg'=>'请勿频繁操作订单','status'=>0]);
-        }
-
-        //防止修改2次订单  订单修改过后不可再次修改
-        if($orderDataOld['status'] == 4 || $orderDataOld['status'] == 3){
-            return json(['msg'=>'已修改的订单不可再修改！！！','status'=>0]);
-        }
-
-
-        if($status == 4){
-            $order->where(['id'=>$params['id']])->update([
-                'status'=>4,
-            ]);
-            return json(['msg'=>'审核不通过','status'=>200]);
-        }
-
-        if($status == 3){
-            $orderData = $order->where(['id'=>$params['id']])->find();
-            $userData = $user->where(['phone'=>$params['user_phone']])->find();
-            $settingData = $setting->find();
-
-            $old_money = $userData['money'];
-            $old_unclear_money = $userData['unclear_money'];
-
-            $fanAddMoney = $orderData['money']*(1+$settingData['bunus_money']);
-
-            if($userData['money']+$fanAddMoney>$settingData['full_money'])
-            {
-
-                $userData['unclear_money'] += $userData['money']+$fanAddMoney-$settingData['full_money'];
-                $userData['money'] = $settingData['full_money'];
-                $userData['today_total'] += $orderData['money'];
-
-                $user->where(['id'=>$userData['id']])->update([
-                    'money'=>$userData['money'],
-                    'unclear_money'=>$userData['unclear_money'],
-                    //'state'=>2,
-                    'today_total'=>$userData['today_total'],
-                ]);
-                $order->where(['id'=>$params['id']])->update([
-                    'status'=>3,
-                ]);
-
-                //资金明细
-                $remark = '金额增加'.($userData['money']-$old_money).',未结算金额增加'.($userData['unclear_money']-$old_unclear_money);
-                $money_steam->save([
-                    'money'=>$orderData['money'],
-                    'user_money_now'=>$old_money,
-                    'user_money_later'=>$userData['money'],
-                    'remark'=>$remark,
-                    'uid'=>$orderData['uid'],
-                    'create_time'=>time(),
-                    'xishu'=>$settingData['bunus_money'],
-                    'type'=>'抢红包',
-                ]);
-
-
-                return json(['msg'=>'审核通过','status'=>200]);
-            }else{
-                $userData['money'] += $fanAddMoney;
-
-                $userData['today_total'] += $orderData['money'];
-                $user->where(['id'=>$userData['id']])->update([
-                    'money'=>$userData['money'],
-                    'today_total'=>$userData['today_total'],
-                ]);
-
-                $order->where(['id'=>$params['id']])->update([
-                    'status'=>3,
-                ]);
-
-                //资金明细
-                $remark = '金额增加'.($userData['money']-$old_money);
-
-                $money_steam->save([
-                    'money'=>$orderData['money'],
-                    'user_money_now'=>$old_money,
-                    'user_money_later'=>$userData['money'],
-                    'remark'=>$remark,
-                    'uid'=>$orderData['uid'],
-                    'create_time'=>time(),
-                    'xishu'=>$settingData['bunus_money'],
-                    'type'=>'抢红包',
-                ]);
-
-                return json(['msg'=>'审核通过','status'=>200]);
-            }
-        }
-
-
-
-//        $order->where(['id'=>$params['id']])->update([
-//            'status'=>$status,
-//        ]);
-
-        return json(['msg'=>'修改成功','status'=>200]);
-
-    }
-
-    /**
-     * 银行卡列表
-     * @return mixed
-     */
-    public function banks_list(){
-
-
-        $SystemBanks = new SystemBanks();
-        $bankName = $this->request->param('banksName');
-        if($bankName != null && $bankName != ''){
-            $data = $SystemBanks->where(['is_use'=>1])->where('bank_which','like','%'.$bankName.'%')->order('create_time desc')->paginate(10);
-
-        }else{
-            $data = $SystemBanks->where(['is_use'=>1])->order('create_time desc')->paginate(10);
-        }
-        $this->assign('data',$data);
-        $this->assign('page',$data->render());
-        return $this->fetch();
-    }
-
-    /**
-     * 删除银行卡
-     */
-    public function deleteBank(){
-        $id = $this->request->param('id');
-        $systemBanks = new SystemBanks();
-
-        $data = [
-            'is_use'=>0,
-        ];
-
-        $systemBanks->where(['id'=>$id])->update($data);
-        return json(['msg'=>'刪除成功','status'=>200]);
-    }
-    /**
-     * 系统添加银行卡
-     * @return mixed
-     */
-    public function banks_add(){
-        return $this->fetch();
-    }
-
-    /**
-     * 系统添加银行卡
-     * @return json
-     */
-    public function doAddBanks(){
-        $params = $this->request->param();
-
-        $SystemBanks = new SystemBanks();
-        $data = [
-            'bank_num'=>$params['bank_num'],
-            'bank_which'=>$params['bank_which'],
-            'bank_where'=>$params['bank_where'],
-            'name'=>$params['name'],
-            'acount'=>$params['acount'],
-            'is_use'=>1,
-            'create_time'=>time(),
-        ];
-        $SystemBanks->save($data);
-
-        return json(['msg'=>'添加成功','status'=>200]);
-
-    }
-    /**
-     * 跳转系统设置页面
-     */
-    public function system_base(){
-        $sys_setting = new SystemSetting();
-        $data = $sys_setting->find();
-        $this->assign('data',$data);
-        return $this->fetch();
-
-    }
-    /**
-     * 系统设置的修改
-     */
-    public function system_base_update(){
-        $params = $this->request->param();
-        $sys_setting = new SystemSetting();
-        if($params['bonus_rule']<=0){
-            return json(['msg'=>'阶级金额不能小于0','status'=>0]);
-        }
-//        if($params['star_time']<0 || $params['star_time']>=$params['end_time'] || $params['end_time']>23){
-//            return json(['msg'=>'开始时间不能大于结束时间','status'=>0]);
-//        }
-        if($params['per_total']<=0){
-            return json(['msg'=>'发包总金额不能小于0','status'=>0]);
-        }
-        if($params['minManey']<=0){
-            return json(['msg'=>'每个红包的最小金额不能小于0','status'=>0]);
-        }
-        if($params['minManey']>$params['maxManey']){
-            return json(['msg'=>'最小金额不能大于最大金额','status'=>0]);
-        }
-
-        if($params['minManey']>$params['per_total']/$params['how_many']){
-            return json(['msg'=>'每个红包的最小金额不能大于总金额的平均数','status'=>0]);
-        }
-        if($params['how_many']<=0){
-            return json(['msg'=>'发包不能为小于1','status'=>0]);
-        }
-        if($params['how_long']<=0){
-            return json(['msg'=>'发包间隔时间不能小于0','status'=>0]);
-        }
-        if($params['full_money']<0){
-            return json(['msg'=>'满多少金额的值不能小于0','status'=>0]);
-        }
-        if($params['sons']<0){
-            return json(['msg'=>'下线不能小于0','status'=>0]);
-        }
-        $data = [
-            'bonus_rule'=>$params['bonus_rule'],
-            'per_money'=>$params['per_money'],
-            'star_time'=>$params['star_time'],
-            'per_total'=>$params['per_total'],
-            'how_many'=>$params['how_many'],
-            'end_time'=>$params['end_time'],
-            'how_long'=>$params['how_long'],
-            'bunus_money'=>$params['bunus_money'],
-            'full_money'=>$params['full_money'],
-            'sons'=>$params['sons'],
-            'minManey'=>$params['minManey'],
-            'maxManey'=>$params['maxManey'],
-        ];
-
-        $sys_setting->where(['id'=>1])->update($data);
-        return json(['msg'=>'修改成功','status'=>200]);
-    }
-    /**
-     * 會員列表
-     */
-    public function user_list(){
-
-
-        $appUser = new AppUser();
-        $phone = $this->request->param('phone');
-        $invitation_code = $this->request->param('invitation_code');
-        $state = $this->request->param('state');
-//        if($phone != null && $phone != ''){
-//            $data = $appUser->where('phone','like','%'.$phone.'%')->order('create_time desc')->paginate(10);
-            $data = $appUser->where(['type'=>1])->where('state','like','%'.$state.'%')->where('phone','like','%'.$phone.'%')->where('invitation_code','like','%'.$invitation_code.'%')->order('create_time desc')->paginate(10);
-
-
-//        }else{
-//            $data = $appUser->where(['type'=>1])->order('create_time desc')->paginate(10);
-//        }
-        $this->assign('data',$data);
-        $this->assign('page',$data->render());
-        return $this->fetch();
-    }
-
-    /**
-     * 查看用户银行
-     */
-    public function selectUserBanks(){
-        $id = $this->request->param('id');
-        $appBanks = new AppBanks();
-        $data = $appBanks->where('uid','=',$id)->where('status','=',1)->selectOrFail();
-
-        if($data == null){
-            return json(['msg'=>用户还没添加银行卡,'status'=>0]);
-        }
-
-        return json(['data'=>$data,'status'=>200]);
-    }
-
-
-
-
-    /**
-     * 用戶修改
-     */
-    public function updateUser(){
-        $id = $this->request->param('id');
-        $appUser = new AppUser();
-        $data = $appUser->where(['id'=>$id])->find();
-
-        return json(['data'=>$data,'status'=>200]);
-    }
-
-
-
-    /**
-     * 保存修改用户
-     */
-    public function saveUpdateUser(){
-        $param = $this->request->param();
-        $appUser = new AppUser();
-        $id=$param['id'];
-        $user = $appUser->where(['id'=>$id])->find();
-
-        $str = '';
-
-        if($user['money'] != $param['money']){
-            $str .='修改用户金额.  ';
-        }
-        if($user['unclear_money'] != $param['unclear_money']){
-            $str .='修改冻结金额.  ';
-        }
-        if($user['bonus'] != $param['bonus']){
-            $str .='修改总奖金金额.  ';
-        }
-        if($user['today_total'] != $param['today_total']){
-            $str .='修改今天打码数.  ';
-        }
-        if($user['state'] != $param['state']){
-            $str .='修改用户状态.  ';
-        }
-        $data = [
-            'money'=>$param['money'],
-            'unclear_money'=>$param['unclear_money'],
-            'bonus'=>$param['bonus'],
-            'today_total'=>$param['today_total'],
-            'state'=>$param['state'],
-            'update_time'=>time(),
-            'update_what'=>$str,
-        ];
-        $appUser->where(['id'=>$id])->update($data);
-        return json(['msg'=>'修改成功','status'=>200]);
-    }
-    /**
-     * 用戶刪除
-     */
-    public function  deleteUser(){
-        $id = $this->request->param('id');
-        $appUser = new AppUser();
-
-        $data = [
-            'state'=>0,
-        ];
-
-        $appUser->where(['id'=>$id])->update($data);
-        return json(['msg'=>'刪除成功','status'=>200]);
-    }
-
-    /**
-     * 根据用户名查找用户
-     */
-    public function  findUser(){
-        $phone = $this->request->param('phone');
-
-        $appUser = new AppUser();
-        $data = $appUser->where(['type'=>1])->where('phone','like','%'.$phone.'%')->order('create_time desc')->paginate(10);
-
-        return json(['data'=>$data,'status'=>200]);
-    }
-
-    /**
-     * 提现列表
-     */
-    public function withdraw_list(){
-        $appWithdraw = new AppWithdraw();
-        $phone = $this->request->param('phone');
-        $id = $this->request->param('id');
-        $state = $this->request->param('state');
-        $data = $appWithdraw->where('user_phone','like','%'.$phone.'%')->where('id','like','%'.$id.'%')->where('states','like','%'.$state.'%')->order('create_time desc')->paginate(10);
-        $this->assign('data',$data);
-        $this->assign('page',$data->render());
-        return $this->fetch();
-    }
-
-    /**
-     * 提现审核弹框
-     */
-    public function checkWithdraw(){
-        $id = $this->request->param('id');
-        $appWithdraw = new AppWithdraw();
-        $data = $appWithdraw->where(['id'=>$id])->find();
-
-        return json(['data'=>$data,'status'=>200]);
-    }
-
-    /**
-     * 提现审核
-     */
-    public function passWithdraw(){
-        $params = $this->request->param();
-        $status = $params['states'];
-
-        $money_steam = new AppMoneysteam();
-
-        $appWithdraw = new AppWithdraw();
-
-        //审核通过时
-        if($status == 2){
-            $data = [
-                'states'=>$params['states'],
-                //'admin_remark'=>$params['admin_remark']
-            ];
-            $appWithdraw->where(['id'=>$params['id']])->update($data);
-            return json(['msg'=>'审核通过','status'=>200]);
-        }
-
-        //审核不通过时
-        if($status == 3){
-            $data = [
-                'states'=>$params['states'],
-                //'admin_remark'=>$params['admin_remark']
-            ];
-
-            $appUser = new AppUser();
-            $appUserData = $appUser->where(['phone'=>$params['user_phone']])->find();
-
-            $appWithdrawData = $appWithdraw->where(['id'=>$params['id']])->find();
-
-            $sysSetting = new SystemSetting();
-            $sysSettingData = $sysSetting->find();
-
-            $old_money = $appUserData['money'];
-//            $old_unclear_money = $appUserData['unclear_money'];
-
-            if($appUserData['money']+$appWithdrawData['money']>$sysSettingData['full_money']){
-                $lostMoney = $appUserData['money']+$appWithdrawData['money']-$sysSettingData['full_money'];
-                $appUserData['unclear_money'] += $lostMoney;
-                $appUserData['money'] = $sysSettingData['full_money'];
-
-                //资金明细
-
-                $remark = '金额增加'.($appUserData['money']-$old_money).',未结算金额增加'.$lostMoney;
-
-                $money_steam->save([
-                    'money'=>$appWithdrawData['money'],
-                    'user_money_now'=>$old_money,
-                    'user_money_later'=>$appUserData['money'],
-                    'remark'=>$remark,
-                    'uid'=>$appWithdrawData['uid'],
-                    'create_time'=>time(),
-                    'type'=>'提现审核不通过',
-                ]);
-
-            }else{
-                $appUserData['money'] += $appWithdrawData['money'];
-                //资金明细
-
-                $remark = '金额增加'.$appWithdrawData['money'].',未结算金额增加0';
-
-                $money_steam->save([
-                    'money'=>$appWithdrawData['money'],
-                    'user_money_now'=>$old_money,
-                    'user_money_later'=>$appUserData['money'],
-                    'remark'=>$remark,
-                    'uid'=>$appWithdrawData['uid'],
-                    'create_time'=>time(),
-                    'type'=>'提现审核不通过',
-                ]);
-            }
-            $appUserSubmitData = [
-                'unclear_money' => $appUserData['unclear_money'],
-                'money' => $appUserData['money'],
-            ];
-            $appUser->where(['id'=>$appUserData['id']])->update($appUserSubmitData);
-
-            $appWithdraw->where(['id'=>$params['id']])->update($data);
-            return json(['msg'=>'审核不通过','status'=>200]);
-
-        }
-    }
-
-
-    /*
-     * 游戏规则
-     */
-    public function rules(){
-
-        $setting = new SystemSetting();
-        $data = $setting->where(['id'=>1])->find();
-        $this->assign('data',$data);
-
-        return $this->fetch();
-    }
-    /*
-     * 游戏规则
-     */
-    public function update_rules(){
-
-        $setting = new SystemSetting();
-        $params = $this->request->param();
-        $res = $setting->where(['id'=>1])->update(['text_rules'=>$params['rules']]);
-        if($res){
-            return json(['status'=>200]);
-        }else{
-            return json(['status'=>0]);
-        }
-    }
-
-    /**
-     * 红包列表页面
-     * @return mixed
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function redpacket_list(){
-
-
-        $packetMonel =  new AppPacket();
-
-        $data = $packetMonel->order('create_time desc')->paginate(10);
-        $this->assign('data',$data);
-        $this->assign('page',$data->render());
-        return $this->fetch();
-    }
-
-
-
-
-    /**
-     * 订单详情页面
-     *
-     */
-    public function checkPacket(){
-        $id = $this->request->param('id');
-        $appOrder = new AppOrder();
-        $data = $appOrder->where(['packet_id'=>$id])->select();
-        $this->assign('data',$data);
-        return $this->fetch();
-
-    }
-
-
-    /**
-     * 管理员密码修改页面
-     * @return array
-     */
-    public function update_pwd()
+    public function order_list()
     {
-        return $this->fetch();
-    }
-
-    /**
-     * 管理员密码修改api
-     */
-    public function update_pwd2()
-    {
-        $old = $this->request->param('old');
-        $new = $this->request->param('new');
-        $userModel = new AppUser();
-        $admin = $userModel->where(['phone'=>'admin'])->find();
-
-        if(md5($old) != $admin['password']){
-            return json(['status'=>0,'msg'=>'旧密码不正确！']);
-        }else{
-            $userModel->where(['phone'=>'admin'])->update(['password'=>md5($new)]);
-            session('admin',null);
-            return json(['status'=>200,'msg'=>'修改成功！']);
+        //域名
+        $result_by_domain = "";
+        if(isset($_GET['domain']) && !empty($_GET['domain']))
+        {
+            $result_by_domain = "a.data_from = '{$_GET['domain']}'";
+        }
+        //国家
+        $result_by_country = "";
+        if(isset($_GET['country']) && !empty($_GET['country']))
+        {
+            $result_by_domain = "b.country like '%{$_GET['country']}%'";
+        }
+        //人名
+        $result_by_name = "";
+        if(isset($_GET['username']) && !empty($_GET['username']))
+        {
+            $result_by_name = "b.all_name like '%{$_GET['username']}%'";
+        }
+        //产品
+        $result_by_product = "";
+        if(isset($_GET['product_name']) && !empty($_GET['product_name']))
+        {
+            $result_by_product = "a.product_keyword like '%{$_GET['product_name']}%'";
         }
 
-    }
+        //时间
+        $result_by_start_time = "2000-01-01";
+        $result_by_end_time   = "2030-01-01";
+        if(isset($_GET['start_time']) && !empty($_GET['start_time']))
+        {
+            $result_by_start_time = $_GET['start_time'];
+        }
+        if(isset($_GET['end_time']) && !empty($_GET['end_time']))
+        {
+            $result_by_end_time = $_GET['end_time'];
+        }
 
 
-    /**
-     * 定时更新订单 提示音
-     */
-    public function newOrder()
-    {
-        $orderModel = new AppOrder();
-        $withdrawOrderModel = new AppWithdraw();
+        $data = db('order')
+            ->alias("a")
+            ->join('customer b','a.customer_id = b.id')
+            ->order('a.create_time desc')
+            ->where($result_by_domain)
+            ->where($result_by_country)
+            ->where($result_by_name)
+            ->where($result_by_product)
+            ->where('a.finished_time','between time',[$result_by_start_time,$result_by_end_time])
+            ->paginate(2,false,['type'=>'BootstrapDetail',]);
+        $page = $data;
+        $data = $data->items();
 
-        $newOrder = $orderModel->where('create_time','>',time()-60)->find();
-
-        $newWithdraw = $withdrawOrderModel->where('create_time','>',time()-60)->find();
-
-        $data = [
-            'order'=>$newOrder,
-            'withdraw'=>$newWithdraw,
-        ];
-
-
-        return json($data);
-
-
-    }
+        for($i=0;$i<count($data);$i++)
+        {
+            $data[$i]['product'] = null;
+            $data[$i]['product'] = json_decode($data[$i]['shopping_cart'],true);
+        }
 
 
-    /**
-     * 更新管理员的备注
-     */
-    public function update_remark(){
-        $params = $this->request->param();
-        $appWithdraw = new AppWithdraw();
-        $data = [
-            'admin_remark'=>$params['admin_remark']
-        ];
-        $appWithdraw->where(['id'=>$params['id']])->update($data);
-        return json(['msg'=>'审核通过','status'=>200]);
-    }
-
-
-
-
-
-    public function send_msg_all()
-    {
-        return $this->fetch();
-    }
-
-    public function send_msg_all_post()
-    {
+        $this->assign('data',$data);
+        $this->assign('page',$page->render());
+        $website_list = db('website_list')->select();
+        $this->assign('website_list',$website_list);
         return $this->fetch();
     }
 
 
-
-
-
     /**
-     * 查看用户的资金流水
+     * 客户信息的页面
+     * @return mixed
      */
-     public function show_user_money_steam(){
-
-         $id = $this->request->param('id');
-         $user_phone = $this->request->param('user_phone');
-         $steamModel = new AppMoneysteam();
-         $data = $steamModel->where(['uid'=>$id])->order('create_time desc')->select();
-
-
-
-
-         /************************************历史记录开始***************************************************/
-         //获取所有抢红包的钱
-         $allPacketMoneyToday = $steamModel->where(['uid'=>$id])->where(['type'=>'抢红包'])->select();
-         //历史奖励总量
-         $allPacketLottery = 0;
-         //历史打码总量
-         $allPacketMoney = 0;
-
-         for($i=0;$i<count($allPacketMoneyToday);$i++)
-         {
-
-             $allPacketLottery += ($allPacketMoneyToday[$i]['xishu']?$allPacketMoneyToday[$i]['xishu']:0.006)   * $allPacketMoneyToday[$i]['money'];
-             $allPacketMoney   += $allPacketMoneyToday[$i]['money'];
-         }
-
-
-
-         //获取所有提现的钱
-         $allWtData = $steamModel->where(['uid'=>$id])->where(['type'=>'提现'])->select();
-         $allWtmoney = 0;
-         for($i=0;$i<count($allWtData);$i++)
-         {
-             $allWtmoney   += $allWtData[$i]['money'];
-         }
-         $allWtUnPassData = $steamModel->where(['uid'=>$id])->where(['type'=>'提现审核不通过'])->select();
-         for($i=0;$i<count($allWtUnPassData);$i++)
-         {
-             $allWtmoney   -= $allWtUnPassData[$i]['money'];
-         }
-
-
-         /************************************历史记录结束***************************************************/
-
-
-
-         /************************************今日记录开始***************************************************/
-
-         //获得当日0点的时间戳
-         $todaytimestemp = strtotime(date("Y-m-d"), time());
-
-         $da = $steamModel->where(['uid'=>$id])->where('create_time','>',$todaytimestemp)
-             ->where(['type'=>'抢红包'])
-             ->select();
-         //今天奖励总量
-         $todayPacketLottery = 0;
-         //今天打码总量
-         $todayPacketMoney = 0;
-         for($i=0;$i<count($da);$i++)
-         {
-
-             $todayPacketLottery += ($da[$i]['xishu']?$da[$i]['xishu']:0.006)   * $da[$i]['money'];
-
-             $todayPacketMoney   += $da[$i]['money'];
-         }
-
-
-
-         //获取今天提现的钱
-         $todayWtData = $steamModel->where(['uid'=>$id])->where('create_time','>',$todaytimestemp)->where(['type'=>'提现'])->select();
-         $todayWtmoney = 0;
-         for($i=0;$i<count($todayWtData);$i++)
-         {
-             $todayWtmoney   += $todayWtData[$i]['money'];
-         }
-         $allWtUnPassData2 = $steamModel->where(['uid'=>$id])->where('create_time','>',$todaytimestemp)->where(['type'=>'提现审核不通过'])->select();
-         for($i=0;$i<count($allWtUnPassData2);$i++)
-         {
-             $todayWtmoney   -= $allWtUnPassData2[$i]['money'];
-         }
-
-
-         /************************************今日记录结束***************************************************/
-
-
-         /************************************昨天记录开始***************************************************/
-
-         //获得当日0点的时间戳
-         $todaytimestemp = strtotime(date("Y-m-d"), time());
-         //获取昨天数据
-         $da1 = $steamModel->where(['uid'=>$id])->where('create_time','<',$todaytimestemp)
-             ->where('create_time','>',$todaytimestemp-(3600*24))
-             ->where(['type'=>'抢红包'])
-             ->select();
-         //昨天奖励总量
-         $yesTodayPacketLottery = 0;
-         //昨天打码总量
-         $yesTodayPacketMoney = 0;
-         for($i=0;$i<count($da1);$i++)
-         {
-             $yesTodayPacketLottery += ($da1[$i]['xishu']?$da1[$i]['xishu']:0.006)   * $da1[$i]['money'];
-             $yesTodayPacketMoney   += $da1[$i]['money'];
-         }
-
-         //获取昨天提现的钱
-         $yesTodayWtData = $steamModel->where(['uid'=>$id])->where('create_time','<',$todaytimestemp)->where(['type'=>'提现'])
-             ->where('create_time','>',$todaytimestemp-(3600*24))
-             ->select();
-         $yesTodayWtmoney = 0;
-         for($i=0;$i<count($yesTodayWtData);$i++)
-         {
-             $yesTodayWtmoney   += $yesTodayWtData[$i]['money'];
-         }
-         $allWtUnPassData3 = $steamModel->where(['uid'=>$id])->where('create_time','<',$todaytimestemp)->where(['type'=>'提现审核不通过'])
-             ->where('create_time','>',$todaytimestemp-(3600*24))
-             ->select();
-         for($i=0;$i<count($allWtUnPassData3);$i++)
-         {
-             $yesTodayWtmoney   -= $allWtUnPassData3[$i]['money'];
-         }
-
-         /************************************昨天记录结束***************************************************/
-
-
-
-         //数据渲染
-
-         //历史奖励总量
-         $this->assign('allPacketLottery',$allPacketLottery);
-         //历史打码总量
-         $this->assign('allPacketMoney',$allPacketMoney);
-         //获取所有提现的钱
-         $this->assign('allWtmoney',$allWtmoney);
-
-         //今天奖励总量
-         $this->assign('todayPacketLottery',$todayPacketLottery);
-         //今天打码总量
-         $this->assign('todayPacketMoney',$todayPacketMoney);
-         //获取今天提现的钱
-         $this->assign('todayWtmoney',$todayWtmoney);
-
-         //昨天奖励总量
-         $this->assign('yesTodayPacketLottery',$yesTodayPacketLottery);
-         //昨天打码总量
-         $this->assign('yesTodayPacketMoney',$yesTodayPacketMoney);
-         //获取昨天提现的钱
-         $this->assign('yesTodayWtmoney',$yesTodayWtmoney);
-
-         $this->assign('data',$data);
-         $this->assign('user_phone',$user_phone);
-         return $this->fetch();
-     }
-
-
-
-
-     public function test()
-     {
-         $steamModel = new AppMoneysteam();
-         $data = $steamModel->where(['type'=>'抢红包'])->select();
-         $money = 0;
-         for($i=0;$i<count($data);$i++)
-         {
-             if($i==count($data)-1){
-                 echo "总计数：".$money;
-                 return;
-             }
-
-             if($data[$i]['money'] == $data[$i+1]['money'])
-             {
-                 $money += $data[$i]['money'];
-                 echo $data[$i]['id'] ."-----------". $data[$i]['money'] .'----uid:' .$data[$i]['uid']  .'<hr>';
-             }
-
-         }
-
-     }
-
-
-    public function test2()
+    public function onePerson()
     {
-        $logModel = new SystemLog();
-        $addMoney = 100;
-        $logModel->save([
-            'phone'=>15880630261,
-            'why'=>'奖励发放失败',
-            'money'=>$addMoney,
-            'create_time'=>time(),
-        ]);
+        $id = $this->request->param('contentId');
+        $appOrder = db('order_content');
+        $data = $appOrder->where(['id'=>$id])->value('content');
+        $data = json_decode($data,true);
+
+        $data['shoppingcart'] = json_decode($data['shoppingcart'],true);
+
+        $this->assign('data',$data);
+        return $this->fetch();
 
     }
 
 
 
+    public function down_load()
+    {
+        return $this->fetch();
+    }
 
-      public function show()
-      {
-          $userModel = new AppUser();
-          $i_code = $this->request->param('i_code');
-          echo $i_code;
-          $users = $userModel->where(['invitation_code'=>$i_code])->select();
-          $TeamLeader = $userModel->where(['phone'=>$i_code])->find();
-          //$TeamLeader = $TeamLeader->toArray();
+    //down_load的第一步 更新网站列表
+    public function getWebSiteList()
+    {
 
-           $c = 0;
-          for($j=0;$j<count($users);$j++)
-          {
-              $users[$j] = $users[$j]->toArray();
-              $c = $j;
+        $return_data = [];
+        $website_list = file_get_contents("http://us.shopnm.top/showDir.php");
+        $website_list = json_decode($website_list, true);
+        $count = count($website_list);
+        $insertCount = 0;
+        foreach ($website_list as $key=> $value)
+        {
+            if(!db('website_list')->where(['domain'=>substr($value,11)])->find())
+            {
+                db('website_list')->insert(['domain'=>substr($value,11),"create_time"=>time()]);
+                $insertCount++;
+            }
+            else
+            {
 
-          }
-          $users[$c+1] = $TeamLeader;
-          $sModel = new AppMoneysteam();
-          $userData = [];
-          for ($i=0;$i<count($users);$i++)
-          {
-              //获取所有抢红包的钱
-              $allPacketMoneyToday = $sModel->where('create_time','>',1551369600)
-                  ->where('create_time','<',1551456000)
-                  ->where(['uid'=>$users[$i]['id']])->where(['type'=>'抢红包'])->select();
-              //历史奖励总量
-              $allPacketLottery = 0;
-              //历史打码总量
-              $allPacketMoney = 0;
-
-              for($j=0;$j<count($allPacketMoneyToday);$j++)
-              {
-
-                  $allPacketLottery += ($allPacketMoneyToday[$j]['xishu']?$allPacketMoneyToday[$j]['xishu']:0.006)   * $allPacketMoneyToday[$j]['money'];
-                  $allPacketMoney   += $allPacketMoneyToday[$j]['money'];
-              }
-
-              $userData[$i]['allPacketLottery']    = $allPacketLottery;
-              $userData[$i]['allPacketMoney']      = $allPacketMoney;
-              $userData[$i]['phone'] = $users[$i]['phone'];
+            }
+            $return_data[$key] = [
+                'domain'=>substr($value,11),
+                'count'=>0,
+                'downloaded'=>0,
+                'new'=>0,
+            ];
+        }
+        $existCount= $count-$insertCount;
 
 
-              //获取所有提现的钱
-              $allWtData = $sModel->where('create_time','>',1551369600)
-                  ->where('create_time','<',1551456000)->where(['uid'=>$users[$i]['id']])->where(['type'=>'提现'])->select();
-              $allWtmoney = 0;
-              for($k=0;$k<count($allWtData);$k++)
-              {
-                  $allWtmoney   += $allWtData[$k]['money'];
-              }
-              $allWtUnPassData = $sModel->where('create_time','>',1551369600)
-                  ->where('create_time','<',1551456000)->where(['uid'=>$users[$i]['id']])->where(['type'=>'提现审核不通过'])->select();
-              for($l=0;$l<count($allWtUnPassData);$l++)
-              {
-                  $allWtmoney   -= $allWtUnPassData[$l]['money'];
-              }
-              $userData[$i]['allWtmoney']      = $allWtmoney;
+        $file_count = 0;
+        $file_insert_count = 0;
+        foreach ($website_list as $key=> $value)
+        {
+            $file_list = file_get_contents("http://us.shopnm.top/showFiles.php?dir=/".substr($value,11));
+            $file_list = json_decode($file_list, true);
 
-              $totalLottery= $sModel->where('create_time','>',1551369600)
-                  ->where('create_time','<',1551456000)->where(['type'=>'发放奖励','uid'=>$users[$i]['id']])->select();
-              $totalLotteryMoney = 0;
-              for($a=0;$a<count($totalLottery);$a++)
-              {
-                  $totalLotteryMoney   += $totalLottery[$a]['money'];
-              }
+            $per_website_count = 0;
+            $return_data[$key]['count'] = count($file_list);
+            foreach ($file_list as $k=>$v)
+            {
 
-              $userData[$i]['totalLotteryMoney']      = $totalLotteryMoney;
-          }
-          $tot = ['renshu'=>0,'dama'=>0,'dama_jiangli'=>0,'allWtmoney'=>0,'jiangli'=>0];
-          for($j=0;$j<count($userData);$j++)
-          {
-              $tot['renshu'] = count($userData);
-              $tot['dama'] += $userData[$j]['allPacketMoney'];
-              $tot['dama_jiangli'] += $userData[$j]['allPacketLottery'];
-              $tot['allWtmoney'] += $userData[$j]['allWtmoney'];
-              $tot['jiangli'] += $userData[$j]['totalLotteryMoney'];
-          }
+                $number = 11+strlen(substr($value,11))+1;
+                if(!db('file_name')->where(['file_name'=>substr($v,$number)])->find())
+                {
+                    db('file_name')->insert(['file_name'=>substr($v,$number),"belong"=>substr($value,11),"create_time"=>time()]);
+                    $file_insert_count++;
+                    $return_data[$key]['new'] = $return_data[$key]['new']+1;
+                }
+                else
+                {
+                    $return_data[$key]['downloaded'] = $return_data[$key]['downloaded']+1;
+                }
+                $file_count++;
 
-          $this->assign('data',$userData);
-          $this->assign('tot',$tot);
-
-          return $this->fetch();
+            }
+        }
+        $file_exist_count = $file_count - $file_insert_count;
+        return json($return_data);
+        //到此目录已完成
+    }
 
 
+    //down_load的第二步 下载网站的内容
+    public function getFileContent()
+    {
+        $return_data = ['count'=>0,'download'=>0];
+        $url = $this->request->param('url');
+
+        if($url == "all")
+        {
+            $file_name_list = db('file_name')->where(['collected'=>0])->select();
+        }
+        else
+        {
+            $file_name_list = db('file_name')->where(['collected'=>0,'belong'=>$url])->select();
+        }
+
+
+        $data_count = count($file_name_list);
+
+        $insert_count = 0;
+
+        foreach ($file_name_list as $key=>$value)
+        {
+            $content =  file_get_contents("http://us.shopnm.top/ordersdb/".$value['belong']."/".$value['file_name']);
+            if(!db('order_content')->where(['file_name'=>$value['file_name']])->find())
+            {
+                db('order_content')->insert(['file_name'=>$value['file_name'],"belong"=>$value['belong'],"content"=>$content,"create_time"=>time()]);
+                db('file_name')->where(['file_name'=>$value['file_name']])->update(['collected'=>1]);
+                $insert_count++;
+            }
+        }
+
+        $return_data['count'] = $data_count;
+        $return_data['download'] = $insert_count;
+        $return_data['satus'] = 200;
+        return json($return_data);
+
+    }
+
+
+    //down_load的第三步 分类入库刚刚下载的内容
+    public function classifiedData()
+    {
+
+        $order_list = db('order_content')->where(['classified'=>0])->select();
+        foreach ($order_list as $key=>$value)
+        {
+            //格式化数据
+            $data = json_decode($value['content'],true);
+
+            //组装用户的数据
+            $customer = [];
+            $customer['first_name'] = $data['txtfirstname']?$data['txtfirstname']:"unknown";
+            $customer['last_name'] = $data['txtlastname']?$data['txtlastname']:"unknown";
+            $customer['all_name'] = $customer['first_name'].$customer['last_name'];
+            $customer['rbsex'] = $data['rbsex']?"女":"男";
+            $customer['email'] = $data['txtemailaddress']?$data['txtemailaddress']:"unknown";
+            $customer['phone'] = $data['txttelephone']?$data['txttelephone']:"unknown";
+            $customer['country'] = $data['drpcountry']?$data['drpcountry']:"unknown";
+            $customer['city'] = $data['txtcity']?$data['txtcity']:"unknown";
+            $customer['address'] = $data['txtstreetaddress']?$data['txtstreetaddress']:"unknown";
+            $customer['ip'] = $data['localip']?$data['localip']:"unknown";
+            $customer['currency'] = $data['currency']?$data['currency']:"unknown";
+            $customer['txtpostcode'] = $data['txtpostcode']?$data['txtpostcode']:"unknown";
+            $customer['birthday'] = $data['txtbirthday']?$data['txtbirthday']:"unknown";
+            $customer['bill_name'] = $data['billingfirstname']?$data['billingfirstname']:"unknown" . $data['billinglastname']?$data['billinglastname']:"unknown";
+            $customer['bill_country'] = $data['billingcountry']?$data['billingcountry']:"unknown";
+            $customer['bill_city'] = $data['billingcity']?$data['billingcity']:"unknown";
+            $customer['bill_address'] = $data['billingstreetaddress']?$data['billingstreetaddress']:"unknown";
+            $customer['pid'] = $value['id'];
+            $customer['create_time'] = time();
+            $customer['update_time'] = time();
+
+            //入用户表 查看是否存在些用户
+            $map = [
+                'phone'=>$customer['phone'],
+                'first_name'=>$customer['first_name'],
+                'last_name'=>$customer['last_name'],
+                'email'=>$customer['email'],
+            ];
+            $customer_id = null;
+            if(!db('customer')->where($map)->find())
+            {
+                //用户插入完成
+                $customer_id = db('customer')->insert($customer,false,true);
+            }
+
+            //如果没有新增加用户的话， 就去找以前的用户
+            $uid = 0;
+            if($customer_id)
+            {
+                $uid = $customer_id;
+            }
+            else
+            {
+                $user = db('customer')->where($map)->find();
+                $uid = $user['id'];
+            }
+
+            if($uid == 0)
+            {
+                echo "the system cant find the customer Plz check one more";
+                exit();
+            }
+
+            //开始插入订单的信息了
+            $order = [];
+            $order['order_id'] = $data['orderid']?$data['orderid']:"unknown";
+            $order['customer_id'] = $uid;
+            $order['pid'] = $value['id'];
+            if(isset($data['orderstatus']))
+            {
+                $order['order_state'] = $data['orderstatus']?$data['orderstatus']:"unknown";
+            }
+            else
+            {
+                $order['order_state'] = "unknown";
+            }
+            if(isset($data['orders_date_finished']))
+            {
+                $order['finished_time'] = $data['orders_date_finished']?$data['orders_date_finished']:"unknown";
+            }
+            else
+            {
+                $order['finished_time'] = "unknown";
+            }
+
+
+            //组装keywords.............
+            $shopping_cart = json_decode($data['shoppingcart'],true);
+            $freight = 0;
+            $total = $shopping_cart['total'];
+            $total_price = 0;
+            $product_keyword = "";
+            unset($shopping_cart['total']);
+            unset($shopping_cart['orderid']);
+            $order['shopping_cart'] = json_encode($shopping_cart);
+            foreach ($shopping_cart as $k=>$v)
+            {
+                $product_keyword .= $v['productname']." ";
+                $total_price += $v['productprice'] * $v['quantity'];
+            }
+            $freight = $total - $total_price;
+            //组装keywords完成 继续插入订单信息.............
+            $order['product_keyword'] = $product_keyword;
+            $order['freight'] = $freight;
+            $order['total'] = $total;
+            $order['pay_way'] = $data['payment_method']?$data['payment_method']:"unknown";
+            $order['website'] = $data['website']?$data['website']:"unknown";
+            $order['data_from'] = $value['belong']?$value['belong']:"unknown";
+            $order['create_time'] = time();
+            $order['update_time'] = time();
+
+            $orderMap = [
+                'order_id'=>$order['order_id'],
+                // 'customer_id'=>$order['customer_id']
+            ];
+            //怕存在了~
+            if(!db('order')->where($orderMap)->find())
+            {
+                //入库呀
+                $result = db('order')->insert($order);
+
+
+            }
+            else
+            {
+                echo $key."is exist......\n";
+            }
+            //完成分类，更新flag;
+            $value['classified'] = 1;
+            db('order_content')->update($value);
+            echo "completed ".sprintf("%.2f",($key+1)/count($order_list)*100)."%......\n";
+
+
+        }
+        return 'ok';
+    }
 
 
 
-      }
 
-
-      public function zzz()
-      {
-          $userModel = new AppUser();
-          $sModel = new AppMoneysteam();
-          $users = $userModel->select();
-          $c = 0;
-          for ($i=0;$i<count($users);$i++)
-          {
-              //获取所有抢红包的钱
-              $allPacketMoneyToday = $sModel->where(['uid'=>$users[$i]['id']])->where(['type'=>'抢红包'])->select();
-              //历史奖励总量
-              $allPacketLottery = 0;
-              //历史打码总量
-              $allPacketMoney = 0;
-
-              for($j=0;$j<count($allPacketMoneyToday);$j++)
-              {
-
-                  $allPacketLottery += ($allPacketMoneyToday[$j]['xishu']?$allPacketMoneyToday[$j]['xishu']:0.006)   * $allPacketMoneyToday[$j]['money'];
-                  $allPacketMoney   += $allPacketMoneyToday[$j]['money'];
-              }
-
-
-              //获取所有提现的钱
-              $allWtData = $sModel->where(['uid'=>$users[$i]['id']])->where(['type'=>'提现'])->select();
-              $allWtmoney = 0;
-              for($k=0;$k<count($allWtData);$k++)
-              {
-                  $allWtmoney   += $allWtData[$k]['money'];
-              }
-              $allWtUnPassData = $sModel->where(['uid'=>$users[$i]['id']])->where(['type'=>'提现审核不通过'])->select();
-              for($l=0;$l<count($allWtUnPassData);$l++)
-              {
-                  $allWtmoney   -= $allWtUnPassData[$l]['money'];
-              }
-
-
-              $totalLottery= $sModel->where(['type'=>'发放奖励','uid'=>$users[$i]['id']])->select();
-              $totalLotteryMoney = 0;
-              for($a=0;$a<count($totalLottery);$a++)
-              {
-                  $totalLotteryMoney   += $totalLottery[$a]['money'];
-              }
-
-                $result = $allPacketLottery + $allPacketMoney - $allWtmoney - $users[$i]['money'] - $users[$i]['unclear_money'] -$totalLotteryMoney;
-              if( $result < -1  ||  $result > 1)
-              {
-                  $c++;
-                  echo $allPacketLottery + $allPacketMoney - $allWtmoney - $users[$i]['money'] - $users[$i]['unclear_money'] -$totalLotteryMoney . '-----------' . $users[$i]['phone'] . '<hr>';
-              }
-          }
-          echo $c;
-            exit;
-
-
-          return;
-      }
 
 
 
