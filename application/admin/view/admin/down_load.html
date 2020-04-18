@@ -65,7 +65,7 @@
                 for(var i = 0; i<data.length;i++)
                 {
                     html +='<tr class="text-c">'
-                        + '<td>'+ 1 +'</td>'
+                        + '<td>'+ i +'</td>'
                         + '<td>'+ data[i].domain +'</td>'
                         + '<td>' + data[i].count +'</td>'
                         + '<td>' + data[i].downloaded +'</td>'
@@ -114,7 +114,9 @@
             success:function(res)
             {
                 clearInterval(timeId);
-                $('.'+className).html("已完成，总数量："+ res.count +"，下载成功数：" + res.count);
+                $('.'+className).html("已完成，总数量："+ res.count +"，下载成功数：" + res.download);
+                $('.'+className).parent().prev().html($('.'+className).parent().prev().html() - res.download);//未下载的数量   =  之前未下载的 - 下载成功的
+                $('.'+className).parent().prev().prev().html(Number($('.'+className).parent().prev().prev().html()) + Number(res.download));//已下载的数量  =  之前已下载的 + 下载成功的
                 //分类入库
                 classified();
             },
