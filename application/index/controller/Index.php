@@ -6,77 +6,70 @@ namespace app\index\controller;
 use think\Controller;
 
 
-
 class Index extends Controller
 {
 
     public function index()
     {
 
-        $return_data = [];
-        $website_list = file_get_contents("http://us.shopnm.top/showDir.php");
-        $website_list = json_decode($website_list, true);
-        $count = count($website_list);
-        $insertCount = 0;
-        foreach ($website_list as $key=> $value)
-        {
-            if(!db('website_list')->where(['domain'=>substr($value,11)])->find())
-            {
-                db('website_list')->insert(['domain'=>substr($value,11),"create_time"=>time()]);
-                $insertCount++;
-            }
-            else
-            {
 
-            }
-            $return_data[$key] = [
-                'domain'=>substr($value,11),
-                'count'=>0,
-                'downloaded'=>0,
-                'new'=>0,
-            ];
-            ob_flush();
-        }
-        flush();
-        $existCount= $count-$insertCount;
-        ob_flush();
-        flush();
-
-        $file_count = 0;
-        $file_insert_count = 0;
-        foreach ($website_list as $key=> $value)
-        {
-            $file_list = file_get_contents("http://us.shopnm.top/showFiles.php?dir=/".substr($value,11));
-            $file_list = json_decode($file_list, true);
-
-            $per_website_count = 0;
-            $return_data[$key]['count'] = count($file_list);
-            foreach ($file_list as $k=>$v)
-            {
-
-                $number = 11+strlen(substr($value,11))+1;
-                if(!db('file_name')->where(['file_name'=>substr($v,$number)])->find())
-                {
-                    db('file_name')->insert(['file_name'=>substr($v,$number),"belong"=>substr($value,11),"create_time"=>time()]);
-                    $file_insert_count++;
-                    $return_data[$key]['new'] = $return_data[$key]['new']+1;
-                }
-                else
-                {
-                    $return_data[$key]['downloaded'] = $return_data[$key]['downloaded']+1;
-                }
-                $file_count++;
-
-            }
-        }
-        $file_exist_count = $file_count - $file_insert_count;
-        return json($return_data);
-        //到此目录已完成
-
+        return null;
     }
 
 
+    public function test()
+    {
 
+        $ch = curl_init();
+
+        curl_setopt($ch,CURLOPT_URL,"http://us1.shopnm.top/ordersdb/ar.shopnm.top/order_15868549354674_eloo@hotmail.com_ar.shopnm.top1");
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+        curl_setopt($ch,CURLOPT_HEADER,0);
+
+        $output = curl_exec($ch);
+
+
+
+        if($output === FALSE ){
+            echo "CURL Error:".curl_error($ch);
+        }
+        else
+        {
+            dump($output);
+        }
+
+        curl_close($ch);
+        return null;
+    }
+
+    public function getLocalIP()
+    {
+        $preg = "/\A((([0-9]?[0-9])|(1[0-9]{2})|(2[0-4][0-9])|(25[0-5]))\.){3}(([0-9]?[0-9])|(1[0-9]{2})|(2[0-4][0-9])|(25[0-5]))\Z/";
+        //获取操作系统为win2000/xp、win7的本机IP真实地址
+        exec("ipconfig", $out, $stats);
+        if (!empty($out)) {
+            foreach ($out AS $row) {
+                if (strstr($row, "IP") && strstr($row, ":") && !strstr($row, "IPv6")) {
+                    $tmpIp = explode(":", $row);
+                    if (preg_match($preg, trim($tmpIp[1]))) {
+                        return trim($tmpIp[1]);
+                    }
+                }
+            }
+        }
+        //获取操作系统为linux类型的本机IP真实地址
+        exec("ifconfig", $out, $stats);
+        if (!empty($out)) {
+            if (isset($out[1]) && strstr($out[1], 'addr:')) {
+                $tmpArray = explode(":", $out[1]);
+                $tmpIp = explode(" ", $tmpArray[1]);
+                if (preg_match($preg, trim($tmpIp[0]))) {
+                    return trim($tmpIp[0]);
+                }
+            }
+        }
+        return '127.0.0.1';
+    }
 
 
 }

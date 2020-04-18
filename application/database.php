@@ -9,6 +9,13 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
+$username = "ordersdb";
+
+if($_SERVER['SERVER_NAME'] == "test.cn")
+{
+    $username = "root";
+}
+
 return [
     // 数据库类型
     'type'            => 'mysql',
@@ -17,9 +24,9 @@ return [
     // 数据库名
     'database'        => 'ordersdb',
     // 用户名
-    'username'        => 'ordersdb',
+    'username'        => $username,
     // 密码
-    'password'        => 'ordersdb',
+    'password'        => $username,
     // 端口
     'hostport'        => '',
     // 连接dsn
