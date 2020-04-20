@@ -144,24 +144,47 @@ class Admin extends Base
             $domain = $website_list[$i]['domain'];
             $data[] = [
                 'domain' => $domain,
-                'count'  => db('file_name')->where(['belong'=>$domain])->count()
+                'downloaded'  => db('file_name')->where(['belong'=>$domain,'collected'=>1])->count()
             ];
         }
         return $data;
     }
 
+    /**
+     * 1:检测目录下有多少文件
+     * 2:将目录写入库中
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
     public function pingDomain()
     {
-        $return_data = ["status"=>0,"count"=>0];
+        $return_data = ["status"=>0,"count"=>0,'new_file_count'=>0];
         $domain = $this->request->param('domain');
         $files = $this->getData('http://us.shopnm.top/showFiles.php?dir=/'.$domain);
-        if($files)
+        $files = json_decode($files);
+
+        if(is_array($files))
         {
-            $return_data = ["status"=>200,"count"=>count($files)];
+            foreach ($files as $key=> $value)
+            {
+                $number = 11+strlen($domain)+1;
+                $file_name = substr($value,$number);
+                if(!db('file_name')->where(['file_name'=>$file_name])->find())
+                {
+                    db('file_name')->insert(['file_name'=>$file_name,"belong"=>$domain,"create_time"=>time()]);
+                    $return_data['new_file_count']++;
+                }
+
+            }
+            $return_data['status'] = 200;
+            $return_data['count'] = count($files);
         }
         else
         {
-            $return_data = ["status"=>404,"count"=>0];
+            $return_data['status'] = 404;
+            $return_data['count'] = 0;
         }
         return $return_data;
 
@@ -232,9 +255,10 @@ class Admin extends Base
             foreach ($file_list as $k=>$v)
             {
                 $number = 11+strlen(substr($value,11))+1;
-                if(!db('file_name')->where(['file_name'=>substr($v,$number)])->find())
+                $file_name = substr($v,$number);
+                if(!db('file_name')->where(['file_name'=>$file_name])->find())
                 {
-                    db('file_name')->insert(['file_name'=>substr($v,$number),"belong"=>substr($value,11),"create_time"=>time()]);
+                    db('file_name')->insert(['file_name'=>$file_name,"belong"=>substr($value,11),"create_time"=>time()]);
                     $file_insert_count++;
                 }
                 $file_count++;
@@ -286,7 +310,8 @@ class Admin extends Base
 
         $return_data['count'] = $data_count;
         $return_data['download'] = $insert_count;
-        $return_data['satus'] = 200;
+        $return_data['status'] = 200;
+        $this->classifiedData();
         return json($return_data);
 
     }
@@ -351,11 +376,11 @@ class Admin extends Base
                 $uid = $user['id'];
             }
 
-            if($uid == 0)
+            /*if($uid == 0)
             {
                 echo "the system cant find the customer Plz check one more";
                 exit();
-            }
+            }*/
 
             //开始插入订单的信息了
             $order = [];
@@ -419,16 +444,15 @@ class Admin extends Base
             }
             else
             {
-                echo $key."is exist......\n";
+                //echo $key."is exist......\n";
             }
             //完成分类，更新flag;
             $value['classified'] = 1;
             db('order_content')->update($value);
-            echo "completed ".sprintf("%.2f",($key+1)/count($order_list)*100)."%......\n";
 
 
         }
-        return 'ok';
+
     }
 
 
@@ -440,6 +464,12 @@ class Admin extends Base
         return $this->fetch();
     }
 
+    public function website_recover()
+    {
+        $data = db('website_list')->where(['state'=>0])->select();
+        $this->assign('data',$data);
+        return $this->fetch();
+    }
 
     public function updateStateWebsite()
     {
@@ -481,11 +511,19 @@ class Admin extends Base
         {
             $domain = str_replace("https://","",$domain);
             $domain = str_replace("http://","",$domain);
-            $res = db('website_list')->insert(['domain'=>$domain,'uid'=>0,'create_time'=>time()]);
-            if($res)
+            if(db('website_list')->where(['domain'=>$domain])->find())
             {
-                $return_data = ['status'=>200,'msg'=>'添加成功'];
+                $return_data = ['status'=>500,'msg'=>'已存在!'];
             }
+            else
+            {
+                $res = db('website_list')->insert(['domain'=>$domain,'uid'=>0,'create_time'=>time()]);
+                if($res)
+                {
+                    $return_data = ['status'=>200,'msg'=>'添加成功'];
+                }
+            }
+
 
         }
         else

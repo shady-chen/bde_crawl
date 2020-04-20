@@ -57,16 +57,22 @@
 								"<span>"+res.msg+"</span>"+
 								"</div>"+
 								"<div>"
-
 					})
-					// alert('添加通知成功!');
+
 				}
 				else{
-					alert('添加失败!  ');
+
+					layer.open({
+						title:'结果',
+						content:res.msg,
+					})
 				}
 			},
 			error:function(error){
-				alert('发生未知错误！');
+				layer.open({
+					title:'结果',
+					content:"发生未知错误",
+				})
 			}
 		});
 

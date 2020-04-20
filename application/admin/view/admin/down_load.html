@@ -13,9 +13,12 @@
                         <tr class="text-c">
                             <th>序号</th>
                             <th>网址</th>
-                            <th>已下载</th>
                             <th>状态</th>
-                            <th width="200">操作</th>
+                            <th>全部数量</th>
+                            <th>新增数量</th>
+                            <th>已下载量</th>
+                            <th>未下载量</th>
+                            <th>操作</th>
                         </tr>
                     </thead>
                     <tbody class="be_append text-c">
@@ -23,24 +26,30 @@
                         <tr v-for="(item,key) in website_list ">
                             <td>{{key+1}}</td>
                             <td>{{item.domain}}</td>
-                            <td>{{item.count}}</td>
-                            <td v-html="item.status" class="text-c">{{item.status}}</td>
+                            <td v-html="item.status" class="text-l">{{item.status}}</td>
+                            <td>{{item.per_website_count}}</td>
+                            <td>{{item.new_file_count}}</td>
+                            <td>{{item.downloaded}}</td>
+                            <td>{{item.per_website_count - item.downloaded}}</td>
                             <td>
-                                <button class="btn btn-secondary-outline">下载</button>
+                                <button v-if="item.flag" v-on:click="downLoadData(item.domain,key)" class="btn btn-secondary-outline">下载</button>
+                                <button v-if="!item.flag" style="cursor:not-allowed" disabled readonly class="btn btn-secondary-outline">下载</button>
                             </td>
                         </tr>
 
                         <tr >
                             <td>统计</td>
                             <td>共有{{domain_count}}个网站</td>
-                            <td>{{all_down_load_count}}</td>
-                            <td>
+                            <td class="text-l">
                                 <span class="btn btn-success">连通性：成功{{all_success_ping}}个</span>
-                                <span class="btn btn-danger">连通性：失败{{all_down_load_count-all_success_ping}}个</span>
-                                <span class="btn btn-primary">总数量：{{ping_total_count}}个</span>
+                                <span class="btn btn-danger" v-if="domain_count-all_success_ping != 0">连通性：失败{{domain_count-all_success_ping}}个</span>
                             </td>
+                            <td>{{total_count}}</td>
+                            <td>{{total_new_file_count}}</td>
+                            <td>{{total_downloaded_count}}</td>
+                            <td>{{total_count - total_downloaded_count}}</td>
                             <td>
-                                <button class="btn btn-secondary">全部下载</button>
+                                <button class="btn btn-secondary" v-on:click="downLoadData('all',-1)">全部下载</button>
                             </td>
                         </tr>
 
@@ -78,10 +87,12 @@
             msg:'Hello World!',
             website_list:[],
             domain_count:0,
-            all_down_load_count:0,
             total_ping_string:"",
             all_success_ping:0,
             ping_total_count:0,
+            total_new_file_count:0,//本次扫描新增的总数量
+            total_count:0,//全部站数量的总和 = 每个站的的相加
+            total_downloaded_count:0,//已下载数量的总和 = 每个站已下载的相加
         },
         methods:
         {
@@ -93,23 +104,29 @@
                         this.website_list = res.body;
                         this.domain_count = res.body.length;
 
-                        for(var i = 0 ;i<this.website_list.length;i++)
+                        for(let i=0 ;i<this.website_list.length;i++)
                         {
                             this.website_list[i]['status'] = '检测中......';
+                            this.website_list[i]['flag']   = false;
+                            this.website_list[i]['per_website_count']   = 0;//每个站本次扫描共有多少个文件
+                            this.website_list[i]['new_file_count']   = 0;//每个站本次扫描新增多少个站
 
-                            this.all_down_load_count += this.website_list[i]['count'];
 
+                            this.total_downloaded_count += this.website_list[i]['downloaded'];
                             //检测域名连通性
-                            var n = i;
-                            var that = this;
                             this.$http.post('/admin/admin/pingDomain',{"domain":this.website_list[i]['domain']},{emulateJSON:true}).then(function(res)
                             {
-                                var html = "";
+                                let html = "";
                                 if(res.body.status == 200)
                                 {
                                     html = '<span class="btn btn-success">连通性：成功</span> ';
-                                    html += '<span class="btn btn-primary">总数量：'+ res.body.count +'</span>';
+
                                     this.all_success_ping++;
+                                    this.website_list[i]['flag']   = true;
+                                    this.website_list[i]['per_website_count']  = res.body.count;
+                                    this.website_list[i]['new_file_count']  = res.body.new_file_count;
+                                    this.total_new_file_count  += res.body.new_file_count;
+                                    this.total_count  += res.body.count;
                                 }
                                 else
                                 {
@@ -117,15 +134,14 @@
                                 }
                                 //更新
                                 //this.website_list[n]['status'] = html;
-                                this.$set(this.website_list[n],'status',html);
+                                this.$set(this.website_list[i],'status',html);
                                 this.ping_total_count += res.body.count;
-                                this.website_list.reverse().reverse();
                                 //更新视图使用的函数
                                 this.$forceUpdate();
 
                             },function(err)
                             {
-                                this.website_list[n]['status'] = '<span class="btn btn-danger">连通性：失败</span><br>';
+                                this.website_list[i]['status'] = '<span class="btn btn-danger">连通性：失败</span><br>';
                             });
 
                         }
@@ -138,94 +154,78 @@
                 );
             },
 
+            downLoadData:function(domain,k)
+            {
+                if(domain == 'all' && k == -1)
+                {
+                    if(confirm('是否下载全部数据，这可能导致服务器负载过大而挂掉，建议您单个站下载哦'))
+                    {
+                        let window_id = layer.open({
+                            title: '状态',
+                            content: '',
+                            type:3
+                        });
+                        let win = window;
+                        this.$http.post('/admin/admin/getFileContent',{"url":domain},{emulateJSON:true}).then(function(res)
+                        {
+                            let result = res.body;
+                            if(result.status == 200)
+                            {
+                                layer.close(window_id);
+                                layer.open({
+                                    title: '下载结果',
+                                    content: '总数量：' + result.count + '<br>下载量：' + result.download,
+                                    yes: function(index){
+
+                                        win.location.href = "/admin/admin/down_load.html";
+                                        layer.close(index); //如果设定了yes回调，需进行手工关闭
+
+                                    }
+                                });
+                                //更新视图
+                                this.website_list[k]['downloaded'] = this.website_list[k]['downloaded'] + result.download;//单个站的已下载量 = 之前已下载的+这次下载的
+                                this.total_downloaded_count = this.total_downloaded_count + result.download;//全部站的已下载量 = 之前已下载的+这次下载的
+                                this.$forceUpdate();
+                            }
+
+                        },function(err)
+                        {
+                            this.website_list[n]['status'] = '<span class="btn btn-danger">连通性：失败</span><br>';
+                        });
+                    }
+                }
+                else
+                {
+                    let index = layer.open({
+                        title: '状态',
+                        content: '',
+                        type:3
+                    });
+                    this.$http.post('/admin/admin/getFileContent',{"url":domain},{emulateJSON:true}).then(function(res)
+                    {
+                        let result = res.body;
+                        if(result.status == 200)
+                        {
+                            layer.close(index);
+                            layer.open({title: '下载结果',content: '总数量：' + result.count + '<br>下载量：' + result.download});
+                            //更新视图
+                            this.website_list[k]['downloaded'] = this.website_list[k]['downloaded'] + result.download;//单个站的已下载量 = 之前已下载的+这次下载的
+                            this.total_downloaded_count = this.total_downloaded_count + result.download;//全部站的已下载量 = 之前已下载的+这次下载的
+                            this.$forceUpdate();
+                        }
+
+                    },function(err)
+                    {
+                        this.website_list[n]['status'] = '<span class="btn btn-danger">连通性：失败</span><br>';
+                    });
+                }
+
+            }
+
         }
     });
     vm.get();
 
-
-
-
-    //displaynavbar("pngfix");
-
-    //获取网站数量
-    /*setTimeout(function(){
-        $.ajax({
-            url:"/admin/admin/getWebSiteList",
-            success:function(res)
-            {
-                $('.tips').hide();
-                $('.table-div').show();
-                console.log(res);
-                var data = res;
-                var html = "";
-                var file_count = 0;
-                var download_count = 0;
-                var new_count = 0;
-                for(var i = 0; i<data.length;i++)
-                {
-                    html +='<tr class="text-c">'
-                        + '<td>'+ i +'</td>'
-                        + '<td>'+ data[i].domain +'</td>'
-                        + '<td>' + data[i].count +'</td>'
-                        + '<td>' + data[i].downloaded +'</td>'
-                        + '<td>' + data[i].new +'</td>'
-                        + '<td><button class="btn btn-primary d-btn'+ i +'" onClick="downLoad(\''+ data[i].domain +'\',\'d-btn'+i+'\')">下载</button></td></tr>';
-
-                    file_count += data[i].count;
-                    download_count += data[i].downloaded;
-                    new_count += data[i].new;
-                }
-                html +='<tr class="text-c">'
-                    + '<td>统计</td>'
-                    + '<td>共有'+ data.length +'个站</td>'
-                    + '<td>' + file_count +'</td>'
-                    + '<td>' + download_count +'</td>'
-                    + '<td>' + new_count +'</td>'
-                    + '<td><button class="btn btn-success btn-all" onClick="downLoad(\'all\',\'btn-all\')">一键下载</button></td></tr>';
-
-                $(".be_append").prepend(html);
-            },
-            error:function(err)
-            {
-                $("#modal-demo").modal("show")
-            }
-        });
-    },1000);*/
-
-
-
-
-    function downLoad(website_url,className)
-    {
-
-        $('.'+className).remove('btn-primary').attr({'disabled':'true'});
-        var l = 0;
-        var str = ['正','正在','正在下','正在下载','正在下载.','正在下载..','正在下载...'];
-        var timeId = setInterval(function(){
-            if(l>str.length) l=0;
-            $('.'+className).html(str[l]);
-            l++
-        },500);
-        $.ajax({
-            url:"/admin/admin/getFileContent",
-            type:'post',
-            data:{"url":website_url},
-            success:function(res)
-            {
-                clearInterval(timeId);
-                $('.'+className).html("已完成，总数量："+ res.count +"，下载成功数：" + res.download);
-                $('.'+className).parent().prev().html($('.'+className).parent().prev().html() - res.download);//未下载的数量   =  之前未下载的 - 下载成功的
-                $('.'+className).parent().prev().prev().html(Number($('.'+className).parent().prev().prev().html()) + Number(res.download));//已下载的数量  =  之前已下载的 + 下载成功的
-                //分类入库
-                classified();
-            },
-            error:function(err)
-            {
-                console.log(err);
-                $("#modal-demo").modal("show")
-            }
-        });
-    }
 
     function classified()
     {

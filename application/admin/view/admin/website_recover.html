@@ -11,11 +11,15 @@
 	</nav>
 	<div class="Hui-article">
 		<article class="cl pd-20">
+			<div class="">
 
+
+			</div>
 			<div class="cl pd-5 bg-1 bk-gray mt-20">
 				<span class="l">
-				<a class="btn btn-primary radius" data-title="添加资讯" _href="website_add.html" onclick="window.location.href = 'website_add.html?id=0'" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 添加网站</a>
+				<a class="btn btn-danger radius" data-title="添加资讯" _href="website_add.html" onclick="window.location.href = 'website_recover.html?id=0'" href="javascript:;"><i class="Hui-iconfont">&#xe600;</i> 网站回收站</a>
 				</span>
+
 			</div>
 			<div class="mt-20">
 				<table class="table table-border table-bordered table-bg table-hover table-sort" id="bbsTab">
@@ -41,7 +45,7 @@
 							<td class="td-status">
 								{switch name="vo.state" }
 								{case value="0"}
-									<span class="label label-default radius">BAN</span>
+									<span class="label label-danger radius">已删除</span>
 								{/case}
 								{case value="1"}
 									<span class="label label-success radius">正常使用</span>
@@ -50,9 +54,7 @@
 								{/switch}
 							</td>
 							<td class="f-14 td-manage">
-
-								<a style="text-decoration:none" onClick="article_start({$vo.id},0)" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>
-								<a style="text-decoration:none" class="ml-5"  href="website_add.html?id={$vo.id}" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a>
+								<a style="text-decoration:none" class="btn btn-success" onClick="article_start({$vo.id},0)" href="javascript:;" title="恢复"><i class="Hui-iconfont">恢复</i></a>
 						</tr>
 					{/volist}
 					</tbody>
@@ -127,7 +129,7 @@
 
 	//发布/下架通知
 	function article_start(id,states) {
-		if (confirm("确认要删除？")) {
+		if (confirm("确认要恢复吗？")) {
 			$.ajax({
 				url: '/admin/admin/updateStateWebsite',
 				type: 'post',
