@@ -61,6 +61,38 @@
 
 				</table>
 			</div>
+			<style>
+				.pagination
+				{
+					width: auto;
+					margin-top: 15px;
+					margin-left: 33%;
+					text-align: center;
+				}
+				.pagination li{
+
+					float: left!important;
+					height: 34px;
+					line-height: 34px;
+					font-weight: 700;
+					padding: 2px 8px;
+					margin:0 5px;
+					background: #182d61;
+					border-radius: 8px;
+					color: #fff;
+				}
+				.pagination li a{
+					color: #fff;
+					text-decoration: none;
+				}
+				.pagination li span{
+					color: grey;
+				}
+				.pagination li:nth-child(1){
+					width: auto!important;
+				}
+			</style>
+			{$page}
 		</article>
 	</div>
 </section>

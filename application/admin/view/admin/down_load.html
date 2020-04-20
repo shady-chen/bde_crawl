@@ -1,7 +1,55 @@
 ﻿{include file="public/head" /}
 <script src="/static/vue.js"></script>
 <script src="/static/vue_ajax.js"></script>
+<style>
+    /*分页*/
+    .page-bar{
+        margin-top:15px;
 
+        margin-left: 27%;
+
+    }
+    ul,li{
+        margin: 0px;
+        padding: 0px;
+    }
+    li{
+        list-style: none
+    }
+    .page-bar li:first-child>a {
+        margin-left: 0px
+    }
+    .page-bar a{
+        border: 1px solid #ddd;
+        text-decoration: none;
+        position: relative;
+        float: left;
+        padding: 6px 12px;
+        margin-left: -1px;
+        line-height: 1.42857143;
+        color: #5D6062;
+        cursor: pointer;
+        margin-right: 20px;
+    }
+    .page-bar a:hover{
+        background-color: #eee;
+    }
+    .page-bar a.banclick{
+        cursor:not-allowed;
+    }
+    .page-bar .active a{
+        color: #fff;
+        cursor: default;
+        background-color: #E96463;
+        border-color: #E96463;
+    }
+    .page-bar i{
+        font-style:normal;
+        color: #d44950;
+        margin: 0px 4px;
+        font-size: 12px;
+    }
+</style>
 <section class="Hui-article-box" id="app">
 
     <div class="Hui-article">
@@ -58,6 +106,20 @@
                 </table>
             </div>
 
+            <!--分页-->
+            <div class="page-bar">
+                <ul>
+                    <li v-if="cur>1"><a v-on:click="cur--,pageClick()">上一页</a></li>
+                    <li v-if="cur==1"><a class="banclick">上一页</a></li>
+                    <li v-for="index in indexs" v-bind:class="{ 'active': cur == index}">
+                        <a v-on:click="btnClick(index)">{{ index }}</a>
+                    </li>
+                    <li v-if="cur!=all"><a v-on:click="cur++,pageClick()">下一页</a></li>
+                    <li v-if="cur == all"><a class="banclick">下一页</a></li>
+                    <li><a>共<i>{{all}}</i>页</a></li>
+                </ul>
+            </div>
+
         </article>
     </div>
 </section>
@@ -93,94 +155,109 @@
             total_new_file_count:0,//本次扫描新增的总数量
             total_count:0,//全部站数量的总和 = 每个站的的相加
             total_downloaded_count:0,//已下载数量的总和 = 每个站已下载的相加
+
+            all: 10, //总页数
+            cur: 1,//当前页码
+            totalPage: 0,//当前条数
         },
         methods:
         {
-            get:function()
-            {
-                //发送get请求
-                this.$http.get('/admin/admin/down_load_data').then(function(res) {
+                get: function () {
+                    //发送get请求
+                    this.$http.get('/admin/admin/down_load_data').then(function (res) {
 
-                        this.website_list = res.body;
-                        this.domain_count = res.body.length;
+                            this.website_list = res.body;
+                            this.domain_count = res.body.length;
 
-                        for(let i=0 ;i<this.website_list.length;i++)
-                        {
-                            this.website_list[i]['status'] = '检测中......';
-                            this.website_list[i]['flag']   = false;
-                            this.website_list[i]['per_website_count']   = 0;//每个站本次扫描共有多少个文件
-                            this.website_list[i]['new_file_count']   = 0;//每个站本次扫描新增多少个站
+                            for (let i = 0; i < this.website_list.length; i++) {
+                                this.website_list[i]['status'] = '检测中......';
+                                this.website_list[i]['flag'] = false;
+                                this.website_list[i]['per_website_count'] = 0;//每个站本次扫描共有多少个文件
+                                this.website_list[i]['new_file_count'] = 0;//每个站本次扫描新增多少个站
 
 
-                            this.total_downloaded_count += this.website_list[i]['downloaded'];
-                            //检测域名连通性
-                            this.$http.post('/admin/admin/pingDomain',{"domain":this.website_list[i]['domain']},{emulateJSON:true}).then(function(res)
-                            {
-                                let html = "";
-                                if(res.body.status == 200)
-                                {
-                                    html = '<span class="btn btn-success">连通性：成功</span> ';
+                                this.total_downloaded_count += this.website_list[i]['downloaded'];
+                                //检测域名连通性
+                                this.$http.post('/admin/admin/pingDomain', {"domain": this.website_list[i]['domain']}, {emulateJSON: true}).then(function (res) {
+                                    let html = "";
+                                    if (res.body.status == 200) {
+                                        html = '<span class="btn btn-success">连通性：成功</span> ';
 
-                                    this.all_success_ping++;
-                                    this.website_list[i]['flag']   = true;
-                                    this.website_list[i]['per_website_count']  = res.body.count;
-                                    this.website_list[i]['new_file_count']  = res.body.new_file_count;
-                                    this.total_new_file_count  += res.body.new_file_count;
-                                    this.total_count  += res.body.count;
-                                }
-                                else
-                                {
-                                    html = '<span class="btn btn-danger">连通性：失败</span><br>';
-                                }
-                                //更新
-                                //this.website_list[n]['status'] = html;
-                                this.$set(this.website_list[i],'status',html);
-                                this.ping_total_count += res.body.count;
-                                //更新视图使用的函数
-                                this.$forceUpdate();
+                                        this.all_success_ping++;
+                                        this.website_list[i]['flag'] = true;
+                                        this.website_list[i]['per_website_count'] = res.body.count;
+                                        this.website_list[i]['new_file_count'] = res.body.new_file_count;
+                                        this.total_new_file_count += res.body.new_file_count;
+                                        this.total_count += res.body.count;
+                                    } else {
+                                        html = '<span class="btn btn-danger">连通性：失败</span><br>';
+                                    }
+                                    //更新
+                                    //this.website_list[n]['status'] = html;
+                                    this.$set(this.website_list[i], 'status', html);
+                                    this.ping_total_count += res.body.count;
+                                    //更新视图使用的函数
+                                    this.$forceUpdate();
 
-                            },function(err)
-                            {
-                                this.website_list[i]['status'] = '<span class="btn btn-danger">连通性：失败</span><br>';
-                            });
+                                }, function (err) {
+                                    this.website_list[i]['status'] = '<span class="btn btn-danger">连通性：失败</span><br>';
+                                });
 
+                            }
+
+
+                        }, function () {
+                            console.log('请求失败处理');
                         }
+                    );
+                },
 
+                downLoadData: function (domain, k) {
+                    if (domain == 'all' && k == -1) {
+                        if (confirm('是否下载全部数据，这可能导致服务器负载过大而挂掉，建议您单个站下载哦')) {
+                            let window_id = layer.open({
+                                title: '状态',
+                                content: '',
+                                type: 3
+                            });
+                            let win = window;
+                            this.$http.post('/admin/admin/getFileContent', {"url": domain}, {emulateJSON: true}).then(function (res) {
+                                let result = res.body;
+                                if (result.status == 200) {
+                                    layer.close(window_id);
+                                    layer.open({
+                                        title: '下载结果',
+                                        content: '总数量：' + result.count + '<br>下载量：' + result.download,
+                                        yes: function (index) {
 
-                 },function()
-                    {
-                        console.log('请求失败处理');
-                    }
-                );
-            },
+                                            win.location.href = "/admin/admin/down_load.html";
+                                            layer.close(index); //如果设定了yes回调，需进行手工关闭
 
-            downLoadData:function(domain,k)
-            {
-                if(domain == 'all' && k == -1)
-                {
-                    if(confirm('是否下载全部数据，这可能导致服务器负载过大而挂掉，建议您单个站下载哦'))
-                    {
-                        let window_id = layer.open({
+                                        }
+                                    });
+                                    //更新视图
+                                    this.website_list[k]['downloaded'] = this.website_list[k]['downloaded'] + result.download;//单个站的已下载量 = 之前已下载的+这次下载的
+                                    this.total_downloaded_count = this.total_downloaded_count + result.download;//全部站的已下载量 = 之前已下载的+这次下载的
+                                    this.$forceUpdate();
+                                }
+
+                            }, function (err) {
+                                this.website_list[n]['status'] = '<span class="btn btn-danger">连通性：失败</span><br>';
+                            });
+                        }
+                    } else {
+                        let index = layer.open({
                             title: '状态',
                             content: '',
-                            type:3
+                            type: 3
                         });
-                        let win = window;
-                        this.$http.post('/admin/admin/getFileContent',{"url":domain},{emulateJSON:true}).then(function(res)
-                        {
+                        this.$http.post('/admin/admin/getFileContent', {"url": domain}, {emulateJSON: true}).then(function (res) {
                             let result = res.body;
-                            if(result.status == 200)
-                            {
-                                layer.close(window_id);
+                            if (result.status == 200) {
+                                layer.close(index);
                                 layer.open({
                                     title: '下载结果',
-                                    content: '总数量：' + result.count + '<br>下载量：' + result.download,
-                                    yes: function(index){
-
-                                        win.location.href = "/admin/admin/down_load.html";
-                                        layer.close(index); //如果设定了yes回调，需进行手工关闭
-
-                                    }
+                                    content: '总数量：' + result.count + '<br>下载量：' + result.download
                                 });
                                 //更新视图
                                 this.website_list[k]['downloaded'] = this.website_list[k]['downloaded'] + result.download;//单个站的已下载量 = 之前已下载的+这次下载的
@@ -188,41 +265,69 @@
                                 this.$forceUpdate();
                             }
 
-                        },function(err)
-                        {
+                        }, function (err) {
                             this.website_list[n]['status'] = '<span class="btn btn-danger">连通性：失败</span><br>';
                         });
                     }
-                }
-                else
-                {
-                    let index = layer.open({
-                        title: '状态',
-                        content: '',
-                        type:3
-                    });
-                    this.$http.post('/admin/admin/getFileContent',{"url":domain},{emulateJSON:true}).then(function(res)
-                    {
-                        let result = res.body;
-                        if(result.status == 200)
-                        {
-                            layer.close(index);
-                            layer.open({title: '下载结果',content: '总数量：' + result.count + '<br>下载量：' + result.download});
-                            //更新视图
-                            this.website_list[k]['downloaded'] = this.website_list[k]['downloaded'] + result.download;//单个站的已下载量 = 之前已下载的+这次下载的
-                            this.total_downloaded_count = this.total_downloaded_count + result.download;//全部站的已下载量 = 之前已下载的+这次下载的
-                            this.$forceUpdate();
-                        }
 
-                    },function(err)
+                },
+
+
+                //请求数据
+                dataListFn: function (index) {},
+                //分页
+                btnClick: function (data)
+                {
+                    //页码点击事件
+                    if (data != this.cur)
                     {
-                        this.website_list[n]['status'] = '<span class="btn btn-danger">连通性：失败</span><br>';
-                    });
+                        this.cur = data
+                    }
+                    //根据点击页数请求数据
+                    this.dataListFn(this.cur);
+                },
+
+                pageClick: function () {
+                    //根据点击页数请求数据
+                    this.dataListFn(this.cur);
+                }
+         },
+        computed:
+        {
+                //分页
+                indexs: function(){
+                    var left = 1;
+                    var right = this.all;
+                    var ar = [];
+                    if(this.all>= 5)
+                    {
+                        if(this.cur > 3 && this.cur < this.all-2)
+                        {
+                            left = this.cur - 2
+                            right = this.cur + 2
+                        }
+                        else
+                        {
+                            if(this.cur<=3)
+                            {
+                                left = 1
+                                right = 5
+                            }
+                            else
+                            {
+                                right = this.all
+                                left = this.all -4
+                            }
+                        }
+                    }
+                    while (left <= right){
+                        ar.push(left)
+                        left ++
+                    }
+                    return ar
                 }
 
             }
-
-        }
     });
     vm.get();
 

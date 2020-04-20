@@ -187,7 +187,6 @@ class Admin extends Base
             $return_data['count'] = 0;
         }
         return $return_data;
-
     }
 
 
@@ -459,15 +458,19 @@ class Admin extends Base
 
     public function website_list()
     {
-        $data = db('website_list')->where(['state'=>1])->select();
+        $data = db('website_list')->where(['state'=>1])->paginate(10,false,['type'=>'BootstrapDetail',]);
         $this->assign('data',$data);
+        $this->assign('page',$data->render());
         return $this->fetch();
     }
 
     public function website_recover()
     {
-        $data = db('website_list')->where(['state'=>0])->select();
+
+
+        $data = db('website_list')->where(['state'=>0])->paginate(10,false,['type'=>'BootstrapDetail',]);
         $this->assign('data',$data);
+        $this->assign('page',$data->render());
         return $this->fetch();
     }
 
