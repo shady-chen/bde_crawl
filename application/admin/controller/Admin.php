@@ -373,6 +373,72 @@ class Admin extends Base
 
 
 
+    public function website_list()
+    {
+        $data = db('website_list')->where(['state'=>1])->select();
+        $this->assign('data',$data);
+        return $this->fetch();
+    }
+
+
+    public function updateStateWebsite()
+    {
+        $return_data = ['status'=>0,'msg'=>'更新失败'];
+        $website_id = $this->request->param('id');
+        $data = db('website_list')->find($website_id);
+        if($data['state'] == 1)
+        {
+            $data['state'] = 0;
+        }
+        else
+        {
+            $data['state'] = 1;
+        }
+        $res = db('website_list')->update($data);
+        if($res)
+        {
+            $return_data = ['status'=>200,'msg'=>'更新成功'];
+        }
+        return $return_data;
+    }
+
+
+
+    public function website_add()
+    {
+        $website_id = $this->request->param('id');
+        $data = db('website_list')->find($website_id);
+        $this->assign('data',$data);
+        return $this->fetch();
+    }
+
+    public function saveWebsiteDomain()
+    {
+        $return_data = ['status'=>0,'msg'=>'更新失败'];
+        $website_id = $this->request->param('id');
+        $domain = trim($this->request->param('title'));
+        if($website_id ==0 || $website_id == "0" )
+        {
+            $domain = str_replace("https://","",$domain);
+            $domain = str_replace("http://","",$domain);
+            $res = db('website_list')->insert(['domain'=>$domain,'uid'=>0,'create_time'=>time()]);
+            if($res)
+            {
+                $return_data = ['status'=>200,'msg'=>'添加成功'];
+            }
+
+        }
+        else
+        {
+            $res = db('website_list')->update(['id'=>$website_id,'domain'=>$domain,'update_time'=>time()]);
+            if($res)
+            {
+                $return_data = ['status'=>200,'msg'=>'更新成功'];
+            }
+        }
+
+        return $return_data;
+    }
 
 
 

@@ -4,44 +4,16 @@
 		<form class="form form-horizontal" id="form-article-add">
 			<input type="hidden" value="{$data.id}" id="notice_id">
 			<div class="row cl">
-				<label class="form-label col-xs-4 col-sm-2">通知标题：</label>
+				<label class="form-label col-xs-4 col-sm-2">域名：</label>
 				<div class="formControls col-xs-8 col-sm-9">
-					<input type="text" class="input-text" value="{$data.title}" placeholder=""  name="" id="notice_title">
+					<input type="text" class="input-text" value="{$data.domain}" placeholder="请输入域名，带不带http(s)://都可以..."  name="" id="notice_title">
+					<input type="hidden" value="{$data.id}">
 				</div>
 			</div>
-			<div class="row cl">
-				<label class="form-label col-xs-4 col-sm-2">通知内容：</label>
-				<div class="formControls col-xs-8 col-sm-9">
-					<textarea id="notice_content" value="{$data.content}" name="" cols="" rows="" class="textarea"  placeholder="说点什么...最少输入10个字符" datatype="*10-100" dragonfly="true" nullmsg="备注不能为空！" onKeyUp="textarealength(this,200)">{$data.content}</textarea>
-					<p class="textarea-numberbar"><em class="textarea-length">0</em>/200</p>
-				</div>
-			</div>
-			<div class="row cl">
-				<label class="form-label col-xs-4 col-sm-2">发布对象：</label>
-				<div class="formControls col-xs-8 col-sm-9">
-					<select name="object" class="input-text" id="notice_uid" value="{$data.uid}">
-						<option value="0">所有人</option>
-						<option value="13" onclick="showInput()">指定用户</option>
-					</select>
-				</div>
-			</div>
-
-			<div class="row cl" id="is_someone" style="position:relative;">
-				<label class="form-label col-xs-4 col-sm-2">用户手机号：</label>
-				<div class="formControls col-xs-8 col-sm-9">
-					<input type="text" class="input-text" value="" placeholder="请输入指定用户的手机号码" id="someone" name="someone"  >
-				</div>
-				
-				<div class="formControls col-xs-8 col-sm-9" id="my-div" style="width: 100%;padding: 3px 0;position:absolute;top: 30px;left: 150px;">
-
-				</div>
-			</div>
-
-
-			<div class="row cl" style="margin-top: 200px;">
+			<div class="row cl" style="margin-top: 20px;">
 				<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-2">
 					<div  class="btn btn-primary radius" onclick="release()">
-						<i class="Hui-iconfont">&#xe632;</i> 发布
+						<i class="Hui-iconfont">&#xe632;</i> 保存
 					</div>
 				</div>
 			</div>
@@ -61,13 +33,11 @@
 
 
 		$.ajax({
-			url:'/admin/admin/saveNotice',
+			url:'/admin/admin/saveWebsiteDomain',
 			type:'post',
 			data:{
 				id:$('#notice_id').val(),
-				uid:$('#notice_title').val()==0?0:$('#someone').val(),
 				title:$('#notice_title').val(),
-				content:$('#notice_content').val(),
 			},
 			success:function(res){
 				if(res.status == 200)
@@ -81,8 +51,7 @@
 						btn: ['确定'],//设置底部按钮
 						btn1: function () {
 							layer.close(layer.open());
-							window.location.href = 'article_list.html';
-
+							window.location.href = 'website_list.html';
 						},
 						content: "<div>" +
 								"<span>"+res.msg+"</span>"+
@@ -97,7 +66,7 @@
 				}
 			},
 			error:function(error){
-				//alert('发生未知错误！');
+				alert('发生未知错误！');
 			}
 		});
 
