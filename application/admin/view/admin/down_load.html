@@ -1,25 +1,50 @@
 ﻿{include file="public/head" /}
+<script src="/static/vue.js"></script>
+<script src="/static/vue_ajax.js"></script>
 
-
-<section class="Hui-article-box">
+<section class="Hui-article-box" id="app">
 
     <div class="Hui-article">
         <article class="cl pd-20">
-            <h1 class="tips">正在检测网站数量......</h1>
             <br>
-            <div class="mt-20 hide table-div">
+            <div class="table-div">
                 <table class="table table-border table-bordered table-bg table-hover table-sort">
                     <thead>
                         <tr class="text-c">
                             <th>序号</th>
                             <th>网址</th>
-                            <th>数量</th>
                             <th>已下载</th>
-                            <th>未下载</th>
+                            <th>状态</th>
                             <th width="200">操作</th>
                         </tr>
                     </thead>
-                    <tbody class="be_append">
+                    <tbody class="be_append text-c">
+
+                        <tr v-for="(item,key) in website_list ">
+                            <td>{{key+1}}</td>
+                            <td>{{item.domain}}</td>
+                            <td>{{item.count}}</td>
+                            <td v-html="item.status" class="text-c">{{item.status}}</td>
+                            <td>
+                                <button class="btn btn-secondary-outline">下载</button>
+                            </td>
+                        </tr>
+
+                        <tr >
+                            <td>统计</td>
+                            <td>共有{{domain_count}}个网站</td>
+                            <td>{{all_down_load_count}}</td>
+                            <td>
+                                <span class="btn btn-success">连通性：成功{{all_success_ping}}个</span>
+                                <span class="btn btn-danger">连通性：失败{{all_down_load_count-all_success_ping}}个</span>
+                                <span class="btn btn-primary">总数量：{{ping_total_count}}个</span>
+                            </td>
+                            <td>
+                                <button class="btn btn-secondary">全部下载</button>
+                            </td>
+                        </tr>
+
+
                     </tbody>
                 </table>
             </div>
@@ -46,10 +71,84 @@
 </div>
 {include file="public/footer" /}
 <script>
-    displaynavbar("pngfix");
+    var vm = new Vue({
+        el:'#app',
+        data:
+        {
+            msg:'Hello World!',
+            website_list:[],
+            domain_count:0,
+            all_down_load_count:0,
+            total_ping_string:"",
+            all_success_ping:0,
+            ping_total_count:0,
+        },
+        methods:
+        {
+            get:function()
+            {
+                //发送get请求
+                this.$http.get('/admin/admin/down_load_data').then(function(res) {
+
+                        this.website_list = res.body;
+                        this.domain_count = res.body.length;
+
+                        for(var i = 0 ;i<this.website_list.length;i++)
+                        {
+                            this.website_list[i]['status'] = '检测中......';
+
+                            this.all_down_load_count += this.website_list[i]['count'];
+
+                            //检测域名连通性
+                            var n = i;
+                            var that = this;
+                            this.$http.post('/admin/admin/pingDomain',{"domain":this.website_list[i]['domain']},{emulateJSON:true}).then(function(res)
+                            {
+                                var html = "";
+                                if(res.body.status == 200)
+                                {
+                                    html = '<span class="btn btn-success">连通性：成功</span> ';
+                                    html += '<span class="btn btn-primary">总数量：'+ res.body.count +'</span>';
+                                    this.all_success_ping++;
+                                }
+                                else
+                                {
+                                    html = '<span class="btn btn-danger">连通性：失败</span><br>';
+                                }
+                                //更新
+                                //this.website_list[n]['status'] = html;
+                                this.$set(this.website_list[n],'status',html);
+                                this.ping_total_count += res.body.count;
+                                this.website_list.reverse().reverse();
+                                //更新视图使用的函数
+                                this.$forceUpdate();
+
+                            },function(err)
+                            {
+                                this.website_list[n]['status'] = '<span class="btn btn-danger">连通性：失败</span><br>';
+                            });
+
+                        }
+
+
+                 },function()
+                    {
+                        console.log('请求失败处理');
+                    }
+                );
+            },
+
+        }
+    });
+    vm.get();
+
+
+
+
+    //displaynavbar("pngfix");
 
     //获取网站数量
-    setTimeout(function(){
+    /*setTimeout(function(){
         $.ajax({
             url:"/admin/admin/getWebSiteList",
             success:function(res)
@@ -91,7 +190,7 @@
                 $("#modal-demo").modal("show")
             }
         });
-    },1000);
+    },1000);*/
 
 
 

@@ -132,8 +132,68 @@ class Admin extends Base
 
     public function down_load()
     {
+
         return $this->fetch();
     }
+    public function down_load_data()
+    {
+        $data = [];
+        $website_list = db('website_list')->where(['state'=>1])->select();
+        for($i=0;$i<count($website_list);$i++)
+        {
+            $domain = $website_list[$i]['domain'];
+            $data[] = [
+                'domain' => $domain,
+                'count'  => db('file_name')->where(['belong'=>$domain])->count()
+            ];
+        }
+        return $data;
+    }
+
+    public function pingDomain()
+    {
+        $return_data = ["status"=>0,"count"=>0];
+        $domain = $this->request->param('domain');
+        $files = $this->getData('http://us.shopnm.top/showFiles.php?dir=/'.$domain);
+        if($files)
+        {
+            $return_data = ["status"=>200,"count"=>count($files)];
+        }
+        else
+        {
+            $return_data = ["status"=>404,"count"=>0];
+        }
+        return $return_data;
+
+    }
+
+
+    public function getData($url)
+    {
+
+        $ch = curl_init();
+        curl_setopt($ch,CURLOPT_URL,$url);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+        curl_setopt($ch,CURLOPT_HEADER,0);
+        $output = curl_exec($ch);
+        curl_close($ch);
+        if($output === FALSE ){
+            return false;
+        }
+        else
+        {
+            return $output;
+        }
+
+    }
+
+
+
+
+
+
+
+
 
     //down_load的第一步 更新网站列表
     public function getWebSiteList()
@@ -439,6 +499,9 @@ class Admin extends Base
 
         return $return_data;
     }
+
+
+
 
 
 
