@@ -138,7 +138,16 @@ class Admin extends Base
     public function down_load_data()
     {
         $data = [];
-        $website_list = db('website_list')->where(['state'=>1])->select();
+
+        //总的数量有多少个
+        $total_count = db('website_list')->where(['state'=>1])->count();
+        //根据上传的分页值取数据
+        $NumberOfPages = $this->request->param('nop')?$this->request->param('nop'):3;
+        //当前是第几页
+        $CurrentPage = $this->request->param('cp')?$this->request->param('cp'):1;
+
+        $website_list = db('website_list')->where(['state'=>1])->limit(($CurrentPage-1)*$NumberOfPages,$CurrentPage*$NumberOfPages)->select();
+
         for($i=0;$i<count($website_list);$i++)
         {
             $domain = $website_list[$i]['domain'];
@@ -147,7 +156,15 @@ class Admin extends Base
                 'downloaded'  => db('file_name')->where(['belong'=>$domain,'collected'=>1])->count()
             ];
         }
-        return $data;
+        $response = [
+            'data'=>$data,
+            'total_count'=>$total_count,//总条数
+            'all'=>intval($total_count/$NumberOfPages) + 1,//总页数
+            'pageNum'=>$CurrentPage,//当前页数
+            'totalPage'=>count($website_list),//当前页数
+
+        ];
+        return $response;
     }
 
     /**
@@ -298,13 +315,18 @@ class Admin extends Base
 
         foreach ($file_name_list as $key=>$value)
         {
-            $content =  file_get_contents("http://us.shopnm.top/ordersdb/".$value['belong']."/".$value['file_name']);
-            if(!db('order_content')->where(['file_name'=>$value['file_name']])->find())
+
+            $content =  $this->getData("http://us.shopnm.top/ordersdb/".$value['belong']."/".$value['file_name']);
+            if($content)
             {
-                db('order_content')->insert(['file_name'=>$value['file_name'],"belong"=>$value['belong'],"content"=>$content,"create_time"=>time()]);
-                db('file_name')->where(['file_name'=>$value['file_name']])->update(['collected'=>1]);
-                $insert_count++;
+                if(!db('order_content')->where(['file_name'=>$value['file_name']])->find())
+                {
+                    db('order_content')->insert(['file_name'=>$value['file_name'],"belong"=>$value['belong'],"content"=>$content,"create_time"=>time()]);
+                    db('file_name')->where(['file_name'=>$value['file_name']])->update(['collected'=>1]);
+                    $insert_count++;
+                }
             }
+
         }
 
         $return_data['count'] = $data_count;

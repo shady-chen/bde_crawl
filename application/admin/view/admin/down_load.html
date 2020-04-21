@@ -2,6 +2,7 @@
 <script src="/static/vue.js"></script>
 <script src="/static/vue_ajax.js"></script>
 <style>
+
     /*分页*/
     .page-bar{
         margin-top:15px;
@@ -117,6 +118,7 @@
                     <li v-if="cur!=all"><a v-on:click="cur++,pageClick()">下一页</a></li>
                     <li v-if="cur == all"><a class="banclick">下一页</a></li>
                     <li><a>共<i>{{all}}</i>页</a></li>
+                    <li><a>共<i>{{page_total_count}}</i>条</a></li>
                 </ul>
             </div>
 
@@ -159,26 +161,47 @@
             all: 10, //总页数
             cur: 1,//当前页码
             totalPage: 0,//当前条数
+            nop:3,//第页面显示多少数据
+            page_total_count:0,//共有多少条数据
         },
         methods:
         {
-                get: function () {
+                get: function (cp) {
                     //发送get请求
-                    this.$http.get('/admin/admin/down_load_data').then(function (res) {
+                    this.$http.get('/admin/admin/down_load_data?nop='+this.nop+'&cp='+cp).then(function (res) {
 
-                            this.website_list = res.body;
-                            this.domain_count = res.body.length;
+                        //init the data
+                        this.website_list = [];
+                        this.domain_count = 0;
+                        this.domain_count = "";
+                        this.all_success_ping = 0;
+                        this.ping_total_count = 0;
+                        this.total_new_file_count = 0;
+                        this.total_count = 0;
+                        this.total_downloaded_count = 0;
 
-                            for (let i = 0; i < this.website_list.length; i++) {
+
+
+                        this.website_list = res.body.data;
+                        this.domain_count = res.body.data.length;
+
+                        //总页数
+                        this.all = res.body.all;
+                        this.cur = res.body.pageNum;
+                        this.totalPage = res.body.totalPage;
+                        this.page_total_count = res.body.total_count;
+
+                        for (let i = 0; i < this.website_list.length; i++)
+                        {
                                 this.website_list[i]['status'] = '检测中......';
                                 this.website_list[i]['flag'] = false;
                                 this.website_list[i]['per_website_count'] = 0;//每个站本次扫描共有多少个文件
                                 this.website_list[i]['new_file_count'] = 0;//每个站本次扫描新增多少个站
-
-
                                 this.total_downloaded_count += this.website_list[i]['downloaded'];
                                 //检测域名连通性
-                                this.$http.post('/admin/admin/pingDomain', {"domain": this.website_list[i]['domain']}, {emulateJSON: true}).then(function (res) {
+                                this.$http.post('/admin/admin/pingDomain',
+                                    {"domain": this.website_list[i]['domain']}, {emulateJSON: true}).then(function (res)
+                                {
                                     let html = "";
                                     if (res.body.status == 200) {
                                         html = '<span class="btn btn-success">连通性：成功</span> ';
@@ -193,20 +216,23 @@
                                         html = '<span class="btn btn-danger">连通性：失败</span><br>';
                                     }
                                     //更新
-                                    //this.website_list[n]['status'] = html;
                                     this.$set(this.website_list[i], 'status', html);
                                     this.ping_total_count += res.body.count;
                                     //更新视图使用的函数
                                     this.$forceUpdate();
 
-                                }, function (err) {
+                                },
+                                function (err)
+                                {
                                     this.website_list[i]['status'] = '<span class="btn btn-danger">连通性：失败</span><br>';
                                 });
 
                             }
 
 
-                        }, function () {
+                        },
+                        function ()
+                        {
                             console.log('请求失败处理');
                         }
                     );
@@ -274,7 +300,10 @@
 
 
                 //请求数据
-                dataListFn: function (index) {},
+                dataListFn: function (index)
+                {
+                    this.get(index);
+                },
                 //分页
                 btnClick: function (data)
                 {
@@ -295,10 +324,12 @@
         computed:
         {
                 //分页
-                indexs: function(){
+                indexs: function()
+                {
                     var left = 1;
                     var right = this.all;
                     var ar = [];
+
                     if(this.all>= 5)
                     {
                         if(this.cur > 3 && this.cur < this.all-2)
@@ -329,7 +360,7 @@
 
             }
     });
-    vm.get();
+    vm.get(1);
 
 
     function classified()
