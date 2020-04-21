@@ -189,7 +189,7 @@ class Admin extends Base
             ->join('customer b','a.customer_id = b.id')
             ->order('a.create_time desc')
             ->where($map)
-            ->paginate(2,false,['type'=>'BootstrapDetail',"query"=>$_GET]);
+            ->paginate(10,false,['type'=>'BootstrapDetail',"query"=>$_GET]);
         $page = $data;
         $data = $data->items();
 
