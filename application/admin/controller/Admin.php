@@ -147,29 +147,28 @@ class Admin extends Base
      */
     public function order_list()
     {
+        $map = [];
+
         //域名
-        $result_by_domain = "";
         if(isset($_GET['domain']) && !empty($_GET['domain']))
         {
-            $result_by_domain = "a.data_from = '{$_GET['domain']}'";
+            $map['a.data_from'] = ['=',$_GET['domain']];
         }
         //国家
-        $result_by_country = "";
         if(isset($_GET['country']) && !empty($_GET['country']))
         {
-            $result_by_domain = "b.country like '%{$_GET['country']}%'";
+            $map['b.country'] = ["like","%".$_GET['country']."%"];
         }
         //人名
-        $result_by_name = "";
+
         if(isset($_GET['username']) && !empty($_GET['username']))
         {
-            $result_by_name = "b.all_name like '%{$_GET['username']}%'";
+            $map['b.all_name'] = ["like","%".$_GET['username']."%"];
         }
         //产品
-        $result_by_product = "";
         if(isset($_GET['product_name']) && !empty($_GET['product_name']))
         {
-            $result_by_product = "a.product_keyword like '%{$_GET['product_name']}%'";
+            $map['a.product_keyword'] = ["like","%".$_GET['product_name']."%"];
         }
 
         //时间
@@ -183,18 +182,14 @@ class Admin extends Base
         {
             $result_by_end_time = $_GET['end_time'];
         }
-
+        $map['a.finished_time'] = ["between time",[$result_by_start_time,$result_by_end_time]];
 
         $data = db('order')
             ->alias("a")
             ->join('customer b','a.customer_id = b.id')
             ->order('a.create_time desc')
-            ->where($result_by_domain)
-            ->where($result_by_country)
-            ->where($result_by_name)
-            ->where($result_by_product)
-            ->where('a.finished_time','between time',[$result_by_start_time,$result_by_end_time])
-            ->paginate(2,false,['type'=>'BootstrapDetail',]);
+            ->where($map)
+            ->paginate(2,false,['type'=>'BootstrapDetail',"query"=>$_GET]);
         $page = $data;
         $data = $data->items();
 

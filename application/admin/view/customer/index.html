@@ -1,0 +1,157 @@
+{include file="public/head" /}
+<script src="/static/lib/My97DatePicker/4.8/WdatePicker.js"></script>
+<style>
+    .username{
+        font-size: 16px;
+        font-weight: 700;
+        color: #0a6999;
+    }
+    .filter-wrap
+    {
+        width: 100%;
+    }
+    .Hui-article
+    {
+        top: 0;
+    }
+</style>
+
+<section class="Hui-article-box">
+
+    <div class="Hui-article">
+        <article class="cl pd-20">
+
+            <form action="">
+                <div class="filter-wrap" style="overflow: hidden;float:left;width: 230px;">
+                    <div  style="width: 230px;margin-bottom: 10px; ">
+                        <span>电话：</span>
+                        <input type="text" name="phone" value="{$Think.get.phone}"  class="input-text" style="width: 150px;" placeholder="请输入电话号码">
+
+                    </div>
+
+                    <div  style="margin-bottom: 10px;">
+                        <span>国家：</span>
+                        <input type="text" name="country" value="{$Think.get.country}"  class="input-text" style="width: 150px;" placeholder="请输入国家名称">
+                    </div>
+
+                    <div  style="margin-bottom: 10px;">
+                        <span>人名：</span>
+                        <input type="text" name="username" value="{$Think.get.username}" class="input-text" style="width: 150px;" placeholder="请输入客户姓名">
+                    </div>
+
+
+                    <div class="clearFloat"></div>
+
+                </div>
+
+                <div class="filter-wrap" style="overflow: hidden;float:left;width: 80px;">
+
+
+                    <div  style="margin-bottom: 10px;">
+                        <a class="btn btn-primary" href="/admin/admin/down_load" target="_blank">下载</a>
+                    </div>
+
+
+                    <div  style="margin-bottom: 10px;">
+                        <a class="btn btn-danger" href="/admin/customer">重置</a>
+                    </div>
+
+
+                    <div  style="margin-bottom: 10px;">
+                        <button class="btn btn-success">搜索</button>
+                    </div>
+            </form>
+
+
+            <div class="clearFloat"></div>
+
+    </div>
+
+
+    <!----------------------------------下面是table------------------------------------------------>
+    <br>
+
+    <div class="mt-20">
+        <table class="table table-border table-bordered table-bg table-hover table-sort">
+            <thead>
+            <tr class="text-c">
+                <!--                        <th width="40">序号</th>-->
+                <th >姓名</th>
+                <th >性别</th>
+                <th >email</th>
+                <th >电话</th>
+                <th >国家</th>
+                <th >城市</th>
+                <th >住址</th>
+                <th >货币</th>
+            </tr>
+            </thead>
+            <tbody>
+            {volist name="data" id="vo" key="k"}
+            <tr class="text-c">
+
+                <td >{$vo.first_name}{$vo.last_name}</td>
+                <td>{$vo.rbsex}</td>
+                <td>{$vo.email|default="Unknown"}</td>
+                <td>{$vo.phone|default="Unknown"}</td>
+                <td>{$vo.country|default="Unknown"}</td>
+                <td>{$vo.city|default="Unknown"}</td>
+                <td>{$vo.address|default="Unknown"}</td>
+                <td>{$vo.currency|default="Unknown"}</td>
+
+            </tr>
+            </tbody>
+            {/volist}
+        </table>
+    </div>
+    <style>
+        .pagination
+        {
+            width: auto;
+            margin-top: 15px;
+            margin-left: 33%;
+            text-align: center;
+        }
+        .pagination li{
+
+            float: left!important;
+            height: 34px;
+            line-height: 34px;
+            font-weight: 700;
+            padding: 2px 8px;
+            margin:0 5px;
+            background: #182d61;
+            border-radius: 8px;
+            color: #fff;
+        }
+        .pagination li a{
+            color: #fff;
+            text-decoration: none;
+        }
+        .pagination li span{
+            color: grey;
+        }
+        .pagination li:nth-child(1){
+            width: auto!important;
+        }
+    </style>
+    {$page}
+
+
+
+    </article>
+    </div>
+</section>
+
+{include file="public/footer" /}
+
+<script>
+    //displaynavbar("pngfix");
+    function orderPass(id) {
+        // window.location.href = '/admin/admin/shoppingcart.html'+'?id='+id;
+        window.open('/admin/admin/shoppingcart.html'+'?id='+id,"_blank");
+    }
+
+
+
+</script>

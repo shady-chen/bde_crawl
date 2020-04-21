@@ -2,6 +2,7 @@
 
 
 <section class="Hui-article-box">
+
 	<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页
 		<span class="c-gray en">&gt;</span>
 		资讯管理
@@ -36,7 +37,9 @@
 					<tr class="text-c">
 
 							<td></td>
-							<td class=""><u style="cursor:pointer" class="text-primary" onclick="article_edit()" title="查看">{$vo.domain}</u></td>
+							<td class="">
+								<a style="cursor:pointer" class="text-primary"  href="/admin/admin/order_list.html?domain={$vo.domain}" target="_blank" title="查看">{$vo.domain}</a>
+							</td>
 							<td>{$vo.create_time|date='y-m-d H:i:s',###}</td>
 							<td class="td-status">
 								{switch name="vo.state" }
