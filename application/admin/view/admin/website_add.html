@@ -1,12 +1,26 @@
 {include file="public/head" /}
 <section class="Hui-article-box">
 	<article class="page-container">
+
 		<form class="form form-horizontal" id="form-article-add">
 			<input type="hidden" value="{$data.id}" id="notice_id">
+
+			<div class="row cl" style="margin-top: 20px;">
+				<label class="form-label col-xs-4 col-sm-2"></label>
+				<div class="formControls col-xs-8 col-sm-9">
+					<p>1:请输入域名，带不带http(s)://都可以...</p>
+					<p>2:如需添加多个域名，请用逗号隔开</p>
+					<p>3:例如： www.baidu.com,wwww.google.com</p>
+					<p>4:修改域名时，不支持同时添加域名，修改就只能修改一个，添加时可添加多个域名</p>
+				</div>
+
+			</div>
 			<div class="row cl">
 				<label class="form-label col-xs-4 col-sm-2">域名：</label>
 				<div class="formControls col-xs-8 col-sm-9">
-					<input type="text" class="input-text" value="{$data.domain}" placeholder="请输入域名，带不带http(s)://都可以..."  name="" id="notice_title">
+					<textarea  class="input-text"  id="notice_title" style="height: 500px;">
+						{$data.domain}
+					</textarea>
 					<input type="hidden" value="{$data.id}">
 				</div>
 			</div>
@@ -29,6 +43,8 @@
 {include file="public/footer" /}
 
 <script>
+	$('#notice_title').val($('#notice_title').val().replace(/\s*/g,""));
+
 	function release() {
 
 

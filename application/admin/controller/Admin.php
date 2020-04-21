@@ -699,17 +699,22 @@ class Admin extends Base
         {
             $domain = str_replace("https://","",$domain);
             $domain = str_replace("http://","",$domain);
-            if(db('website_list')->where(['domain'=>$domain])->find())
+            $domain = explode(",",$domain);
+            foreach ($domain as $key=>$value)
             {
-                $return_data = ['status'=>500,'msg'=>'已存在!'];
-            }
-            else
-            {
-                $res = db('website_list')->insert(['domain'=>$domain,'uid'=>0,'create_time'=>time()]);
-                if($res)
+                if(db('website_list')->where(['domain'=>$value])->find())
                 {
-                    $return_data = ['status'=>200,'msg'=>'添加成功'];
+                    $return_data = ['status'=>500,'msg'=>'已存在!'];
                 }
+                else
+                {
+                    $res = db('website_list')->insert(['domain'=>$value,'uid'=>0,'create_time'=>time()]);
+                    if($res)
+                    {
+                        $return_data = ['status'=>200,'msg'=>'添加成功'];
+                    }
+                }
+
             }
 
 
