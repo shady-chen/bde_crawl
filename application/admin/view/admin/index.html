@@ -1,5 +1,20 @@
 ﻿{include file="public/head" /}
-
+<style>
+    .layui-bg-blue
+    {
+        color: #01AAED;
+    }
+    td,th{
+        font-size: 12px;
+    }
+    .label{
+        padding: 5px 6px;
+    }
+    .line-p
+    {
+        margin-bottom: 8px;
+    }
+</style>
 <section class="Hui-article-box">
     <nav class="breadcrumb"><i class="Hui-iconfont"></i> <a href="/" class="maincolor">首页</a>
         <span class="c-999 en">&gt;</span>
@@ -9,43 +24,91 @@
     <div class="Hui-article">
         <article class="cl pd-20">
 
-            <table class="table table-border table-bordered table-bg">
+            <table class="table table-border table-bordered table-striped table-bg" >
                 <thead>
                 <tr>
                     <th colspan="7" scope="col">信息统计</th>
                 </tr>
-                <tr class="text-c">
-                    <th>统计</th>
-                    <th>网站数量</th>
-                    <th>数据数量</th>
-
+                <tr class="text-l">
+                    <th>网站网址</th>
+                    <th>今日订单数量</th>
+                    <th>昨日订单数量</th>
+                    <th>网站订单数量</th>
                 </tr>
                 </thead>
-                <tbody>
-                <tr class="text-c">
-                    <td>总数</td>
-                    <td>{$website_count}</td>
-                    <td>{$file_count}</td>
+                <tbody style="font-size: 16px;">
+                {volist name="data" id="item" key='k'}
+                    <tr class="text-l">
+                        <td>
+                            <a href="htpp://{$item.domain}" class="layui-bg-blue" target="_blank">
+                                {$item.domain}
+                            </a>
+                        </td>
+                        <!--今日的-->
+                        <td>
+                            <p class="line-p">
+                                订单数量：<b class="label label-default radius">{$item.total_amount_today}</b>
+                                成功数量：<b class="label label-default radius">{$item.success_amount_today}</b>
+                                成功金额：<b class="label label-default radius">{$item.success_money_today}</b>
+                            </p>
+                        </td>
+                        <!--昨日的-->
+                        <td>
+                            <p class="line-p">
+                                订单数量：<b class="label label-default radius">{$item.total_amount_yesterday}</b>
+                                成功数量：<b class="label label-default radius">{$item.success_amount_yesterday}</b>
+                                成功金额：<b class="label label-default radius">{$item.success_money_yesterday}</b>
+                            </p>
+                        </td>
 
+                        <!--所有的-->
+                        <td>
+                            <p class="line-p">
+                                订单数量：<b class="label label-default radius">{$item.total_amount}</b>
+                                成功数量：<b class="label label-default radius">{$item.success_amount}</b>
+                                成功金额：<b class="label label-default radius">{$item.success_money}</b>
+                            </p>
+                        </td>
+                    </tr>
+                {/volist}
+
+                <tr class="text-l">
+                    <td>
+                        <a  class="" target="_blank">
+                            统计：网站共有{$statistics.domain_amount}个
+                        </a>
+                    </td>
+                    <!--今日的-->
+                    <td>
+                        <p class="line-p">
+                            订单数量：<b class="label label-default radius">{$statistics.all_website_amount_today}</b>
+                            成功数量：<b class="label label-default radius">{$statistics.all_website_success_amount_today}</b>
+                            成功金额：<b class="label label-default radius">{$statistics.all_website_success_money_today}</b>
+                        </p>
+                    </td>
+                    <!--昨日的-->
+                    <td>
+                        <p class="line-p">
+                            订单数量：<b class="label label-default radius">{$statistics.all_website_amount_yesterday}</b>
+                            成功数量：<b class="label label-default radius">{$statistics.all_website_success_amount_yesterday}</b>
+                            成功金额：<b class="label label-default radius">{$statistics.all_website_success_money_yesterday}</b>
+                        </p>
+                    </td>
+
+                    <!--所有的-->
+                    <td>
+                        <p class="line-p">
+                            订单数量：<b class="label label-default radius">{$statistics.all_website_amount}</b>
+                            成功数量：<b class="label label-default radius">{$statistics.all_website_success_amount}</b>
+                            成功金额：<b class="label label-default radius">{$statistics.all_website_success_money}</b>
+                        </p>
+                    </td>
                 </tr>
-<!--                <tr class="text-c">-->
-<!--                    <td>今日</td>-->
-<!--                    <td></td>-->
-<!--                    <td></td>-->
-<!--                    <td></td>-->
-<!--                    <td></td>-->
-<!--                </tr>-->
-<!--                <tr class="text-c">-->
-<!--                    <td>昨日</td>-->
-<!--                    <td></td>-->
-<!--                    <td></td>-->
-<!--                    <td></td>-->
-<!--                    <td></td>-->
-
-<!--                </tr>-->
 
                 </tbody>
             </table>
+
+
 
 
           <!--  <table class="table table-border table-bordered table-bg mt-20">

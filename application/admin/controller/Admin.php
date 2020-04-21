@@ -27,10 +27,113 @@ class Admin extends Base
      */
     public function index()
     {
-        $website_count = db('website_list')->count();
-        $file_count = db('file_name')->count();
-        $this->assign('website_count',$website_count);
-        $this->assign('file_count',$file_count);
+        $data = [];
+        $statistics = [
+            'domain_amount'=>0,
+            'all_website_amount'=>0,
+            'all_website_amount_today'=>0,
+            'all_website_amount_yesterday'=>0,
+            'all_website_success_amount'=>0,
+            'all_website_success_amount_today'=>0,
+            'all_website_success_amount_yesterday'=>0,
+            'all_website_success_money'=>0,
+            'all_website_success_money_today'=>0,
+            'all_website_success_money_yesterday'=>0,
+        ];
+
+        //1找出网站的列表
+        $website_list = db('website_list')->where(['state'=>1])->column('domain');
+        //$website_list = db('website_list')->where(['state'=>1])->select();
+
+        //去order中找总数量和成功的数量
+        for($i=0;$i<count($website_list);$i++)
+        {
+            //订单总数量
+            $total_amount = db('order')->where('data_from','=',$website_list[$i])->count();
+            $total_amount_today = db('order')
+                ->whereTime('finished_time','today')
+                ->where('data_from','=',$website_list[$i])
+                ->count();
+
+            $total_amount_yesterday = db('order')
+                ->whereTime('finished_time','yesterday')
+                ->where('data_from','=',$website_list[$i])
+                ->count();
+
+
+            //成功订单的数量
+            $success_amount = db('order')->where(['data_from'=>$website_list[$i],'order_state'=>'Success'])->count();
+            $success_amount_today = db('order')
+                ->whereTime('finished_time','today')
+                ->where(['data_from'=>$website_list[$i],'order_state'=>'Success'])
+                ->count();
+            $success_amount_yesterday = db('order')
+                ->whereTime('finished_time','yesterday')
+                ->where(['data_from'=>$website_list[$i],'order_state'=>'Success'])
+                ->count();
+
+
+
+
+
+
+            //成功订单的总金额
+            $success_money = db('order')->where(['data_from'=>$website_list[$i],'order_state'=>'Success'])->sum('total');
+            $success_money_today = db('order')
+                ->whereTime('finished_time','today')
+                ->where(['data_from'=>$website_list[$i],'order_state'=>'Success'])
+                ->sum('total');
+            $success_money_yesterday = db('order')
+                ->whereTime('finished_time','yesterday')
+                ->where(['data_from'=>$website_list[$i],'order_state'=>'Success'])
+                ->sum('total');
+
+
+
+            $data[$i] = [
+                'domain'=>$website_list[$i],
+
+                'total_amount'=>$total_amount,
+                'total_amount_today'=>$total_amount_today,
+                'total_amount_yesterday'=>$total_amount_yesterday,
+
+                'success_amount'=>$success_amount,
+                'success_amount_today'=>$success_amount_today,
+                'success_amount_yesterday'=>$success_amount_yesterday,
+
+                'success_money'=>$success_money,
+                'success_money_today'=>$success_money_today,
+                'success_money_yesterday'=>$success_money_yesterday,
+
+
+            ];
+
+            $statistics['all_website_amount'] += $total_amount;
+            $statistics['all_website_amount_today'] += $total_amount_today;
+            $statistics['all_website_amount_yesterday'] += $total_amount_today;
+
+            $statistics['all_website_success_amount'] += $success_amount;
+            $statistics['all_website_success_amount_today'] += $success_amount_today;
+            $statistics['all_website_success_amount_yesterday'] += $success_amount_yesterday;
+
+            $statistics['all_website_success_money'] += $success_money;
+            $statistics['all_website_success_money_today'] += $success_money_today;
+            $statistics['all_website_success_money_yesterday'] += $success_money_yesterday;
+
+            $statistics['domain_amount'] ++;
+
+
+        }
+
+
+
+
+
+
+        $this->assign('data',$data);
+        $this->assign('statistics',$statistics);
+
+
         return $this->fetch();
     }
 
@@ -129,7 +232,10 @@ class Admin extends Base
     }
 
 
-
+    /**
+     * down_loan页面
+     * @return mixed
+     */
     public function down_load()
     {
 
@@ -159,13 +265,31 @@ class Admin extends Base
         $response = [
             'data'=>$data,
             'total_count'=>$total_count,//总条数
-            'all'=>intval($total_count/$NumberOfPages) + 1,//总页数
+          //  'all'=>intval($total_count/$NumberOfPages)==1?1:intval($total_count/$NumberOfPages) + 1,//总页数
             'pageNum'=>$CurrentPage,//当前页数
             'totalPage'=>count($website_list),//当前页数
 
         ];
+        if($total_count <= $NumberOfPages)
+        {
+            $response['all'] = 1;
+        }
+        else
+        {
+            if($total_count%$NumberOfPages == 0)
+            {
+                $response['all'] = $total_count/$NumberOfPages;
+            }
+            else
+            {
+                $response['all'] = intval($total_count/$NumberOfPages)+ 1;//总页数
+            }
+
+        }
+
         return $response;
     }
+
 
     /**
      * 1:检测目录下有多少文件
@@ -206,7 +330,11 @@ class Admin extends Base
         return $return_data;
     }
 
-
+    /**
+     * curl
+     * @param $url
+     * @return bool|string
+     */
     public function getData($url)
     {
 
@@ -435,6 +563,7 @@ class Admin extends Base
             unset($shopping_cart['total']);
             unset($shopping_cart['orderid']);
             $order['shopping_cart'] = json_encode($shopping_cart);
+
             foreach ($shopping_cart as $k=>$v)
             {
                 $product_keyword .= $v['productname']." ";
@@ -477,7 +606,11 @@ class Admin extends Base
     }
 
 
-
+    /**
+     * 网站列表的页面
+     * @return mixed
+     * @throws \think\exception\DbException
+     */
     public function website_list()
     {
         $data = db('website_list')->where(['state'=>1])->paginate(10,false,['type'=>'BootstrapDetail',]);
@@ -486,6 +619,11 @@ class Admin extends Base
         return $this->fetch();
     }
 
+    /**
+     * 恢复已删除网站列表的页面
+     * @return mixed
+     * @throws \think\exception\DbException
+     */
     public function website_recover()
     {
 
@@ -496,6 +634,16 @@ class Admin extends Base
         return $this->fetch();
     }
 
+
+    /**
+     * 更新网站列表的API
+     * @return array
+     * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @throws \think\exception\PDOException
+     */
     public function updateStateWebsite()
     {
         $return_data = ['status'=>0,'msg'=>'更新失败'];
@@ -518,7 +666,13 @@ class Admin extends Base
     }
 
 
-
+    /**
+     * 添加网站的页面
+     * @return mixed
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
     public function website_add()
     {
         $website_id = $this->request->param('id');
@@ -527,6 +681,15 @@ class Admin extends Base
         return $this->fetch();
     }
 
+    /**
+     * 保存网站列表的API
+     * @return array
+     * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @throws \think\exception\PDOException
+     */
     public function saveWebsiteDomain()
     {
         $return_data = ['status'=>0,'msg'=>'更新失败'];
