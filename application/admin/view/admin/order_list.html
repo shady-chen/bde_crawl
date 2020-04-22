@@ -1,19 +1,26 @@
 ﻿{include file="public/head" /}
 <script src="/static/lib/My97DatePicker/4.8/WdatePicker.js"></script>
 <style>
-    .username{
+    .username {
         font-size: 16px;
         font-weight: 700;
         color: #0a6999;
     }
-    .filter-wrap
-    {
+
+    .filter-wrap {
         width: 100%;
 
     }
-    .Hui-article
-    {
+
+    .Hui-article {
         top: 0;
+    }
+
+    td, tr {
+        font-size: 12px;
+    }
+    .table td{
+        padding: 0;
     }
 </style>
 
@@ -21,118 +28,131 @@
 
     <div class="Hui-article">
         <article class="cl pd-20">
+<!--**********************************搜索条件*********************************************************************************-->
 
             <form action="">
-            <div class="filter-wrap" style="overflow: hidden;float:left;width: 230px;">
-                <div  style="width: 230px;margin-bottom: 10px; ">
-                     <span>域名：</span>
-                     <select name="domain"  class="select" style="width: 150px;" >
-                        <option value="">请选择</option>
-                        {volist name='website_list' id='item' }
+                <div class="filter-wrap" style="overflow: hidden;float:left;width: 230px;">
+                    <div style="width: 230px;margin-bottom: 10px; ">
+                        <span>域名：</span>
+                        <select name="domain" class="select" style="width: 150px;">
+                            <option value="">请选择</option>
+                            {volist name='website_list' id='item' }
 
-                        <option value="{$item.domain}" {if $Think.get.domain == $item.domain} selected {/if}  > {$item.domain}</option>
-                        {/volist}
-                     </select>
+                            <option value="{$item.domain}" {if $Think.get.domain== $item.domain} selected {/if} > {$item.domain}</option>
+                            {/volist}
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: 10px;">
+                        <span>国家：</span>
+                        <input type="text" name="country" value="{$Think.get.country}" class="input-text"
+                               style="width: 150px;" placeholder="请输入国家名称">
+                    </div>
+
+                    <div style="margin-bottom: 10px;">
+                        <span>人名：</span>
+                        <input type="text" name="username" value="{$Think.get.username}" class="input-text"
+                               style="width: 150px;" placeholder="请输入客户姓名">
+                    </div>
+                    <div class="clearFloat"></div>
+
+                </div>
+                <div class="filter-wrap" style="overflow: hidden;float:left;width: 230px;">
+                    <div style="width: 230px;margin-bottom: 10px; ">
+                        <span>状态：</span>
+                        <select name="state" class="select" style="width: 150px;">
+                            <option value="" {if $Think.get.state == ''} selected {/if} >请选择</option>
+                            <option value="Success" {if $Think.get.state == 'Success'} selected {/if} >成功</option>
+                            <option value="Fail" {if $Think.get.state == 'Fail'} selected {/if} >失败</option>
+                            <option value="Unknown" {if $Think.get.state == 'Unknown'} selected {/if} >未知</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: 10px;">
+                        <span>付款：</span>
+                        <input type="text" name="pay_way" value="{$Think.get.pay_way}" class="input-text"
+                               style="width: 150px;" placeholder="请输入付款方式">
+                    </div>
+
+                    <div style="margin-bottom: 10px;">
+                        <span>产品：</span>
+                        <input type="text" name="product_name" value="{$Think.get.product_name}" class="input-text"
+                               style="width: 150px;" placeholder="请输入产品名称">
+                    </div>
+                    <div class="clearFloat"></div>
+
                 </div>
 
-                <div  style="margin-bottom: 10px;">
-                    <span>国家：</span>
-                    <input type="text" name="country" value="{$Think.get.country}"  class="input-text" style="width: 150px;" placeholder="请输入国家名称">
+                <div class="filter-wrap" style="overflow: hidden;float:left;width: 230px;">
+
+                    <div style="margin-bottom: 10px;">
+                        <span>开始：</span>
+
+                        <input type="text" name="start_time" value="{$Think.get.start_time}" onfocus="WdatePicker()"
+                               id="start" class="input-text Wdate" style="width:150px;">
+                    </div>
+
+                    <div style="margin-bottom: 10px;">
+                        <span>结束：</span>
+                        <input type="text" name="end_time" value="{$Think.get.end_time}" onfocus="WdatePicker()"
+                               id="end" class="input-text Wdate" style="width:150px;">
+                    </div>
+
+                    <div class="clearFloat"></div>
+
                 </div>
 
-                <div  style="margin-bottom: 10px;">
-                    <span>人名：</span>
-                    <input type="text" name="username" value="{$Think.get.username}" class="input-text" style="width: 150px;" placeholder="请输入客户姓名">
-                </div>
+                <div class="filter-wrap" style="overflow: hidden;float:left;width: 80px;">
 
 
-                <div class="clearFloat"></div>
-
-            </div>
-
-            <div class="filter-wrap" style="overflow: hidden;float:left;width: 230px;">
-
-                <div  style="margin-bottom: 10px;">
-                    <span>产品：</span>
-                    <input type="text" name="product_name" value="{$Think.get.product_name}" class="input-text" style="width: 150px;" placeholder="请输入产品名称">
-                </div>
-
-                <div  style="margin-bottom: 10px;">
-                    <span>开始：</span>
-
-                    <input type="text" name="start_time" value="{$Think.get.start_time}" onfocus="WdatePicker()" id="start" class="input-text Wdate" style="width:150px;">
-                </div>
-
-                <div  style="margin-bottom: 10px;">
-                    <span>结束：</span>
-                    <input type="text" name="end_time" value="{$Think.get.end_time}" onfocus="WdatePicker()" id="end" class="input-text Wdate" style="width:150px;">
-                </div>
-
-                <div class="clearFloat"></div>
-
-            </div>
-
-            <div class="filter-wrap" style="overflow: hidden;float:left;width: 80px;">
+                    <div style="margin-bottom: 10px;">
+                        <a class="btn btn-primary" href="/admin/admin/down_load" target="_blank">下载</a>
+                    </div>
 
 
-                <div  style="margin-bottom: 10px;">
-                    <a class="btn btn-primary" href="/admin/admin/down_load" target="_blank">下载</a>
-                </div>
+                    <div style="margin-bottom: 10px;">
+                        <a class="btn btn-danger" href="/admin/admin/order_list">重置</a>
+                    </div>
 
 
-                <div  style="margin-bottom: 10px;">
-                    <a class="btn btn-danger" href="/admin/admin/order_list">重置</a>
-                </div>
-
-
-                <div  style="margin-bottom: 10px;">
-                    <button class="btn btn-success">搜索</button>
+                    <div style="margin-bottom: 10px;">
+                        <button class="btn btn-success">搜索</button>
+                    </div>
                 </div>
             </form>
 
-
-                <div class="clearFloat"></div>
-
-            </div>
-
-
-
+            <div class="clearFloat"></div>
 
 
             <div class="filter-wrap" style="overflow: hidden;float:left;width: 530px;">
 
-                <div  style="margin-bottom: 10px;">
+                <div style="margin-bottom: 10px;">
                     <div class="pagination">{$page}</div>
                 </div>
-
 
 
                 <div class="clearFloat"></div>
 
             </div>
+<!--**********************************搜索条件/********************************************************************************-->
 
-
-
-
-
-            <!----------------------------------下面是table------------------------------------------------>
-            <br>
-
+<!--**********************************数据********************************************************************************-->
             <div class="mt-20">
                 <table class="table table-border table-bordered table-bg table-hover table-sort">
                     <thead>
                     <tr class="text-c">
-<!--                        <th width="40">序号</th>-->
-                        <th >订单号</th>
-                        <th >付款时间</th>
-                        <th >订单状态</th>
-                        <th >下单产品</th>
-                        <th >运费</th>
-                        <th >总价</th>
-                        <th >客户信息</th>
-                        <th >下单网站</th>
-                        <th >客户电话</th>
-                        <th >付款方式</th>
+                        <!--                        <th width="40">序号</th>-->
+                        <th>订单号</th>
+                        <th>下单时间</th>
+                        <th>付款时间</th>
+                        <th>订单状态</th>
+                        <th>下单产品</th>
+                        <th>运费</th>
+                        <th>总价</th>
+                        <th>客户信息</th>
+                        <th>下单网站</th>
+                        <th>客户电话</th>
+                        <th>付款方式</th>
 
 
                     </tr>
@@ -140,51 +160,40 @@
                     <tbody>
                     {volist name="data" id="vo" key="k"}
                     <tr class="text-c">
-
-                        <td >{$vo.order_id|default="unknown"}</td>
-
+                        <td>{$vo.order_id|default="unknown"}</td>
+                        <td>{$vo.order_time|default="unknown"}</td>
                         <td>{$vo.finished_time|default="unknown"}</td>
-
                         <td>{$vo.order_state|default="unknown"}</td>
-
                         <!--这是购物车的内容 要完整的-->
                         <td class="text-l">
                             {volist name="vo.product" id="v" key="key"}
-                            <div style="height: 120px;">
-                                <div style="height: 120px;width: 120px;float:left;">
-                                    <img src="{$v.imgurl}" alt="" style="width: 100px;height: 100px;">
+                            <div style="width: 100%;margin-bottom: 5px;overflow: hidden">
+                                <div style="overflow: hidden;float:left;margin-right: 15px;">
+                                    <img src="{$v.imgurl}" alt="" style="width: 70px;height: 70px;border-radius: 5px;">
                                 </div>
-                                <div style="height: 120px;float:left;width: 300px;">
-                                        <p style="margin-bottom:5px;">产品名称：{$v.productname}</p>
-                                        <p style="margin-bottom:5px;">产品单价：{$v.productprice}</p>
-                                        <p style="margin-bottom:5px;">购买数量：{$v.quantity}</p>
+                                <div style="float:left;width: 280px;">
+                                    <p style="margin-bottom:5px;"> 产品名称: <strong>{$v.productname}</strong></p>
+                                    <p style="margin-bottom:5px;">产品单价: <strong>{$v.productprice}</strong> 购买数量: <strong>{$v.quantity}</strong>
+                                    </p>
                                 </div>
                             </div>
                             {/volist}
-
                         </td>
-
                         <!--运费-->
-                        <td>
-                            {$vo.freight}
-                        </td>
-
+                        <td>{$vo.freight}</td>
                         <!--总价-->
-                        <td>
-                               <b style="color: red;">{$vo.total|default="Unknown"}</b>
-                        </td>
-
+                        <td><b style="color: red;">{$vo.total|default="Unknown"}</b></td>
                         <!--这是客户的信息-->
                         <td class="text-l">
-                            <p>姓名：{$vo.first_name}{$vo.last_name}    </p>
-                            <p>性别：{$vo.rbsex}   </p>
+                            <p>姓名：{$vo.first_name}{$vo.last_name} </p>
+                            <p>性别：{$vo.rbsex} </p>
                             <p>邮箱：
-                                <a href="/admin/admin/onePerson?contentId={$vo.id}" target="_blank" style="color: #0a6999" >
+                                <a href="/admin/admin/onePerson?contentId={$vo.id}" target="_blank" style="color: #0a6999">
                                     {$vo.email|default="Unknown"}
                                 </a>
                             </p>
-                            <p>国家：{$vo.country}      </p>
-                            <p>住址：{$vo.address}      </p>
+                            <p>国家：{$vo.country} </p>
+                            <p>住址：{$vo.address} </p>
                         </td>
                         <td>{$vo.website}</td>
                         <td>{$vo.phone}</td>
@@ -195,8 +204,7 @@
                     {/volist}
                 </table>
             </div>
-
-
+<!--**********************************数据/********************************************************************************-->
 
         </article>
     </div>
@@ -205,12 +213,10 @@
 {include file="public/footer" /}
 
 <script>
-    //displaynavbar("pngfix");
-    function orderPass(id) {
-        // window.location.href = '/admin/admin/shoppingcart.html'+'?id='+id;
-        window.open('/admin/admin/shoppingcart.html'+'?id='+id,"_blank");
-    }
 
+    function orderPass(id) {
+        window.open('/admin/admin/shoppingcart.html' + '?id=' + id, "_blank");
+    }
 
 
 </script>
