@@ -1,4 +1,4 @@
-﻿{include file="public/head" /}
+{include file="public/head" /}
 <script src="/static/lib/My97DatePicker/4.8/WdatePicker.js"></script>
 <style>
     .username {
@@ -28,7 +28,7 @@
 
     <div class="Hui-article">
         <article class="cl pd-20">
-<!--**********************************搜索条件*********************************************************************************-->
+            <!--**********************************搜索条件*********************************************************************************-->
 
             <form action="">
                 <div class="filter-wrap" style="overflow: hidden;float:left;width: 230px;">
@@ -85,17 +85,27 @@
 
                 <div class="filter-wrap" style="overflow: hidden;float:left;width: 230px;">
 
-                    <div style="margin-bottom: 10px;">
+                    <div class="mb-10">
                         <span>开始：</span>
 
                         <input type="text" name="start_time" value="{$Think.get.start_time}" onfocus="WdatePicker()"
                                id="start" class="input-text Wdate" style="width:150px;">
                     </div>
 
-                    <div style="margin-bottom: 10px;">
+                    <div class="mb-10">
                         <span>结束：</span>
                         <input type="text" name="end_time" value="{$Think.get.end_time}" onfocus="WdatePicker()"
                                id="end" class="input-text Wdate" style="width:150px;">
+                    </div>
+
+
+                    <div class="mb-10">
+                        <a class="btn btn-primary f-l"
+                           href="/admin/order/outPutBeTxt?domain={$Think.get.domain}&country={$Think.get.country}&username={$Think.get.username}&state={$Think.get.state}&pay_way={$Think.get.pay_way}&product_name={$Think.get.product_name}&start_time={$Think.get.start_time}&end_time={$Think.get.end_time}"
+                           target="_blank">导出TXT</a>
+                        <a class="btn btn-primary f-l ml-30"
+                           href="/admin/order/outPutBeExcel?domain={$Think.get.domain}&country={$Think.get.country}&username={$Think.get.username}&state={$Think.get.state}&pay_way={$Think.get.pay_way}&product_name={$Think.get.product_name}&start_time={$Think.get.start_time}&end_time={$Think.get.end_time}"
+                           target="_blank">导出Excel</a>
                     </div>
 
                     <div class="clearFloat"></div>
@@ -106,7 +116,7 @@
 
 
                     <div style="margin-bottom: 10px;">
-                        <a class="btn btn-primary" href="/admin/admin/down_load" target="_blank">下载</a>
+                        <a class="btn btn-primary" href="/admin/admin/down_load" >更新</a>
                     </div>
 
 
@@ -134,9 +144,9 @@
                 <div class="clearFloat"></div>
 
             </div>
-<!--**********************************搜索条件/********************************************************************************-->
+            <!--**********************************搜索条件/********************************************************************************-->
 
-<!--**********************************数据********************************************************************************-->
+            <!--**********************************数据********************************************************************************-->
             <div class="mt-20">
                 <table class="table table-border table-bordered table-bg table-hover table-sort">
                     <thead>
@@ -204,7 +214,7 @@
                     {/volist}
                 </table>
             </div>
-<!--**********************************数据/********************************************************************************-->
+            <!--**********************************数据/********************************************************************************-->
 
         </article>
     </div>
