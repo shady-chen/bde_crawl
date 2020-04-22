@@ -48,7 +48,7 @@
 
 
                     <div  style="margin-bottom: 10px;">
-                        <a class="btn btn-primary" href="/admin/admin/test" target="_blank">下载</a>
+                        <a class="btn btn-primary" href="/admin/customer/test" target="_blank">下载</a>
                     </div>
 
 
@@ -89,7 +89,6 @@
             <tbody>
             {volist name="data" id="vo" key="k"}
             <tr class="text-c">
-
                 <td >{$vo.first_name}{$vo.last_name}</td>
                 <td>{$vo.rbsex}</td>
                 <td>{$vo.email|default="Unknown"}</td>
@@ -98,7 +97,6 @@
                 <td>{$vo.city|default="Unknown"}</td>
                 <td>{$vo.address|default="Unknown"}</td>
                 <td>{$vo.currency|default="Unknown"}</td>
-
             </tr>
             </tbody>
             {/volist}
@@ -137,8 +135,6 @@
     </style>
     {$page}
 
-
-
     </article>
     </div>
 </section>
@@ -146,9 +142,7 @@
 {include file="public/footer" /}
 
 <script>
-    //displaynavbar("pngfix");
     function orderPass(id) {
-        // window.location.href = '/admin/admin/shoppingcart.html'+'?id='+id;
         window.open('/admin/admin/shoppingcart.html'+'?id='+id,"_blank");
     }
 

@@ -2,13 +2,10 @@
 <script src="/static/vue.js"></script>
 <script src="/static/vue_ajax.js"></script>
 <style>
-
     /*分页*/
     .page-bar{
         margin-top:15px;
-
         margin-left: 27%;
-
     }
     ul,li{
         margin: 0px;
@@ -71,7 +68,6 @@
                         </tr>
                     </thead>
                     <tbody class="be_append text-c">
-
                         <tr v-for="(item,key) in website_list ">
                             <td>{{key+1}}</td>
                             <td>{{item.domain}}</td>
@@ -85,7 +81,6 @@
                                 <button v-if="!item.flag" style="cursor:not-allowed" disabled readonly class="btn btn-secondary-outline">下载</button>
                             </td>
                         </tr>
-
                         <tr >
                             <td>统计</td>
                             <td>共有{{domain_count}}个网站</td>
@@ -101,12 +96,9 @@
                                 <button class="btn btn-secondary" v-on:click="downLoadData('all',-1)">全部下载</button>
                             </td>
                         </tr>
-
-
                     </tbody>
                 </table>
             </div>
-
             <!--分页-->
             <div class="page-bar">
                 <ul>
@@ -121,7 +113,6 @@
                     <li><a>共<i>{{page_total_count}}</i>条</a></li>
                 </ul>
             </div>
-
         </article>
     </div>
 </section>
@@ -157,7 +148,6 @@
             total_new_file_count:0,//本次扫描新增的总数量
             total_count:0,//全部站数量的总和 = 每个站的的相加
             total_downloaded_count:0,//已下载数量的总和 = 每个站已下载的相加
-
             all: 10, //总页数
             cur: 1,//当前页码
             totalPage: 0,//当前条数
@@ -169,7 +159,6 @@
                 get: function (cp) {
                     //发送get请求
                     this.$http.get('/admin/admin/down_load_data?nop='+this.nop+'&cp='+cp).then(function (res) {
-
                         //init the data
                         this.website_list = [];
                         this.domain_count = 0;
@@ -179,18 +168,13 @@
                         this.total_new_file_count = 0;
                         this.total_count = 0;
                         this.total_downloaded_count = 0;
-
-
-
                         this.website_list = res.body.data;
                         this.domain_count = res.body.data.length;
-
                         //总页数
                         this.all = res.body.all;
                         this.cur = res.body.pageNum;
                         this.totalPage = res.body.totalPage;
                         this.page_total_count = res.body.total_count;
-
                         for (let i = 0; i < this.website_list.length; i++)
                         {
                                 this.website_list[i]['status'] = '检测中......';
@@ -226,10 +210,7 @@
                                 {
                                     this.website_list[i]['status'] = '<span class="btn btn-danger">连通性：失败</span><br>';
                                 });
-
                             }
-
-
                         },
                         function ()
                         {
@@ -237,7 +218,6 @@
                         }
                     );
                 },
-
                 downLoadData: function (domain, k) {
                     if (domain == 'all' && k == -1) {
                         if (confirm('是否下载全部数据，这可能导致服务器负载过大而挂掉，建议您单个站下载哦')) {
@@ -255,10 +235,8 @@
                                         title: '下载结果',
                                         content: '总数量：' + result.count + '<br>下载量：' + result.download,
                                         yes: function (index) {
-
                                             win.location.href = "/admin/admin/down_load.html";
                                             layer.close(index); //如果设定了yes回调，需进行手工关闭
-
                                         }
                                     });
                                     //更新视图
@@ -297,8 +275,6 @@
                     }
 
                 },
-
-
                 //请求数据
                 dataListFn: function (index)
                 {
@@ -361,8 +337,6 @@
             }
     });
     vm.get(1);
-
-
     function classified()
     {
         $.ajax({'url':"/admin/admin/classifiedData"});
