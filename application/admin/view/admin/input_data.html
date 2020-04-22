@@ -1,0 +1,201 @@
+{include file="public/head" /}
+<style>
+.file-input
+{
+    height: auto;
+}
+.form{
+    height: 500px;
+    padding: 5px;
+    box-sizing: border-box;
+}
+.Hui-article-box
+{
+    overflow: auto;
+}
+</style>
+<section class="Hui-article-box">
+
+    <div class="file-input hide container codeView docs-example">
+        <form action="/admin/admin/receive" enctype="multipart/form-data" method="post" class="form form-horizontal">
+            <legend>导入订单</legend>
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-3">请选择您要导入的文件，一次性可以导入多个</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                <span class="btn-upload form-group">
+                    <input class="input-text upload-url radius" type="text" name="files"  readonly>
+                    <a  class="btn btn-primary radius"><i class="iconfont">&#xf0020;</i> 浏览文件</a>
+                    <input type="file" multiple name="files[]" class="input-file">
+                 </span>
+                </div>
+            </div>
+            <div class="row cl">
+                <div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+                    <input type="submit" class="btn btn-success" value="提交">
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+
+    <div class="txt-input hide container codeView docs-example" style="padding: 0">
+        <form action="/admin/admin/receiveTxt" enctype="multipart/form-data" method="post" class="form form-horizontal">
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-3">客户姓名</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="text" name="all_name" required class="input-text" autocomplete="off" placeholder="输入全名">
+                </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-3">客户性别</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <span class="select-box">
+                        <select class="select" size="1" name="rbsex">
+                            <option value="男" selected="">男</option>
+                            <option value="男" >男</option>
+
+                        </select>
+                    </span>
+                </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-3">客户邮箱</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="text" name="email" required class="input-text" autocomplete="off" placeholder="客户邮箱">
+                </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-3">客户电话</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="text" name="phone" required class="input-text" autocomplete="off" placeholder="客户电话">
+                </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-3">客户国家</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="text" name="country" required class="input-text" autocomplete="off" placeholder="客户国家">
+                </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-3">所在城市</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="text" name="city" required class="input-text" autocomplete="off" placeholder="所在城市">
+                </div>
+            </div>
+
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-3">街道住址</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="text" name="address" required class="input-text" autocomplete="off" placeholder="街道住址">
+                </div>
+            </div>
+
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-3">使用货币</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="text" name="currency" required class="input-text" autocomplete="off" placeholder="使用货币">
+                </div>
+            </div>
+
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-3">订单状态</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <span class="select-box">
+                        <select class="select" size="1" name="order_state">
+                            <option value="Success" selected="">成功</option>
+                            <option value="Fail" >失败</option>
+                            <option value="Unknown" >未知</option>
+                        </select>
+                    </span>
+                </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-3">产品名称</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="text" name="product_keyword" required class="input-text" autocomplete="off" placeholder="输入产品关键词">
+                </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-3">运费</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="text" name="freight" required class="input-text" autocomplete="off" placeholder="输入运费">
+                </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-3">总价</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="text" name="total" required class="input-text" autocomplete="off" placeholder="输入总价">
+                </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-3">付款方式</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="text" name="pay_way" required class="input-text" autocomplete="off" placeholder="输入付款方式">
+                </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-3">客户来源网址</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="text" name="website" required class="input-text" autocomplete="off" placeholder="不带http://,直接添加，例如：www.baidu.com">
+                </div>
+            </div>
+
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-3">产品名称</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="text" name="product" required class="input-text" autocomplete="off" placeholder="产品全称">
+                </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-3">产品单价</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="text" name="product_price" required class="input-text" autocomplete="off" placeholder="产品单价">
+                </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-3">产品数量</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="text" name="product_amount" required class="input-text" autocomplete="off" placeholder="产品数量">
+                </div>
+            </div>
+            <div class="row cl">
+                <label class="form-label col-xs-4 col-sm-3">产品地址</label>
+                <div class="formControls col-xs-8 col-sm-9">
+                    <input type="text" name="product_img_url" required class="input-text" autocomplete="off" placeholder="产品地址,例如：http://www.baidu.com/1.jpg">
+                </div>
+            </div>
+
+
+
+            <div class="row cl">
+                <div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+                    <input type="submit" class="btn btn-success" value="提交">
+                </div>
+            </div>
+        </form>
+    </div>
+
+</section>
+
+{include file="public/footer" /}
+<script>
+    //eg1
+    layer.confirm('请选择要导入的方式？',
+        {
+            btn: ['手动', '上传', '都不'], //可以无限个按钮
+            yes: function (index, layero) {
+
+                $('.txt-input').removeClass('hide');
+                layer.closeAll();
+            },
+            btn2: function (index, layero) {
+                $('.file-input').removeClass('hide');
+                layer.closeAll();
+            },
+            btn3: function (index, layero) {
+                //按钮【按钮三】的回调
+                window.location.href = '/admin/admin/index';
+            }
+        });
+</script>

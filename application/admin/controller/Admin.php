@@ -547,4 +547,129 @@ class Admin extends Base
     }
 
 
+    /**
+     * @return mixed
+     */
+    public function inputData()
+    {
+        return $this->fetch();
+    }
+
+    /**
+     * 接收上传的文件
+     */
+    public function receive()
+    {
+        $files = request()->file('files');
+        foreach($files as $file){
+            // 移动到框架应用根目录/public/uploads/ 目录下
+            $info = $file->move(ROOT_PATH . 'public' . DS . 'uploads');
+            if($info){
+                //上传成功，爬虫去采集
+                $this->getFileContentByUpload($info->getFilename());
+            }else{
+                // 上传失败获取错误信息
+                echo $file->getError();
+            }
+        }
+
+        return $this->success('上传成功','/admin/order/index');
+
+    }
+
+    /**
+     * 处理上传的文件内容 写入数据库中
+     * @param $file_name
+     * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @throws \think\exception\PDOException
+     */
+    public function getFileContentByUpload($file_name)
+    {
+        //写入目录库
+        if (!db('file_name')->where(['file_name' => $file_name])->find()) {
+            db('file_name')->insert(['file_name' => $file_name, "belong" => $_SERVER['SERVER_NAME'], "create_time" => time()]);
+        }
+
+        //写入内容库
+        $content = $this->getData("http://" . $_SERVER['SERVER_NAME'] . "/uploads/" . date("Ymd") ."/" . $file_name);
+
+        if ($content) {
+            if (!db('order_content')->where(['file_name' => $file_name])->find()) {
+                db('order_content')->insert(['file_name' => $file_name, "belong" => $_SERVER['SERVER_NAME'], "content" => $content, "create_time" => time()]);
+                db('file_name')->where(['file_name' => $file_name])->update(['collected' => 1]);
+            }
+        }
+        //分类啦
+        $this->classifiedData();
+    }
+
+    /**
+     * 手动上传。。。
+     */
+    public function receiveTxt()
+    {
+        $param = request()->param();
+
+        //先写Customer库吧
+        $customer = [];
+        $customer['pid'] = 0;
+        $customer['first_name'] = $param['all_name'];
+        $customer['last_name'] = $param['all_name'];
+        $customer['all_name'] = $param['all_name'];
+        $customer['rbsex'] = $param['rbsex'];
+        $customer['email'] = $param['email'];
+        $customer['phone'] = $param['phone'];
+        $customer['country'] = $param['country'];
+        $customer['city'] = $param['city'];
+        $customer['address'] = $param['address'];
+        $customer['ip'] = "127.0.0.1";
+        $customer['currency'] = $param['all_name'];
+        $customer['txtpostcode'] = "888888";
+        $customer['birthday'] = "1999/12/12";
+        $customer['bill_name'] = $param['all_name'];
+        $customer['bill_country'] = $param['country'];
+        $customer['bill_city'] = $param['city'];
+        $customer['bill_address'] = $param['address'];
+        $customer['create_time'] = time();
+        $id = db('customer')->insert($customer,false,true);
+
+
+        //再写order库吧
+
+        $order = [];
+        $order['pid'] = 0;
+        $order['order_id'] = time() . rand(1111,9999);
+        $order['customer_id'] = $id;
+        $order['order_state'] = $param['order_state'];
+        $order['order_time'] = date("Y-m-d H:i:s");
+        $order['finished_time'] = date("Y-m-d H:i:s");
+        $order['product_keyword'] = $param['product_keyword'];
+        $order['freight'] = $param['freight'];
+        $order['total'] = $param['total'];
+        $order['pay_way'] = $param['pay_way'];
+        $order['website'] = $param['website'];
+        $order['data_from'] = $_SERVER['SERVER_NAME'];
+        $shopping_cart = [
+            [
+            'productname'=>$param['product'],
+            'productprice'=>$param['product_price'],
+            'quantity'=>$param['product_amount'],
+            'imgurl'=>$param['product_img_url'],
+            ]
+        ];
+        $order['shopping_cart'] = json_encode($shopping_cart);
+        db('order')->insert($order,false,true);
+
+        return $this->success('添加成功','/admin/order/index');
+
+
+
+    }
+
+
+
+
 }
