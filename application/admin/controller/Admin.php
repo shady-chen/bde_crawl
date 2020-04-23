@@ -113,9 +113,7 @@ class Admin extends Base
         $appOrder = db('order_content');
         $data = $appOrder->where(['id' => $id])->value('content');
         $data = json_decode($data, true);
-
         $data['shoppingcart'] = json_decode($data['shoppingcart'], true);
-
         $this->assign('data', $data);
         return $this->fetch();
 
@@ -213,6 +211,7 @@ class Admin extends Base
             }
             $un_download_list = db('file_name')->where(["belong" => $domain,"collected"=>0])->column("file_name");
             $file_name_list = array_merge($file_name_list,$un_download_list);
+            $file_name_list = array_unique($file_name_list);
             $return_data['status'] = 200;
             $return_data['count'] = count($files);
             $return_data['data'] = $file_name_list;

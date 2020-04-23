@@ -12,7 +12,7 @@ class Index extends Controller
     public function index()
     {
 
-
+        phpinfo();
         return null;
     }
 
