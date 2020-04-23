@@ -131,6 +131,14 @@ class Admin extends Base
         return $this->fetch();
     }
 
+    /**
+     * 获取下载的数据
+     * @return array
+     * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
     public function down_load_data()
     {
         $data = [];
@@ -203,11 +211,12 @@ class Admin extends Base
             }
             $return_data['status'] = 200;
             $return_data['count'] = count($files);
+            $return_data['data'] = json_encode($files);
         } else {
             $return_data['status'] = 404;
             $return_data['count'] = 0;
         }
-        return $return_data;
+        return json($return_data);
     }
 
     /**
@@ -317,8 +326,202 @@ class Admin extends Base
         $return_data['status'] = 200;
         $this->classifiedData();
         return json($return_data);
+    }//down_load的第二步 下载网站的内容
+
+    //一条一条的下载内容
+    public function getFileContentOneByOne()
+    {
+
+
+        $return_data = ['status' => 0, 'msg' => ""];
+        $domain = $this->request->param('domain');
+        $file_name = $this->request->param('file_name');
+        $content = $this->getData("http://{$domain}/ordersdb/{$domain}/{$file_name}");
+        if ($content) {
+            if (!db('order_content')->where(['file_name' => $file_name])->find()) {
+                $insert_data = ['file_name' => $file_name, "belong" => $domain, "content" => $content, "create_time" => time()];
+                $order_content_id = db('order_content')->insert($insert_data,false,true);
+                db('file_name')->where(['file_name' => $file_name])->update(['collected' => 1]);
+                $return_data['status'] = 200;
+                $return_data['msg']    = "数据采集成功";
+                $return_data['order_content_id'] = $order_content_id;//这个要拿去分类的
+            }
+            else
+            {
+                $return_data['status'] = 101;
+                $return_data['msg']    = "该订单已采集";
+            }
+        }
+        else
+        {
+            $return_data['status'] = 404;
+            $return_data['msg']    = "数据采集失败";
+        }
+        return json($return_data);
     }
 
+
+    //分类
+    public function classifiedOne()
+    {
+        $return_data = ['status' => 0, 'msg' => ""];
+        $order_content_id = $this->request->param('order_content_id');
+        $order_data = db('order_content')->where(['classified' => 0])->find($order_content_id);
+        if($order_data)
+        {
+            //格式化数据
+            $data  =  json_decode($order_data['content'], true);
+            //组装用户的数据
+            $customer = [];
+            $customer['first_name'] = $data['txtfirstname'] ? $data['txtfirstname'] : "unknown";
+            $customer['last_name'] = $data['txtlastname'] ? $data['txtlastname'] : "unknown";
+            $customer['all_name'] = $customer['first_name'] . $customer['last_name'];
+            $customer['rbsex'] = $data['rbsex'] ? "女" : "男";
+            $customer['email'] = $data['txtemailaddress'] ? $data['txtemailaddress'] : "unknown";
+            $customer['phone'] = $data['txttelephone'] ? $data['txttelephone'] : "unknown";
+            $customer['country'] = $data['drpcountry'] ? $data['drpcountry'] : "unknown";
+            $customer['city'] = $data['txtcity'] ? $data['txtcity'] : "unknown";
+            $customer['address'] = $data['txtstreetaddress'] ? $data['txtstreetaddress'] : "unknown";
+            $customer['ip'] = $data['localip'] ? $data['localip'] : "unknown";
+            $customer['currency'] = $data['currency'] ? $data['currency'] : "unknown";
+            $customer['txtpostcode'] = $data['txtpostcode'] ? $data['txtpostcode'] : "unknown";
+            $customer['birthday'] = $data['txtbirthday'] ? $data['txtbirthday'] : "unknown";
+            $customer['bill_name'] = $data['billingfirstname'] ? $data['billingfirstname'] : "unknown" . $data['billinglastname'] ? $data['billinglastname'] : "unknown";
+            $customer['bill_country'] = $data['billingcountry'] ? $data['billingcountry'] : "unknown";
+            $customer['bill_city'] = $data['billingcity'] ? $data['billingcity'] : "unknown";
+            $customer['bill_address'] = $data['billingstreetaddress'] ? $data['billingstreetaddress'] : "unknown";
+            $customer['pid'] = $order_data['id'];
+            $customer['create_time'] = time();
+            $customer['update_time'] = time();
+            //入用户表 查看是否存在些用户
+            $map = [
+                'phone' => $customer['phone'],
+                'first_name' => $customer['first_name'],
+                'last_name' => $customer['last_name'],
+                'email' => $customer['email'],
+            ];
+            $customer_id = null;
+            if (!db('customer')->where($map)->find()) {
+                //用户插入完成
+                $customer_id = db('customer')->insert($customer, false, true);
+                //插入失败的情况下
+                if(!$customer_id){
+                    $return_data['msg'] = "用户信息录入失败";
+                    $return_data['status'] = 500;
+                    return $return_data;
+                }
+            }
+            //如果没有新增加用户的话， 就去找以前的用户
+            $uid = 0;
+            if ($customer_id) {
+                $uid = $customer_id;
+                $return_data['msg'] = "用户信息已录入";
+                $return_data['status'] = 1;
+            } else {
+                $user = db('customer')->where($map)->find();
+                if($user) $uid = $user['id'];
+            }
+            //开始插入订单的信息了
+            $order = [];
+            $order['order_id'] = $data['orderid'] ? $data['orderid'] : "unknown";
+            if($order['order_id'] != 'unknown') {
+                //获取用户下单的时间 = 订单号的前10位（时间戳）
+                $time_stamp = substr($order['order_id'],0,10);
+                $date_str = date("Y-m-d H:i:s",$time_stamp);
+                $order['order_time'] = $date_str;
+            }
+            $order['customer_id'] = $uid;
+            $order['pid'] = $order_data['id'];
+            if (isset($data['orderstatus'])) {
+                $order['order_state'] = $data['orderstatus'] ? $data['orderstatus'] : "unknown";
+            } else {
+                $order['order_state'] = "unknown";
+            }
+            if (isset($data['orders_date_finished'])) {
+                $order['finished_time'] = $data['orders_date_finished'] ? $data['orders_date_finished'] : "unknown";
+            } else {
+                $order['finished_time'] = "unknown";
+            }
+            //组装keywords.............
+            $shopping_cart = json_decode($data['shoppingcart'], true);
+            $freight = 0;
+            $total = $shopping_cart['total'];
+            $total_price = 0;
+            $product_keyword = "";
+            unset($shopping_cart['total']);
+            unset($shopping_cart['orderid']);
+            $order['shopping_cart'] = json_encode($shopping_cart);
+            foreach ($shopping_cart as $k => $v) {
+                $product_keyword .= $v['productname'] . " ";
+                $total_price += $v['productprice'] * $v['quantity'];
+            }
+            $freight = $total - $total_price;
+            //组装keywords完成 继续插入订单信息.............
+            $order['product_keyword'] = $product_keyword;
+            $order['freight'] = $freight;
+            $order['total'] = $total;
+            $order['pay_way'] = $data['payment_method'] ? $data['payment_method'] : "unknown";
+            $order['website'] = $data['website'] ? $data['website'] : "unknown";
+            $order['data_from'] = $order_data['belong'] ? $order_data['belong'] : "unknown";
+            $order['create_time'] = time();
+            $order['update_time'] = time();
+            $orderMap = [
+                'order_id' => $order['order_id'],
+                // 'customer_id'=>$order['customer_id']
+            ];
+            //怕存在了~
+            if (!db('order')->where($orderMap)->find()) {
+                //入库呀
+                $result = db('order')->insert($order);
+                if(!$result && !$uid)
+                {
+                    $return_data['msg'] = "用户信息录入失败，订单录入失败";
+                    $return_data['status'] = 500;
+                }
+                if(!$result && $uid)
+                {
+                    $return_data['msg'] = "用户信息已录入，订单录入失败";
+                    $return_data['status'] = 500;
+                }
+                if($result && !$uid)
+                {
+                    $return_data['msg'] = "用户信息录入失败，订单已录入";
+                    $return_data['status'] = 200;
+                }
+                if($result && $uid)  {
+                    $return_data['msg'] = "用户信息已录入，订单已录入";
+                    $return_data['status'] = 200;
+                }
+
+            }
+            else
+            {
+                //echo $key."is exist......\n";
+                if($uid){
+                    $return_data['msg'] = "用户信息已录入，订单录已存在";
+                    $return_data['status'] = 600;
+                }else {
+                    $return_data['msg'] = "用户信息已存在，订单录已存在";
+                    $return_data['status'] = 600;
+                }
+            }
+            //完成分类，更新flag;
+            $order_data['classified'] = 1;
+            $res_order_data = db('order_content')->update($order_data);
+            if(!$res_order_data){
+                $return_data['msg'] = "更新已分类Flag失败";
+                $return_data['status'] = 700;
+            }
+
+        }
+        else
+        {
+            $return_data['status'] = 404;
+            $return_data['msg']    = "库中无该订单";
+        }
+        return $return_data;
+
+    }
 
     //down_load的第三步 分类入库刚刚下载的内容
     public function classifiedData()

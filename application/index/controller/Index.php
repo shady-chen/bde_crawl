@@ -22,7 +22,7 @@ class Index extends Controller
 
         $ch = curl_init();
 
-        curl_setopt($ch,CURLOPT_URL,"http://us1.shopnm.top/ordersdb/ar.shopnm.top/order_15868549354674_eloo@hotmail.com_ar.shopnm.top1");
+        curl_setopt($ch,CURLOPT_URL,"http://www.empirelambda.com/ordersdb/www.empirelambda.com/order_15874344731868_eloo@hotmail.com_us.shopnm.com");
         curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
         curl_setopt($ch,CURLOPT_HEADER,0);
 
