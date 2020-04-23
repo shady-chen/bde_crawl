@@ -75,7 +75,7 @@
                             <td>{{item.per_website_count}}</td>
                             <td>{{item.new_file_count}}</td>
                             <td>{{item.downloaded}}</td>
-                            <td>{{item.per_website_count - item.downloaded}}</td>
+                            <td>{{item.per_website_count-item.downloaded>=0?item.per_website_count-item.downloaded:'加载中...'}}</td>
                             <td>
                                 <button v-if="item.flag" v-on:click="downLoadData(item.domain,key)" class="btn btn-secondary-outline">下载</button>
                                 <button v-if="!item.flag" style="cursor:not-allowed" disabled readonly class="btn btn-secondary-outline">下载</button>
@@ -91,7 +91,7 @@
                             <td>{{total_count}}</td>
                             <td>{{total_new_file_count}}</td>
                             <td>{{total_downloaded_count}}</td>
-                            <td>{{total_count - total_downloaded_count}}</td>
+                            <td>{{total_count - total_downloaded_count>=0?total_count - total_downloaded_count:'加载中...'}}</td>
                             <td>
                                 <button class="btn btn-secondary" v-on:click="downLoadData('all',-1)">全部下载</button>
                             </td>

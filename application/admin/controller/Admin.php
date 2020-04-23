@@ -186,7 +186,9 @@ class Admin extends Base
     {
         $return_data = ["status" => 0, "count" => 0, 'new_file_count' => 0];
         $domain = $this->request->param('domain');
-        $files = $this->getData('http://us.shopnm.top/showFiles.php?dir=/' . $domain);
+        $files = $this->getData('http://'.$domain.'/showFiles.php?dir=/' . $domain);
+        //var_dump('http://'.$domain.'/showFiles.php?dir=/' . $domain);
+       // exit();
         $files = json_decode($files);
 
         if (is_array($files)) {
@@ -221,6 +223,10 @@ class Admin extends Base
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HEADER, 0);
         $output = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($httpCode === 403 || $httpCode === 404 || $httpCode === 500) {
+            return false;
+        }
         curl_close($ch);
         if ($output === FALSE) {
             return false;
@@ -297,7 +303,7 @@ class Admin extends Base
         $insert_count = 0;
         foreach ($file_name_list as $key => $value) {
 
-            $content = $this->getData("http://us.shopnm.top/ordersdb/" . $value['belong'] . "/" . $value['file_name']);
+            $content = $this->getData("http://".$value['belong']."/ordersdb/" . $value['belong'] . "/" . $value['file_name']);
             if ($content) {
                 if (!db('order_content')->where(['file_name' => $value['file_name']])->find()) {
                     db('order_content')->insert(['file_name' => $value['file_name'], "belong" => $value['belong'], "content" => $content, "create_time" => time()]);
