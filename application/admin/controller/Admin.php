@@ -192,6 +192,8 @@ class Admin extends Base
      */
     public function pingDomain()
     {
+        //未下载的数据组 = 本次扫描出的 + 上次未下载的
+        $file_name_list = [];
         $return_data = ["status" => 0, "count" => 0, 'new_file_count' => 0];
         $domain = $this->request->param('domain');
         $files = $this->getData('http://'.$domain.'/showFiles.php?dir=/' . $domain);
@@ -205,13 +207,15 @@ class Admin extends Base
                 $file_name = substr($value, $number);
                 if (!db('file_name')->where(['file_name' => $file_name])->find()) {
                     db('file_name')->insert(['file_name' => $file_name, "belong" => $domain, "create_time" => time()]);
+                    array_push($file_name_list,$file_name);
                     $return_data['new_file_count']++;
                 }
-
             }
+            $un_download_list = db('file_name')->where(["belong" => $domain,"collected"=>0])->column("file_name");
+            $file_name_list = array_merge($file_name_list,$un_download_list);
             $return_data['status'] = 200;
             $return_data['count'] = count($files);
-            $return_data['data'] = json_encode($files);
+            $return_data['data'] = $file_name_list;
         } else {
             $return_data['status'] = 404;
             $return_data['count'] = 0;

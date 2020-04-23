@@ -75,7 +75,7 @@
                             <td>{{item.per_website_count}}</td>
                             <td>{{item.new_file_count}}</td>
                             <td>{{item.downloaded}}</td>
-                            <td>{{item.per_website_count-item.downloaded>=0?item.per_website_count-item.downloaded:'加载中...'}}</td>
+                            <td>{{item.per_un_download_count}}</td>
                             <td>
                                 <button v-if="item.flag" v-on:click="downLoadDataOneByOne(item.domain,key)" class="btn btn-secondary-outline">下载</button>
                                 <button v-if="!item.flag" style="cursor:not-allowed" disabled readonly class="btn btn-secondary-outline">下载</button>
@@ -91,7 +91,7 @@
                             <td>{{total_count}}</td>
                             <td>{{total_new_file_count}}</td>
                             <td>{{total_downloaded_count}}</td>
-                            <td>{{total_count - total_downloaded_count>=0?total_count - total_downloaded_count:'加载中...'}}</td>
+                            <td>{{total_un_download_amount}}</td>
                             <td>
                                 <button class="btn btn-secondary" v-on:click="downLoadData('all',-1)">全部下载</button>
                             </td>
@@ -114,8 +114,6 @@
                         <td>{{item.file_name}}</td>
                         <td>{{item.status}}</td>
                     </tr>
-
-                   
 
                     </tbody>
                 </table>
@@ -169,6 +167,7 @@
             total_new_file_count:0,//本次扫描新增的总数量
             total_count:0,//全部站数量的总和 = 每个站的的相加
             total_downloaded_count:0,//已下载数量的总和 = 每个站已下载的相加
+            total_un_download_amount:0,//未下载数量的总和 = 每个站未下载的相加
             all: 10, //总页数
             cur: 1,//当前页码
             totalPage: 0,//当前条数
@@ -187,6 +186,7 @@
                         //init the data
                         this.website_list = [];
                         this.domain_count = 0;
+                        this.total_un_download_amount = 0;
                         this.domain_count = "";
                         this.all_success_ping = 0;
                         this.ping_total_count = 0;
@@ -207,6 +207,7 @@
                                 this.website_list[i]['flag'] = false;
                                 this.website_list[i]['file_list'] = [];//文件列表  用于下载时发这个列表
                                 this.website_list[i]['per_website_count'] = 0;//每个站本次扫描共有多少个文件
+                                this.website_list[i]['per_un_download_count'] = 0;//每个站有多少个未下载的
                                 this.website_list[i]['new_file_count'] = 0;//每个站本次扫描新增多少个站
                                 this.total_downloaded_count += this.website_list[i]['downloaded'];
 
@@ -249,16 +250,19 @@
                                 this.$http.post('/admin/admin/pingDomain', {"domain": this.website_list[i]['domain']}, {emulateJSON: true}).then(function (res)
                                 {
                                     let html = "";
-                                    if (res.body.status == 200) {
+                                    if (res.body.status == 200)
+                                    {
                                         html = '<span class="btn btn-success">连通性：成功</span> ';
 
                                         this.all_success_ping++;
                                         this.website_list[i]['flag'] = true;
                                         this.website_list[i]['per_website_count'] = res.body.count;
+                                        this.website_list[i]['per_un_download_count'] = res.body.data.length;
                                         this.website_list[i]['new_file_count'] = res.body.new_file_count;
                                         this.website_list[i]['file_list'] = res.body.data;
                                         this.total_new_file_count += res.body.new_file_count;
                                         this.total_count += res.body.count;
+                                        this.total_un_download_amount += res.body.data.length;
                                     } else {
                                         html = '<span class="btn btn-danger">连通性：失败</span><br>';
                                     }
@@ -341,13 +345,19 @@
 
                 //一条一条的下载
                 downLoadDataOneByOne: function (domain, k) {
+
+                    if(this.website_list[k]['per_un_download_count']== 0){
+                        layer.msg("已更新全部内容");
+                        return;
+                    }
+
+
                     this.down_load_count = 0;
                     //初始化数据
                     this.down_load_list = [];
                     let file_list = this.website_list[k]['file_list'];
                     this.this_website_total_amount = this.website_list[k]['per_website_count'];
                     let that = this;
-                    file_list = JSON.parse(file_list);
 
                     //弹出窗口
                     layer.open(
@@ -359,22 +369,22 @@
                             btn:['关闭'],
                             shade:0,
                             yes: function (index) {
-                                window.location.href = "/admin/admin/down_load.html";
-                                layer.closeAll(index); //如果设定了yes回调，需进行手工关闭
+                               // window.location.href = "/admin/admin/down_load.html";
+                                layer.closeAll(); //如果设定了yes回调，需进行手工关闭
                             }
                         }
                     );
                     for(let i =0;i<file_list.length;i++)
                     {
-                        let order_name = file_list[i].substr(12+domain.length,file_list[i].length - 12 - domain.length);
-                        let order_id =  order_name.substr(0,16);
+
+                        let order_id =  file_list[i].substr(0,16);
                         //发送下载数据
                         $.ajax({
                             url:'/admin/admin/getFileContentOneByOne',
                             type:'post',
                             data:{
                                 "domain": domain,
-                                "file_name":file_list[i].substr(12+domain.length,file_list[i].length - 12 - domain.length)
+                                "file_name":file_list[i]
                             },
                             async:true,
                             success:function(res)
@@ -391,7 +401,8 @@
                                     that.website_list[k]['downloaded']++;
                                     that.total_downloaded_count++;
                                     //未下载量
-
+                                    that.website_list[k]['per_un_download_count']--;
+                                    that.total_un_download_amount--;
 
                                     //再次发送请求去分类
                                     $.ajax({
