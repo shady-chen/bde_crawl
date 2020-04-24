@@ -161,6 +161,7 @@
                         <th>总价</th>
                         <th>客户信息</th>
                         <th>下单网站</th>
+                        <th>数据源</th>
                         <th>客户电话</th>
                         <th>付款方式</th>
 
@@ -190,9 +191,9 @@
                             {/volist}
                         </td>
                         <!--运费-->
-                        <td>{$vo.freight}</td>
+                        <td>{$vo.freight|number_format=###,2}</td>
                         <!--总价-->
-                        <td><b style="color: red;">{$vo.total|default="Unknown"}</b></td>
+                        <td><b style="color: red;">{$vo.total|default="Unknown"|number_format=###,2}</b></td>
                         <!--这是客户的信息-->
                         <td class="text-l">
                             <p>姓名：{$vo.first_name}{$vo.last_name} </p>
@@ -206,6 +207,7 @@
                             <p>住址：{$vo.address} </p>
                         </td>
                         <td>{$vo.website}</td>
+                        <td>{$vo.data_from}</td>
                         <td>{$vo.phone}</td>
                         <td>{$vo.pay_way}</td>
 
