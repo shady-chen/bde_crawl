@@ -203,6 +203,10 @@ class Admin extends Base
             foreach ($files as $key => $value) {
                 $number = 11 + strlen($domain) + 1;
                 $file_name = substr($value, $number);
+                if(substr($file_name,0,6) != "order_")
+                {
+                    continue;
+                }
                 if (!db('file_name')->where(['file_name' => $file_name])->find()) {
                     db('file_name')->insert(['file_name' => $file_name, "belong" => $domain, "create_time" => time()]);
                     array_push($file_name_list,$file_name);
@@ -339,6 +343,7 @@ class Admin extends Base
         $return_data = ['status' => 0, 'msg' => ""];
         $domain = $this->request->param('domain');
         $file_name = $this->request->param('file_name');
+
         $content = $this->getData("http://{$domain}/ordersdb/{$domain}/{$file_name}");
         if ($content) {
             if (!db('order_content')->where(['file_name' => $file_name])->find()) {
@@ -441,9 +446,9 @@ class Admin extends Base
                 $order['order_state'] = "unknown";
             }
             if (isset($data['orders_date_finished'])) {
-                $order['finished_time'] = $data['orders_date_finished'] ? $data['orders_date_finished'] : "unknown";
+                $order['finished_time'] = $data['orders_date_finished'] ? $data['orders_date_finished'] : date("Y-m-d H:i:s");
             } else {
-                $order['finished_time'] = "unknown";
+                $order['finished_time'] = date("Y-m-d H:i:s");
             }
             //组装keywords.............
             $shopping_cart = json_decode($data['shoppingcart'], true);
@@ -593,9 +598,9 @@ class Admin extends Base
                 $order['order_state'] = "unknown";
             }
             if (isset($data['orders_date_finished'])) {
-                $order['finished_time'] = $data['orders_date_finished'] ? $data['orders_date_finished'] : "unknown";
+                $order['finished_time'] = $data['orders_date_finished'] ? $data['orders_date_finished'] : $order['order_time'];
             } else {
-                $order['finished_time'] = "unknown";
+                $order['finished_time'] = $order['order_time'];
             }
 
             //组装keywords.............
@@ -638,11 +643,10 @@ class Admin extends Base
             }
             //完成分类，更新flag;
             $value['classified'] = 1;
-            db('order_content')->update($value);
-
+            $res = db('order_content')->update($value);
 
         }
-
+        return "更新成功";
     }
 
 

@@ -85,6 +85,12 @@
 
                 <div class="filter-wrap" style="overflow: hidden;float:left;width: 230px;">
 
+                    <div style="margin-bottom: 10px;">
+                        <span>订单：</span>
+                        <input type="text" name="order" value="{$Think.get.order}" class="input-text"
+                               style="width: 150px;" placeholder="请输入订单号">
+                    </div>
+
                     <div class="mb-10">
                         <span>开始：</span>
 
@@ -99,14 +105,7 @@
                     </div>
 
 
-                    <div class="mb-10">
-                        <a class="btn btn-primary f-l"
-                           href="/admin/order/outPutBeTxt?domain={$Think.get.domain}&country={$Think.get.country}&username={$Think.get.username}&state={$Think.get.state}&pay_way={$Think.get.pay_way}&product_name={$Think.get.product_name}&start_time={$Think.get.start_time}&end_time={$Think.get.end_time}"
-                           target="_blank">导出TXT</a>
-                        <a class="btn btn-primary f-l ml-30"
-                           href="/admin/order/outPutBeExcel?domain={$Think.get.domain}&country={$Think.get.country}&username={$Think.get.username}&state={$Think.get.state}&pay_way={$Think.get.pay_way}&product_name={$Think.get.product_name}&start_time={$Think.get.start_time}&end_time={$Think.get.end_time}"
-                           target="_blank">导出Excel</a>
-                    </div>
+
 
                     <div class="clearFloat"></div>
 
@@ -116,7 +115,7 @@
 
 
                     <div style="margin-bottom: 10px;">
-                        <a class="btn btn-primary" href="/admin/admin/down_load" >更新</a>
+                        <a class="btn btn-primary" target="_blank" href="/admin/admin/classifiedData" >更新</a>
                     </div>
 
 
@@ -128,6 +127,22 @@
                     <div style="margin-bottom: 10px;">
                         <button class="btn btn-success">搜索</button>
                     </div>
+                </div>
+
+                <div class="filter-wrap" style="overflow: hidden;float:left;width: 80px;">
+                    <div class="mb-10" style="overflow:hidden;">
+                        <a class="btn btn-primary f-l"
+                           href="/admin/order/outPutBeTxt?domain={$Think.get.domain}&country={$Think.get.country}&username={$Think.get.username}&state={$Think.get.state}&pay_way={$Think.get.pay_way}&product_name={$Think.get.product_name}&start_time={$Think.get.start_time}&end_time={$Think.get.end_time}"
+                           target="_blank">导出TXT</a>
+
+                    </div>
+                    <div class="mb-10 mt-20" style="overflow:hidden;">
+                        <a class="btn btn-primary f-l"
+                           href="/admin/order/outPutBeExcel?domain={$Think.get.domain}&country={$Think.get.country}&username={$Think.get.username}&state={$Think.get.state}&pay_way={$Think.get.pay_way}&product_name={$Think.get.product_name}&start_time={$Think.get.start_time}&end_time={$Think.get.end_time}"
+                           target="_blank">导出Excel</a>
+
+                    </div>
+
                 </div>
             </form>
 

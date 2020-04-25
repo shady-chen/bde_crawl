@@ -43,6 +43,11 @@ class Order extends Base
             $map['a.pay_way'] = ["=", $_GET['pay_way']];
         }
 
+        //订单号
+        if (isset($_GET['order']) && !empty($_GET['order'])) {
+            $map['a.order_id'] = ["=", $_GET['order']];
+        }
+
         //时间
         $result_by_start_time = "2000-01-01";
         $result_by_end_time = "2030-01-01";
@@ -57,9 +62,9 @@ class Order extends Base
         $data = db('order')
             ->alias("a")
             ->join('customer b', 'a.customer_id = b.id')
-            ->order('a.create_time desc')
+            ->order('a.order_time asc')
             ->where($map)
-            ->paginate(10, false, ['type' => 'BootstrapDetail', "query" => $_GET]);
+            ->paginate(15, false, ['type' => 'BootstrapDetail', "query" => $_GET]);
         $page = $data;
         $data = $data->items();
         //保存到类的属性中，用于管理员导出数据时使用，避免再次查询数据库
